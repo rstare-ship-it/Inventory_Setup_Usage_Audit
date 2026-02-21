@@ -1,0 +1,14 @@
+{
+  "lookback_days": 90,
+  "results": {
+    "tenant_info": [["1056144950", "aaservicecoheatingcooling", null, null, null, null, null, null, null, null, null, null, null, null, null, null]],
+    "purchase_orders_summary": [["23", "2914", "2024-08-22 13:53:40.205", "2026-02-20 14:33:05.148", "18", "0", "385", "38", "2473", "0", "0", "2914", "1615", "8481", "11", "5"]],
+    "invoice_materials": [["14117", "2614", "4888", "34", "13907", "1623", "9401", "783", "0", "695", null, null, null, null, null, null]],
+    "replenishment_summary": [["1101", "2225", "42918", null, null, null, null, null, null, null, null, null, null, null, null, null]],
+    "returns_summary": [["60", "364", "2024-09-04 20:38:50.127", "2026-02-19 20:19:55.781", "40", "73", "251", "0", "23", null, null, null, null, null, null]],
+    "assessment_data": [["1", "1", "6288", "6374", "1377", "63", "2024-09-10T00:00:00", "1", "1", "0", "1", "0", "1", "0", "0", "0"]],
+    "inventory_settings": [["{\"BeginningDate\":\"2024-09-10T00:00:00\",\"IsBeginningDateStarted\":false,\"AllowNegativeQuantityOnHand\":true,\"OnlyReplenishMax\":false,\"QbdInventoryAdjustmentAccountId\":null,\"IsSerializedTrackingEnabled\":false,\"IsSerialNumbersBulkUploadEnabled\":false,\"IsBinTrackingEnabled\":false,\"IsSubAccountEnabled\":false,\"TrackingDisposition\":null,\"InventoryValuationMethod\":0,\"AllowNegativeQuantityOnInvoice\":false,\"DontAutomaticallyCreateBills\":false,\"HideCostOnMobilePurchaseOrders\":false,\"AllowCopyingPoItemsToInvoice\":true,\"PoItemCostCopyOption\":0,\"PrintPoInLandscape\":true,\"PrintPoMinWidthLandscape\":1920,\"PrintPoMinWidthPortrait\":1280,\"ShowItemDescriptionWhenExportingPo\":true,\"AutoApplyTagsToJobsBasedOnPoStatus\":true,\"IsInventoryMobileAppEnabled\":true,\"DisplayServicesOnInvoiceCloseout\":false,\"IsConsignmentInventoryTrackingEnabled\":false,\"DefaultConsignmentBusinessUnitId\":null,\"IsMobileStorageEnabled\":false,\"AutoAssignTruckToJobTransfers\":true,\"SendUserNotificationsForPurchaseOrderReview\":false,\"SendApproverNotificationsForPurchaseOrderRequest\":false,\"PurchaseOrderApprovalField\":0,\"RequisitionDateNeededByType\":0,\"PurchaseOrderApprovalEditModel\":null,\"SenderContacts\":null,\"DisplayTaxesAndShippingOnPurchaseOrdersOnPdf\":false,\"AutoApplyTagsToJobsBasedOnTransferStatus\":false,\"WeightedAverageTrackByWarehouse\":false,\"IsWarehouseSitesEnabled\":false,\"MaintainEstimateCostThroughRequisition\":false,\"EnableUnitOfMeasure\":false,\"WosTrailingWeeks\":8,\"WosOverageWeeks\":12,\"StockHealthCategoryEditModel\":null}", null, null, null, null, null, null, null, null, null, null, null, null, null, null, null]],
+    "setup_data": [["112", "80", "3", "1", "0", null, null, null, null, null, null, null, null, null, null, null]],
+    "usage_checks": [["1033", "0", "0", "2", "266", "236", "3", null, null, null, null, null, null, null, null, null]]
+  }
+}

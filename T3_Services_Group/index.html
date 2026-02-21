@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Inventory Scorecard — T3 Services Group (group summary)</title>
+  <link rel="stylesheet" href="scorecard.css">
+  <style>
+    .group-summary-wrap { overflow-x: auto; width: 100%; margin-top: 0.5rem; }
+    .group-summary-table { width: 100%; min-width: 600px; border-collapse: collapse; }
+    .group-summary-table th, .group-summary-table td { padding: 0.4rem 0.5rem; text-align: left; border-bottom: 1px solid var(--st-border, #dfe0e1); font-size: 0.8125rem; }
+    .group-summary-table th { font-weight: 600; color: var(--st-text-secondary, #3f3f46); white-space: nowrap; }
+    .group-summary-table .tenant-name { font-weight: 500; }
+    .group-summary-table a { color: var(--st-primary, #2270ee); text-decoration: none; }
+    .group-summary-table a:hover { text-decoration: underline; }
+    .group-summary-table td.status-red { background: var(--danger-muted, #fef2f2); }
+    .group-summary-table td.status-review { background: #fff7ed; }
+    .group-summary-table td.status-yellow { background: var(--warn-muted, #fffbeb); }
+    .group-summary-table td.status-green { background: var(--success-muted, #ecfdf5); }
+    .group-summary-table td.status-na { background: var(--st-surface-alt, #fafafa); color: var(--st-text-muted, #71717a); }
+    .group-summary-table .badge-review { background: #fed7aa; color: #9a3412; }
+    .group-summary-table .badge-na { background: #e5e7eb; color: #6b7280; }
+    .group-subhead { font-size: 0.875rem; font-weight: 600; margin: 1rem 0 0.35rem 0; color: var(--st-text-secondary, #3f3f46); }
+    .group-subhead:first-of-type { margin-top: 0; }
+    .group-common-list { margin: 0; padding-left: 1.25rem; font-size: 0.9375rem; }
+    .group-common-list li { margin: 0.35rem 0; }
+    .group-action-plan-list { margin: 0; padding-left: 1.35rem; font-size: 0.9375rem; }
+    .group-action-plan-list li { margin: 0.4rem 0; }
+    .global-action-count { color: var(--st-text-muted, #71717a); font-size: 0.8125rem; font-weight: 500; }
+    .card-desc { margin: 0 0 0.5rem 0; font-size: 0.8125rem; color: var(--st-text-muted, #71717a); }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="header">
+      <h1>Inventory Setup &amp; Usage Scorecard — Group Summary</h1>
+      <p class="meta">
+        <span>T3 Services Group</span>
+        <span>Last 90 days</span>
+        <span>6 tenant(s)</span>
+      </p>
+    </header>
+
+    <div class="card scorecard">
+      <h2 class="card-title">Summary</h2>
+      <p class="overall not-ok">6 of 6 tenant(s) need attention in at least one area.</p>
+      <p class="overall not-ok">Group health: 35% — Critical</p>
+      <p>Click a tenant name to open their full scorecard.</p>
+    </div>
+
+    <section class="card block">
+      <h2 class="card-title">Common struggles &amp; action plan</h2>
+      <h3 class="group-subhead">Common struggles</h3>
+      <p class="card-desc">Areas where multiple tenants need improvement.</p>
+      <ul class="group-common-list">
+        <li>Counts and adjustments: 6 of 6 tenant(s) need improvement</li><li>Invoicing: 6 of 6 tenant(s) need improvement</li><li>Pricebook &amp; setup: 6 of 6 tenant(s) need improvement</li><li>Transfers: 6 of 6 tenant(s) need improvement</li><li>Purchasing: 5 of 6 tenant(s) need improvement</li><li>Returns: 5 of 6 tenant(s) need improvement</li>
+      </ul>
+      <h3 class="group-subhead">Recommended actions</h3>
+      <p class="card-desc">Actions that apply to multiple tenants in this group.</p>
+      <ol class="group-action-plan-list">
+        <li>Review trucks and warehouses; assign inventory templates to trucks and warehouses as needed. <span class="global-action-count">(6 tenants)</span></li><li>Ensure invoices with amount &gt; $0 include inventory materials where applicable; train office and field on invoice material usage. <span class="global-action-count">(6 tenants)</span></li><li>Complete or cancel aging transfers; encourage transfer-to-job usage where appropriate. <span class="global-action-count">(6 tenants)</span></li><li>Run an inventory count and adjustments to resolve negative quantities. <span class="global-action-count">(6 tenants)</span></li><li>Review pending POs; receive or close old POs and keep pending count within half of truck count where possible. <span class="global-action-count">(5 tenants)</span></li><li>Use multi-line POs for stock orders; avoid single-line or placeholder-heavy POs. <span class="global-action-count">(5 tenants)</span></li><li>Process pending returns and issue credits so returns don&#x27;t age. <span class="global-action-count">(5 tenants)</span></li><li>Review direct adjustment practices; reduce manual adjustments where possible. <span class="global-action-count">(5 tenants)</span></li><li>Schedule and complete cycle counts for all warehouses. <span class="global-action-count">(5 tenants)</span></li><li>Review templates with fewer than 20 active items; add items or replace with a complete template. <span class="global-action-count">(2 tenants)</span></li>
+      </ol>
+    </section>
+
+    <section class="card block">
+      <h2 class="card-title">Tenants by area</h2>
+      <div class="group-summary-wrap">
+      <table class="group-summary-table" aria-label="Tenant scorecard status by area">
+        <thead>
+          <tr>
+            <th scope="col">Tenant</th>
+            <th scope="col">Pricebook &amp; setup</th><th scope="col">Purchasing</th><th scope="col">Invoicing</th><th scope="col">Technician usage</th><th scope="col">Replenishment</th><th scope="col">Returns</th><th scope="col">Transfers</th><th scope="col">Counts and adjustments</th><th scope="col">Other</th>
+          </tr>
+        </thead>
+        <tbody>
+        <tr><td class="tenant-name"><a href="scorecard_1524629539.html">bcarlsonheatingairconditioning</a></td>
+            <td class="status-review"><span class="badge badge-review">Review</span></td>
+            <td class="status-yellow"><span class="badge badge-yellow">On track</span></td>
+            <td class="status-yellow"><span class="badge badge-yellow">On track</span></td>
+            <td class="status-green"><span class="badge badge-green">Good</span></td>
+            <td class="status-green"><span class="badge badge-green">Good</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-review"><span class="badge badge-review">Review</span></td>
+            <td class="status-review"><span class="badge badge-review">Review</span></td>
+            <td class="status-green"><span class="badge badge-green">Good</span></td>
+        </tr>
+        <tr><td class="tenant-name"><a href="scorecard_457667515.html">bulldogrooter</a></td>
+            <td class="status-yellow"><span class="badge badge-yellow">On track</span></td>
+            <td class="status-review"><span class="badge badge-review">Review</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-green"><span class="badge badge-green">Good</span></td>
+            <td class="status-green"><span class="badge badge-green">Good</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-review"><span class="badge badge-review">Review</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-green"><span class="badge badge-green">Good</span></td>
+        </tr>
+        <tr><td class="tenant-name"><a href="scorecard_1078284838.html">doneplumbingheating</a></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-yellow"><span class="badge badge-yellow">On track</span></td>
+            <td class="status-yellow"><span class="badge badge-yellow">On track</span></td>
+            <td class="status-green"><span class="badge badge-green">Good</span></td>
+            <td class="status-green"><span class="badge badge-green">Good</span></td>
+            <td class="status-green"><span class="badge badge-green">Good</span></td>
+            <td class="status-review"><span class="badge badge-review">Review</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-green"><span class="badge badge-green">Good</span></td>
+        </tr>
+        <tr><td class="tenant-name"><a href="scorecard_112125060.html">mainstreamelectric</a></td>
+            <td class="status-review"><span class="badge badge-review">Review</span></td>
+            <td class="status-review"><span class="badge badge-review">Review</span></td>
+            <td class="status-yellow"><span class="badge badge-yellow">On track</span></td>
+            <td class="status-green"><span class="badge badge-green">Good</span></td>
+            <td class="status-green"><span class="badge badge-green">Good</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-review"><span class="badge badge-review">Review</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-green"><span class="badge badge-green">Good</span></td>
+        </tr>
+        <tr><td class="tenant-name"><a href="scorecard_14419777.html">radiantplumbing</a></td>
+            <td class="status-review"><span class="badge badge-review">Review</span></td>
+            <td class="status-review"><span class="badge badge-review">Review</span></td>
+            <td class="status-yellow"><span class="badge badge-yellow">On track</span></td>
+            <td class="status-green"><span class="badge badge-green">Good</span></td>
+            <td class="status-review"><span class="badge badge-review">Review</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-review"><span class="badge badge-review">Review</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-green"><span class="badge badge-green">Good</span></td>
+        </tr>
+        <tr><td class="tenant-name"><a href="scorecard_1792689863.html">schneider72degrees</a></td>
+            <td class="status-review"><span class="badge badge-review">Review</span></td>
+            <td class="status-green"><span class="badge badge-green">Good</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-green"><span class="badge badge-green">Good</span></td>
+            <td class="status-green"><span class="badge badge-green">Good</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-review"><span class="badge badge-review">Review</span></td>
+            <td class="status-review"><span class="badge badge-review">Review</span></td>
+            <td class="status-green"><span class="badge badge-green">Good</span></td>
+        </tr>
+        </tbody>
+      </table>
+      </div>
+    </section>
+  </div>
+</body>
+</html>

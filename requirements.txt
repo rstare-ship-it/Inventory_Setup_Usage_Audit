@@ -1,0 +1,5 @@
+# Inventory Setup/Usage Audit
+# Python 3.9+
+openpyxl>=3.1.0
+snowflake-connector-python>=3.0.0
+python-dotenv>=1.0.0

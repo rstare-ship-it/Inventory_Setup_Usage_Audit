@@ -1,0 +1,14 @@
+{
+  "lookback_days": 90,
+  "results": {
+    "tenant_info": [["257", "edwards", null, null, null, null, null, null, null, null, null, null, null, null, null, null]],
+    "purchase_orders_summary": [["68908", "1221", "2025-01-29 21:11:13.372", "2026-02-16 18:53:08.791", "1221", "0", "0", "0", "0", "0", "0", "0", "", "0", "0", "67741"]],
+    "invoice_materials": [["207", "58", "168", "0", "1652", "0", null, null, null, null, null, null, null, null, null, null]],
+    "replenishment_summary": [["0", "0", "100", null, null, null, null, null, null, null, null, null, null, null, null, null]],
+    "returns_summary": [["0", "0", "", "", "0", "0", "0", "0", "0", null, null, null, null, null, null, null]],
+    "assessment_data": [["0", "0", "315", "12", "0", "0", "", "0", "0", "0", "0", "0", "1", "0", "0", "0"]],
+    "inventory_settings": [["{\"BeginningDate\":null,\"IsBeginningDateStarted\":false,\"AllowNegativeQuantityOnHand\":false,\"OnlyReplenishMax\":false,\"QbdInventoryAdjustmentAccountId\":null,\"IsSerializedTrackingEnabled\":false,\"IsSerialNumbersBulkUploadEnabled\":false,\"IsBinTrackingEnabled\":false,\"IsSubAccountEnabled\":false,\"TrackingDisposition\":null,\"InventoryValuationMethod\":0,\"AllowNegativeQuantityOnInvoice\":false,\"DontAutomaticallyCreateBills\":false,\"HideCostOnMobilePurchaseOrders\":false,\"AllowCopyingPoItemsToInvoice\":false,\"PoItemCostCopyOption\":0,\"PrintPoInLandscape\":false,\"PrintPoMinWidthLandscape\":1920,\"PrintPoMinWidthPortrait\":1280,\"ShowItemDescriptionWhenExportingPo\":true,\"AutoApplyTagsToJobsBasedOnPoStatus\":false,\"IsInventoryMobileAppEnabled\":false,\"DisplayServicesOnInvoiceCloseout\":false,\"IsConsignmentInventoryTrackingEnabled\":false,\"DefaultConsignmentBusinessUnitId\":null,\"IsMobileStorageEnabled\":false,\"AutoAssignTruckToJobTransfers\":false,\"SendUserNotificationsForPurchaseOrderReview\":false,\"SendApproverNotificationsForPurchaseOrderRequest\":false,\"PurchaseOrderApprovalField\":0,\"RequisitionDateNeededByType\":0,\"PurchaseOrderApprovalEditModel\":null,\"SenderContacts\":null,\"DisplayTaxesAndShippingOnPurchaseOrdersOnPdf\":false,\"AutoApplyTagsToJobsBasedOnTransferStatus\":false,\"WeightedAverageTrackByWarehouse\":false,\"IsWarehouseSitesEnabled\":false,\"MaintainEstimateCostThroughRequisition\":false,\"EnableUnitOfMeasure\":false,\"WosTrailingWeeks\":8,\"WosOverageWeeks\":12,\"StockHealthCategoryEditModel\":null}", null, null, null, null, null, null, null, null, null, null, null, null, null, null, null]],
+    "setup_data": [["392", "0", "1", "0", "0", null, null, null, null, null, null, null, null, null, null, null]],
+    "usage_checks": [["0", "0", "0", "0", "0", "0", null, null, null, null, null, null, null, null, null, null]]
+  }
+}

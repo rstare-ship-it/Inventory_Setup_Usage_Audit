@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Purchasing Audit Scorecard — leprevostplumbingandheatinginc</title>
+  <link rel="stylesheet" href="scorecard.css">
+</head>
+<body>
+  <div class="page">
+    <header class="header">
+      <h1>Purchasing Audit Scorecard</h1>
+      <p class="meta">
+        <span>leprevostplumbingandheatinginc</span>
+        <span>Last 90 days</span>
+        <span>Tenant ID: 881541562</span>
+        <span>Not yet live with inventory (tracking start: —)</span>
+      </p>
+    </header>
+
+    <div class="card scorecard">
+      <h2 class="card-title">Scorecard by area</h2>
+      <div class="scorecard-grid">
+        <div class="scorecard-item status-red"><span class="area-name">Purchasing</span><span class="badge badge-red">Needs attention</span></div>
+        <div class="scorecard-item status-green"><span class="area-name">Invoicing</span><span class="badge badge-green">On track</span></div>
+        <div class="scorecard-item status-red"><span class="area-name">Replenishment</span><span class="badge badge-red">Needs attention</span></div>
+        <div class="scorecard-item status-yellow"><span class="area-name">Returns</span><span class="badge badge-yellow">Review</span></div>
+      </div>
+      <p class="overall not-ok">Address red areas to improve setup and usage.</p>
+    </div>
+
+    <section class="card block">
+      <h2 class="card-title">Settings</h2>
+      <p><strong>Purchasing module:</strong> On
+    <p><strong>Inventory module:</strong> Off
+    <p><strong>Item requisitions:</strong> Off
+    <p><strong>Requisition closeout:</strong> On
+    <p><strong>Transfers to jobs:</strong> Off
+    <p><strong>Consignment:</strong> Off
+    <p><strong>Purchase approval workflow:</strong> Off
+    <p><strong>Granular WAC:</strong> Off
+    </section>
+
+        <section class="card block">
+      <h2 class="card-title">Findings by area</h2>
+      <section class="findings-area border-red">
+        <h3 class="area-head">Purchasing <span class="badge badge-red">Needs attention</span></h3>
+        <ul class="findings-list">
+          <li class="finding-ok">POs created in last 90 days: 1158; completed (received/exported): 1148.</li>
+          <li class="finding-ok">PO receive rate: 99% of POs created in period are received/exported (target ≥70%).</li>
+          <li class="finding-ok">PO line descriptions: 7 of 3631 lines with placeholder-like text (under 50%).</li>
+          <li class="finding-err">Total pending POs: 77. 76 of these are older than 90 days.</li>
+          <li class="finding-err">PO line items: 3631 lines across 1158 POs; 502 of 1158 POs have multiple lines (expect most to have multiple).</li>
+        </ul>
+      </section>
+      <section class="findings-area border-green">
+        <h3 class="area-head">Invoicing <span class="badge badge-green">On track</span></h3>
+        <ul class="findings-list">
+          <li class="finding-ok">Invoices with amount &gt; $0 in last 90 days: 2297; material lines: 1681.</li>
+          <li class="finding-ok">1479 of 1681 invoice material line(s) (87%) were added by a technician (expect ≥50%).</li>
+        </ul>
+      </section>
+      <section class="findings-area border-red">
+        <h3 class="area-head">Replenishment <span class="badge badge-red">Needs attention</span></h3>
+        <ul class="findings-list">
+          <li class="finding-err">Replenishment: 0 open (pending/in progress), 0 completed in last 90 days. No replenishment activity in lookback (0 of 0); treat as 0%.</li>
+        </ul>
+      </section>
+      <section class="findings-area border-yellow">
+        <h3 class="area-head">Returns <span class="badge badge-yellow">Review</span></h3>
+        <ul class="findings-list">
+          <li class="finding-warn">Returns: 88 credit received of 89 returns in last 90 days. 9 pending. (10% of returns in period) 8 pending are older than 90 days. Returns to be resolved in timely manner.</li>
+        </ul>
+      </section>
+    </section>
+  </div>
+</body>
+</html>

@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Inventory Setup &amp;amp; Usage Scorecard — thermalservices</title>
+  <link rel="stylesheet" href="scorecard.css">
+</head>
+<body>
+  <div class="page">
+    <header class="header">
+      <h1>Inventory Setup &amp; Usage Scorecard</h1>
+      <p class="meta">
+        <span>thermalservices</span>
+        <span>Last 90 days</span>
+        <span>Tenant ID: 2642575001</span>
+        
+      </p>
+    </header>
+
+    <div class="card scorecard">
+      <h2 class="card-title">Scorecard by area</h2>
+      <div class="scorecard-grid">
+        <div class="scorecard-item status-red"><span class="area-name">Pricebook &amp; setup</span><span class="badge badge-red">Needs attention</span></div>
+        <div class="scorecard-item status-red"><span class="area-name">Purchasing</span><span class="badge badge-red">Needs attention</span></div>
+        <div class="scorecard-item status-red"><span class="area-name">Invoicing</span><span class="badge badge-red">Needs attention</span></div>
+        <div class="scorecard-item status-red"><span class="area-name">Technician usage</span><span class="badge badge-red">Needs attention</span></div>
+        <div class="scorecard-item status-red"><span class="area-name">Replenishment</span><span class="badge badge-red">Needs attention</span></div>
+        <div class="scorecard-item status-yellow"><span class="area-name">Returns</span><span class="badge badge-yellow">Review</span></div>
+        <div class="scorecard-item status-red"><span class="area-name">Transfers</span><span class="badge badge-red">Needs attention</span></div>
+        <div class="scorecard-item status-red"><span class="area-name">Counts and adjustments</span><span class="badge badge-red">Needs attention</span></div>
+        <div class="scorecard-item status-red"><span class="area-name">Other</span><span class="badge badge-red">Needs attention</span></div>
+      </div>
+      <p class="overall not-ok">Address red areas to improve setup and usage.</p>
+    </div>
+
+    <section class="card block">
+      <h2 class="card-title">Settings</h2>
+      <p><strong>Purchasing module:</strong> On
+    <p><strong>Inventory module:</strong> On
+    <p><strong>Item requisitions:</strong> On
+    <p><strong>Requisition closeout:</strong> On
+    <p><strong>Transfers to jobs:</strong> Off
+    <p><strong>Consignment:</strong> Off
+    <p><strong>Purchase approval workflow:</strong> Off
+    <p><strong>Granular WAC:</strong> Off
+    <p><strong>Inventory tracking start date:</strong> 2024-04-16
+    <p><strong>Automatically add PO Items to Invoice:</strong> No
+    <p><strong>Allow negative quantity on hand:</strong> No
+    <p><strong>Allow negative quantity on invoice:</strong> No
+    <p><strong>AutoApplyTagsToJobsBasedOnPoStatus:</strong> Yes
+    <p><strong>AutoApplyTagsToJobsBasedOnTransferStatus:</strong> No
+    <p><strong>AutoAssignTruckToJobTransfers:</strong> No
+    <p><strong>Don&#x27;t automatically create bills:</strong> No
+    <p><strong>Inventory valuation method:</strong> Standard costing
+    <p><strong>Bin tracking enabled:</strong> Yes
+    <p><strong>Consignment inventory tracking enabled:</strong> No
+    <p><strong>Inventory mobile app enabled:</strong> No
+    <p><strong>Serialized tracking enabled:</strong> Yes
+    <p><strong>Only replenish max:</strong> No
+    <p><strong>PO item cost copy option:</strong> Add items at $0
+    <p><strong>Purchase order approval field:</strong> Purchase order total
+    </section>
+
+        <section class="card block">
+      <h2 class="card-title">Setup summary</h2>
+      <p><strong>Materials:</strong> total 2158; with IsInventory: 2118; with unit of measure: 0.
+    <p><strong>Equipment:</strong> total 1085; with IsInventory: 542; serialized: 0.
+    <p><strong>Trucks:</strong> 69 total, 49 with inventory template (min 80% expected) — Needs attention.
+    <p><strong>Warehouses:</strong> 2 total, 2 with template — OK.
+    <p><strong>Templates with &lt; 20 active items:</strong> 1 — Needs attention.
+    </section>
+
+        <section class="card block">
+      <h2 class="card-title">Findings by area</h2>
+      <section class="findings-area border-red">
+        <h3 class="area-head">Pricebook &amp; setup <span class="badge badge-red">Needs attention</span></h3>
+        <ul class="findings-list">
+          <li class="finding-ok">Warehouses: 2 of 2 with inventory template.</li>
+          <li class="finding-warn">IsInventory materials with no invoice usage in last 90 days: 1348 of 2118 (63%).</li>
+          <li class="finding-err">Trucks: 49 of 69 with inventory template (min 80% expected).</li>
+          <li class="finding-err">Templates with fewer than 20 active items: 1. Each template should have at least 20 active items.</li>
+        </ul>
+      </section>
+      <section class="findings-area border-red">
+        <h3 class="area-head">Purchasing <span class="badge badge-red">Needs attention</span></h3>
+        <ul class="findings-list">
+          <li class="finding-ok">POs created in last 90 days: 2658; completed (received/exported): 2499.</li>
+          <li class="finding-ok">PO receive rate: 94% of POs created in period are received/exported (target ≥70%).</li>
+          <li class="finding-ok">PO line descriptions: 227 of 5380 lines with placeholder-like text (under 50%).</li>
+          <li class="finding-err">Total pending POs: 160. 85 of these are older than 90 days.</li>
+          <li class="finding-err">PO line items: 5380 lines across 2658 POs; 870 of 2658 POs have multiple lines (expect most to have multiple).</li>
+        </ul>
+      </section>
+      <section class="findings-area border-red">
+        <h3 class="area-head">Invoicing <span class="badge badge-red">Needs attention</span></h3>
+        <ul class="findings-list">
+          <li class="finding-ok">Of 13545 invoice material lines, 11205 (82%) are IsInventory (expect ≥75%).</li>
+          <li class="finding-ok">Zero-cost IsInventory lines: 1 of 11205 (0%).</li>
+          <li class="finding-err">Of 6942 invoice(s) with amount &gt; $0, 947 (13%) have at least one IsInventory material line (expect ≥75%).</li>
+        </ul>
+      </section>
+      <section class="findings-area border-red">
+        <h3 class="area-head">Technician usage <span class="badge badge-red">Needs attention</span></h3>
+        <ul class="findings-list">
+          <li class="finding-err">3078 of 13545 invoice material line(s) (22%) were added by a technician (expect ≥50%).</li>
+        </ul>
+      </section>
+      <section class="findings-area border-red">
+        <h3 class="area-head">Replenishment <span class="badge badge-red">Needs attention</span></h3>
+        <ul class="findings-list">
+          <li class="finding-err">Replenishment: 2419 open (pending/in progress), 538 completed in last 90 days.</li>
+          <li class="finding-err">Replenishment requests older than 30 days: 2260 (max 20). Address aging replenishment requests.</li>
+        </ul>
+      </section>
+      <section class="findings-area border-yellow">
+        <h3 class="area-head">Returns <span class="badge badge-yellow">Review</span></h3>
+        <ul class="findings-list">
+          <li class="finding-warn">Returns: 181 credit received of 249 returns in last 90 days. 99 pending. (39% of returns in period) 33 pending are older than 90 days. Returns to be resolved in timely manner.</li>
+        </ul>
+      </section>
+      <section class="findings-area border-red">
+        <h3 class="area-head">Transfers <span class="badge badge-red">Needs attention</span></h3>
+        <ul class="findings-list">
+          <li class="finding-ok">Pending transfers older than 14 days: 6 (max 20).</li>
+          <li class="finding-err">Completed transfers in last 90 days: 0 (expected ≥443 for ~50% of 69 trucks at least once per week). Increase transfer usage.</li>
+        </ul>
+      </section>
+      <section class="findings-area border-red">
+        <h3 class="area-head">Counts and adjustments <span class="badge badge-red">Needs attention</span></h3>
+        <ul class="findings-list">
+          <li class="finding-ok">Past due inventory counts: 0 (max 5).</li>
+          <li class="finding-ok">All warehouses have had a completed count in the last 90 days.</li>
+          <li class="finding-err">Negative inventory balances: 1 location/SKU combination(s) with negative quantity. Resolve negative balances.</li>
+          <li class="finding-err">Direct (quantity) adjustments in last 90 days: 186 (max 20). High volume may indicate process or data issues.</li>
+        </ul>
+      </section>
+      <section class="findings-area border-red">
+        <h3 class="area-head">Other <span class="badge badge-red">Needs attention</span></h3>
+        <ul class="findings-list">
+          <li class="finding-err">Requisitions older than 90 days: 69 (max 20). Resolve or close aging requisitions.</li>
+        </ul>
+      </section>
+    </section>
+  </div>
+</body>
+</html>
