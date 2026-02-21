@@ -90,11 +90,29 @@ In `audit_report.py` you can adjust:
 - `INVOICE_PLACEHOLDER_GREEN_MAX_PCT` / `INVOICE_PLACEHOLDER_RED_MIN_PCT` — green &lt; 10%, red &gt; 70%.
 - `REPLENISHMENT_OPEN_YELLOW` — yellow when open replenishment requests exceed this (default 300).
 
+## Sharing with customers (GitHub Pages)
+
+To share the T3 Services Group scorecard as a live webpage:
+
+1. **Enable GitHub Pages** for this repo:  
+   **Settings → Pages → Build and deployment → Source:** “Deploy from a branch”.  
+   **Branch:** `main`, **Folder:** `/ (root)` → Save.
+
+2. After the site deploys (1–2 minutes), share one of these URLs:
+   - **Main entry (redirects to T3):**  
+     `https://rstare-ship-it.github.io/Inventory_Setup_Usage_Audit/`
+   - **Direct link to T3 group summary:**  
+     `https://rstare-ship-it.github.io/Inventory_Setup_Usage_Audit/T3_Services_Group/`
+
+Individual tenant scorecards are linked from the group summary (e.g. `T3_Services_Group/scorecard_1524629539.html`). No login required; the page is public.
+
 ## Structure
 
 ```
 Inventory_Setup_Usage_Audit/
 ├── README.md           # This file
+├── index.html          # Redirect to T3_Services_Group/ for GitHub Pages
+├── T3_Services_Group/  # Group summary + per-tenant scorecards (shareable)
 ├── sql/
 │   └── 00_combined_audit.sql   # One query, 9 rows (tenant_info, POs, invoice, replenishment, returns, assessment, inventory_settings, setup_data, usage_checks)
 ├── audit_report.py     # Parse results and print audit report
