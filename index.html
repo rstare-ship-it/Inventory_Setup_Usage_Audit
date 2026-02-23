@@ -26,9 +26,9 @@
 <body>
   <h1>Inventory scorecard</h1>
   <p>Enter a <strong>tenant name</strong> or <strong>tenant ID</strong> to view that tenant’s audit scorecard.</p>
-  <form class="lookup-form" id="lookup-form" onsubmit="return false;">
+  <form class="lookup-form" id="lookup-form">
     <input type="text" id="tenant-input" placeholder="e.g. 444875142 or westernheating" autofocus>
-    <button type="submit">View scorecard</button>
+    <button type="button" id="lookup-btn">View scorecard</button>
   </form>
   <div id="lookup-error" class="lookup-error" aria-live="polite" hidden></div>
   <div id="scorecard-container" class="scorecard-summary" hidden></div>
@@ -51,6 +51,7 @@
       var aggregateUrl = base + 'data/audit_aggregate.json';
       var form = document.getElementById('lookup-form');
       var input = document.getElementById('tenant-input');
+      var btn = document.getElementById('lookup-btn');
       var errEl = document.getElementById('lookup-error');
       var container = document.getElementById('scorecard-container');
 
@@ -114,8 +115,7 @@
       }
 
       var cache = null;
-      form.addEventListener('submit', function (e) {
-        e.preventDefault();
+      function runLookup() {
         clearError();
         var query = input.value.trim();
         if (!query) {
@@ -147,7 +147,9 @@
           .catch(function (err) {
             showError(err.message || 'Could not load audit data. Open the browser console (F12) for details.');
           });
-      });
+      }
+      btn.addEventListener('click', runLookup);
+      input.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); runLookup(); } });
     })();
   </script>
 </body>
