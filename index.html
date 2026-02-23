@@ -30,7 +30,7 @@
     <input type="text" id="tenant-input" placeholder="e.g. 444875142 or westernheating" autofocus>
     <button type="button" id="lookup-btn">View scorecard</button>
   </form>
-  <div id="lookup-error" class="lookup-error" aria-live="polite" hidden></div>
+  <div id="lookup-error" class="lookup-error" aria-live="polite" style="min-height: 1.5em;"></div>
   <div id="scorecard-container" class="scorecard-summary" hidden></div>
 
   <div class="other-links">
@@ -39,6 +39,12 @@
 
   <script>
     (function () {
+      var form = document.getElementById('lookup-form');
+      var input = document.getElementById('tenant-input');
+      var btn = document.getElementById('lookup-btn') || (form && form.querySelector('button'));
+      var errEl = document.getElementById('lookup-error');
+      var container = document.getElementById('scorecard-container');
+      if (!btn || !form || !input || !errEl || !container) { if (errEl) errEl.textContent = 'Page setup error: missing element.'; return; }
       // Resolve path so fetch works on GitHub Pages (with or without trailing slash)
       var path = window.location.pathname;
       var base;
@@ -49,11 +55,6 @@
         else base = path + '/';
       }
       var aggregateUrl = base + 'data/audit_aggregate.json';
-      var form = document.getElementById('lookup-form');
-      var input = document.getElementById('tenant-input');
-      var btn = document.getElementById('lookup-btn');
-      var errEl = document.getElementById('lookup-error');
-      var container = document.getElementById('scorecard-container');
 
       function slugify(s) {
         return (s || '').toLowerCase().trim().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').slice(0, 80);
@@ -105,24 +106,28 @@
 
       function showError(msg) {
         errEl.textContent = msg;
-        errEl.hidden = false;
+        errEl.style.color = '#c00';
         container.hidden = true;
       }
 
       function clearError() {
         errEl.textContent = '';
-        errEl.hidden = true;
+        errEl.style.color = '';
       }
 
       var cache = null;
       function runLookup() {
         clearError();
+        container.hidden = true;
         var query = input.value.trim();
         if (!query) {
           showError('Enter a tenant name or ID.');
           return;
         }
+        errEl.textContent = 'Loading…';
+        errEl.style.color = '#666';
         function run(data) {
+          errEl.textContent = '';
           var tenant = findTenant(data, query);
           if (!tenant) {
             showError('No tenant found for “‘ + query + '”. Try another name or ID.');
