@@ -11,7 +11,9 @@
     't3': 'T3_Services_Group/',
     't3-services-group': 'T3_Services_Group/',
     't3 services group': 'T3_Services_Group/',
-    't3servicesgroup': 'T3_Services_Group/'
+    't3servicesgroup': 'T3_Services_Group/',
+    'sila': 'SILA/',
+    'sila group': 'SILA/'
   };
   function matchGroup(query) {
     if (!query) return null;

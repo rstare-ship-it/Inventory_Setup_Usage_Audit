@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Inventory Scorecard — SILA (group summary)</title>
+  <link rel="stylesheet" href="scorecard.css">
+  <style>
+    .group-summary-wrap { overflow-x: auto; width: 100%; margin-top: 0.5rem; }
+    .group-summary-table { width: 100%; min-width: 600px; border-collapse: collapse; }
+    .group-summary-table th, .group-summary-table td { padding: 0.4rem 0.5rem; text-align: left; border-bottom: 1px solid var(--st-border, #dfe0e1); font-size: 0.8125rem; }
+    .group-summary-table th { font-weight: 600; color: var(--st-text-secondary, #3f3f46); white-space: nowrap; }
+    .group-summary-table .tenant-name { font-weight: 500; }
+    .group-summary-table a { color: var(--st-primary, #2270ee); text-decoration: none; }
+    .group-summary-table a:hover { text-decoration: underline; }
+    .group-summary-table td.status-red { background: var(--danger-muted, #fef2f2); }
+    .group-summary-table td.status-review { background: #fff7ed; }
+    .group-summary-table td.status-yellow { background: var(--warn-muted, #fffbeb); }
+    .group-summary-table td.status-green { background: var(--success-muted, #ecfdf5); }
+    .group-summary-table td.status-na { background: var(--st-surface-alt, #fafafa); color: var(--st-text-muted, #71717a); }
+    .group-summary-table .badge-review { background: #fed7aa; color: #9a3412; }
+    .group-summary-table .badge-na { background: #e5e7eb; color: #6b7280; }
+    .group-subhead { font-size: 0.875rem; font-weight: 600; margin: 1rem 0 0.35rem 0; color: var(--st-text-secondary, #3f3f46); }
+    .group-subhead:first-of-type { margin-top: 0; }
+    .group-common-list { margin: 0; padding-left: 1.25rem; font-size: 0.9375rem; }
+    .group-common-list li { margin: 0.35rem 0; }
+    .group-action-plan-list { margin: 0; padding-left: 1.35rem; font-size: 0.9375rem; }
+    .group-action-plan-list li { margin: 0.4rem 0; }
+    .global-action-count { color: var(--st-text-muted, #71717a); font-size: 0.8125rem; font-weight: 500; }
+    .card-desc { margin: 0 0 0.5rem 0; font-size: 0.8125rem; color: var(--st-text-muted, #71717a); }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="header">
+      <h1>Inventory Setup &amp; Usage Scorecard — Group Summary</h1>
+      <p class="meta">
+        <span>SILA</span>
+        <span>Last 90 days</span>
+        <span>54 tenant(s)</span>
+      </p>
+    </header>
+
+    <div class="card scorecard">
+      <h2 class="card-title">Summary</h2>
+      <p class="overall not-ok">54 of 54 tenant(s) need attention in at least one area.</p>
+      <p class="overall not-ok">Group health: 15% — Critical</p>
+      <p>Click a tenant name to open their full scorecard.</p>
+    </div>
+
+    <section class="card block">
+      <h2 class="card-title">Common struggles &amp; action plan</h2>
+      <h3 class="group-subhead">Common struggles</h3>
+      <p class="card-desc">Areas where multiple tenants need improvement.</p>
+      <ul class="group-common-list">
+        <li>Invoicing: 52 of 54 tenant(s) need improvement</li><li>Replenishment: 50 of 54 tenant(s) need improvement</li><li>Purchasing: 49 of 54 tenant(s) need improvement</li><li>Returns: 40 of 54 tenant(s) need improvement</li><li>Counts and adjustments: 26 of 26 tenant(s) need improvement</li><li>Pricebook &amp; setup: 26 of 26 tenant(s) need improvement</li><li>Transfers: 26 of 26 tenant(s) need improvement</li><li>Technician usage: 25 of 26 tenant(s) need improvement</li>
+      </ul>
+      <h3 class="group-subhead">Recommended actions</h3>
+      <p class="card-desc">Actions that apply to multiple tenants in this group.</p>
+      <ol class="group-action-plan-list">
+        <li>Ensure invoices with amount &gt; $0 include inventory materials where applicable; train office and field on invoice material usage. <span class="global-action-count">(52 tenants)</span></li><li>Address open replenishment requests; complete and receive replenishments to improve turnover. <span class="global-action-count">(50 tenants)</span></li><li>Review pending POs; receive or close old POs and keep pending count within half of truck count where possible. <span class="global-action-count">(49 tenants)</span></li><li>Use multi-line POs for stock orders; avoid single-line or placeholder-heavy POs. <span class="global-action-count">(49 tenants)</span></li><li>Process pending returns and issue credits so returns don&#x27;t age. <span class="global-action-count">(40 tenants)</span></li><li>Review trucks and warehouses; assign inventory templates to trucks and warehouses as needed. <span class="global-action-count">(26 tenants)</span></li><li>Complete or cancel aging transfers; encourage transfer-to-job usage where appropriate. <span class="global-action-count">(26 tenants)</span></li><li>Schedule and complete cycle counts for all warehouses. <span class="global-action-count">(26 tenants)</span></li><li>Schedule technician training on adding materials to invoices in the field. <span class="global-action-count">(25 tenants)</span></li><li>Run an inventory count and adjustments to resolve negative quantities. <span class="global-action-count">(24 tenants)</span></li><li>Review cost flow from PO/receiving to invoice; fix zero-cost IsInventory lines where cost should flow. <span class="global-action-count">(14 tenants)</span></li><li>Review templates with fewer than 20 active items; add items or replace with a complete template. <span class="global-action-count">(14 tenants)</span></li><li>Review direct adjustment practices; reduce manual adjustments where possible. <span class="global-action-count">(11 tenants)</span></li><li>Complete or reschedule past due inventory counts. <span class="global-action-count">(3 tenants)</span></li>
+      </ol>
+    </section>
+
+    <section class="card block">
+      <h2 class="card-title">Tenants by area</h2>
+      <div class="group-summary-wrap">
+      <table class="group-summary-table" aria-label="Tenant scorecard status by area">
+        <thead>
+          <tr>
+            <th scope="col">Tenant</th>
+            <th scope="col">Pricebook &amp; setup</th><th scope="col">Purchasing</th><th scope="col">Invoicing</th><th scope="col">Technician usage</th><th scope="col">Replenishment</th><th scope="col">Returns</th><th scope="col">Transfers</th><th scope="col">Counts and adjustments</th><th scope="col">Other</th>
+          </tr>
+        </thead>
+        <tbody>
+        <tr><td class="tenant-name"><a href="scorecard_1056144950.html">aaservicecoheatingcooling</a></td>
+            <td class="status-yellow"><span class="badge badge-yellow">On track</span></td>
+            <td class="status-review"><span class="badge badge-review">Review</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-review"><span class="badge badge-review">Review</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-green"><span class="badge badge-green">Good</span></td>
+        </tr>
+        <tr><td class="tenant-name"><a href="scorecard_2058000021.html">absoluteairservices</a></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+            <td class="status-review"><span class="badge badge-review">Review</span></td>
+            <td class="status-review"><span class="badge badge-review">Review</span></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+        </tr>
+        <tr><td class="tenant-name"><a href="scorecard_4099649302.html">acomfortserviceindustriesinc</a></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+            <td class="status-yellow"><span class="badge badge-yellow">On track</span></td>
+            <td class="status-green"><span class="badge badge-green">Good</span></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-green"><span class="badge badge-green">Good</span></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+        </tr>
+        <tr><td class="tenant-name"><a href="scorecard_245527049.html">adamhomeservices</a></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-green"><span class="badge badge-green">Good</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-review"><span class="badge badge-review">Review</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-green"><span class="badge badge-green">Good</span></td>
+        </tr>
+        <tr><td class="tenant-name"><a href="scorecard_699354553.html">ainsleyheatingandcooling</a></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-green"><span class="badge badge-green">Good</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-green"><span class="badge badge-green">Good</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-review"><span class="badge badge-review">Review</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-green"><span class="badge badge-green">Good</span></td>
+        </tr>
+        <tr><td class="tenant-name"><a href="scorecard_913434531.html">alliedexperts</a></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-yellow"><span class="badge badge-yellow">On track</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-review"><span class="badge badge-review">Review</span></td>
+            <td class="status-yellow"><span class="badge badge-yellow">On track</span></td>
+            <td class="status-green"><span class="badge badge-green">Good</span></td>
+        </tr>
+        <tr><td class="tenant-name"><a href="scorecard_885961898.html">astacioplumbinghvac</a></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-yellow"><span class="badge badge-yellow">On track</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-review"><span class="badge badge-review">Review</span></td>
+            <td class="status-review"><span class="badge badge-review">Review</span></td>
+            <td class="status-green"><span class="badge badge-green">Good</span></td>
+        </tr>
+        <tr><td class="tenant-name"><a href="scorecard_576237736.html">astarheatingairllc</a></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-yellow"><span class="badge badge-yellow">On track</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-review"><span class="badge badge-review">Review</span></td>
+            <td class="status-review"><span class="badge badge-review">Review</span></td>
+            <td class="status-green"><span class="badge badge-green">Good</span></td>
+        </tr>
+        <tr><td class="tenant-name"><a href="scorecard_589333560.html">atozdependableservices</a></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-yellow"><span class="badge badge-yellow">On track</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-green"><span class="badge badge-green">Good</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-review"><span class="badge badge-review">Review</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-green"><span class="badge badge-green">Good</span></td>
+        </tr>
+        <tr><td class="tenant-name"><a href="scorecard_337644419.html">auchinachieservices</a></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-review"><span class="badge badge-review">Review</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-review"><span class="badge badge-review">Review</span></td>
+            <td class="status-green"><span class="badge badge-green">Good</span></td>
+        </tr>
+        <tr><td class="tenant-name"><a href="scorecard_1987336469.html">bestheatingandairsolutionsllc</a></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+            <td class="status-review"><span class="badge badge-review">Review</span></td>
+            <td class="status-review"><span class="badge badge-review">Review</span></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+        </tr>
+        <tr><td class="tenant-name"><a href="scorecard_861385893.html">bonskyheatingandcooling</a></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-review"><span class="badge badge-review">Review</span></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+        </tr>
+        <tr><td class="tenant-name"><a href="scorecard_272111376.html">bostonstandardplumbingheating</a></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+            <td class="status-review"><span class="badge badge-review">Review</span></td>
+            <td class="status-review"><span class="badge badge-review">Review</span></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+        </tr>
+        <tr><td class="tenant-name"><a href="scorecard_390024468.html">burnsmcbridehomecomfort</a></td>
+            <td class="status-review"><span class="badge badge-review">Review</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-green"><span class="badge badge-green">Good</span></td>
+            <td class="status-review"><span class="badge badge-review">Review</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-green"><span class="badge badge-green">Good</span></td>
+        </tr>
+        <tr><td class="tenant-name"><a href="scorecard_601538387.html">cartersplumbingllc</a></td>
+            <td class="status-review"><span class="badge badge-review">Review</span></td>
+            <td class="status-green"><span class="badge badge-green">Good</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-green"><span class="badge badge-green">Good</span></td>
+            <td class="status-review"><span class="badge badge-review">Review</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-green"><span class="badge badge-green">Good</span></td>
+        </tr>
+        <tr><td class="tenant-name"><a href="scorecard_228163982.html">centralcooling</a></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-review"><span class="badge badge-review">Review</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-green"><span class="badge badge-green">Good</span></td>
+            <td class="status-review"><span class="badge badge-review">Review</span></td>
+            <td class="status-yellow"><span class="badge badge-yellow">On track</span></td>
+            <td class="status-green"><span class="badge badge-green">Good</span></td>
+        </tr>
+        <tr><td class="tenant-name"><a href="scorecard_2318354202.html">coblentzplumbingsolutionsllc</a></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+            <td class="status-review"><span class="badge badge-review">Review</span></td>
+            <td class="status-review"><span class="badge badge-review">Review</span></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+        </tr>
+        <tr><td class="tenant-name"><a href="scorecard_1465183215.html">coeclone</a></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-yellow"><span class="badge badge-yellow">On track</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-review"><span class="badge badge-review">Review</span></td>
+            <td class="status-review"><span class="badge badge-review">Review</span></td>
+            <td class="status-green"><span class="badge badge-green">Good</span></td>
+        </tr>
+        <tr><td class="tenant-name"><a href="scorecard_1641551509.html">coesecondclone</a></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-green"><span class="badge badge-green">Good</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-review"><span class="badge badge-review">Review</span></td>
+            <td class="status-review"><span class="badge badge-review">Review</span></td>
+            <td class="status-green"><span class="badge badge-green">Good</span></td>
+        </tr>
+        <tr><td class="tenant-name"><a href="scorecard_3992992917.html">davesworld</a></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+            <td class="status-review"><span class="badge badge-review">Review</span></td>
+            <td class="status-review"><span class="badge badge-review">Review</span></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+        </tr>
+        <tr><td class="tenant-name"><a href="scorecard_4313123615.html">delcostormandsewerllc</a></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+            <td class="status-yellow"><span class="badge badge-yellow">On track</span></td>
+            <td class="status-review"><span class="badge badge-review">Review</span></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+        </tr>
+        <tr><td class="tenant-name"><a href="scorecard_2600742073.html">environmentalcontrolsservice</a></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+            <td class="status-yellow"><span class="badge badge-yellow">On track</span></td>
+            <td class="status-review"><span class="badge badge-review">Review</span></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-green"><span class="badge badge-green">Good</span></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+        </tr>
+        <tr><td class="tenant-name"><a href="scorecard_2709337050.html">essentialpowersystems</a></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-review"><span class="badge badge-review">Review</span></td>
+            <td class="status-review"><span class="badge badge-review">Review</span></td>
+            <td class="status-green"><span class="badge badge-green">Good</span></td>
+        </tr>
+        <tr><td class="tenant-name"><a href="scorecard_865702964.html">fahrenheitinc</a></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+            <td class="status-review"><span class="badge badge-review">Review</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+        </tr>
+        <tr><td class="tenant-name"><a href="scorecard_616851689.html">garysonsinc</a></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-green"><span class="badge badge-green">Good</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-green"><span class="badge badge-green">Good</span></td>
+            <td class="status-green"><span class="badge badge-green">Good</span></td>
+            <td class="status-review"><span class="badge badge-review">Review</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-green"><span class="badge badge-green">Good</span></td>
+        </tr>
+        <tr><td class="tenant-name"><a href="scorecard_1078892198.html">glascoheatingandairconditioning</a></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+            <td class="status-review"><span class="badge badge-review">Review</span></td>
+            <td class="status-review"><span class="badge badge-review">Review</span></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+        </tr>
+        <tr><td class="tenant-name"><a href="scorecard_570599341.html">guysmith</a></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+            <td class="status-yellow"><span class="badge badge-yellow">On track</span></td>
+            <td class="status-review"><span class="badge badge-review">Review</span></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-green"><span class="badge badge-green">Good</span></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+        </tr>
+        <tr><td class="tenant-name"><a href="scorecard_974539180.html">heckerothplumbingheatingofwoodstockinc</a></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+            <td class="status-review"><span class="badge badge-review">Review</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+        </tr>
+        <tr><td class="tenant-name"><a href="scorecard_403104777.html">jacksoncomfort</a></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-review"><span class="badge badge-review">Review</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-green"><span class="badge badge-green">Good</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-review"><span class="badge badge-review">Review</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-green"><span class="badge badge-green">Good</span></td>
+        </tr>
+        <tr><td class="tenant-name"><a href="scorecard_4097686546.html">johnnugentandsonsinc</a></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+            <td class="status-review"><span class="badge badge-review">Review</span></td>
+            <td class="status-review"><span class="badge badge-review">Review</span></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+        </tr>
+        <tr><td class="tenant-name"><a href="scorecard_783262243.html">jonesservicecompany</a></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-green"><span class="badge badge-green">Good</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-review"><span class="badge badge-review">Review</span></td>
+            <td class="status-review"><span class="badge badge-review">Review</span></td>
+            <td class="status-green"><span class="badge badge-green">Good</span></td>
+        </tr>
+        <tr><td class="tenant-name"><a href="scorecard_351914396.html">jspplumbingandheating</a></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+            <td class="status-review"><span class="badge badge-review">Review</span></td>
+            <td class="status-review"><span class="badge badge-review">Review</span></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+        </tr>
+        <tr><td class="tenant-name"><a href="scorecard_355786127.html">levineandsons</a></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+            <td class="status-review"><span class="badge badge-review">Review</span></td>
+            <td class="status-green"><span class="badge badge-green">Good</span></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+        </tr>
+        <tr><td class="tenant-name"><a href="scorecard_4427487893.html">livefreeelectricheating</a></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+            <td class="status-review"><span class="badge badge-review">Review</span></td>
+            <td class="status-review"><span class="badge badge-review">Review</span></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-green"><span class="badge badge-green">Good</span></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+        </tr>
+        <tr><td class="tenant-name"><a href="scorecard_446993669.html">myplumber</a></td>
+            <td class="status-review"><span class="badge badge-review">Review</span></td>
+            <td class="status-yellow"><span class="badge badge-yellow">On track</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-review"><span class="badge badge-review">Review</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-green"><span class="badge badge-green">Good</span></td>
+        </tr>
+        <tr><td class="tenant-name"><a href="scorecard_402225800.html">nashobaairboilerworks</a></td>
+            <td class="status-yellow"><span class="badge badge-yellow">On track</span></td>
+            <td class="status-yellow"><span class="badge badge-yellow">On track</span></td>
+            <td class="status-yellow"><span class="badge badge-yellow">On track</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-green"><span class="badge badge-green">Good</span></td>
+            <td class="status-review"><span class="badge badge-review">Review</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-green"><span class="badge badge-green">Good</span></td>
+        </tr>
+        <tr><td class="tenant-name"><a href="scorecard_930953894.html">netrllc</a></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-review"><span class="badge badge-review">Review</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-review"><span class="badge badge-review">Review</span></td>
+            <td class="status-review"><span class="badge badge-review">Review</span></td>
+            <td class="status-green"><span class="badge badge-green">Good</span></td>
+        </tr>
+        <tr><td class="tenant-name"><a href="scorecard_885060647.html">newberlinheatingairconditioninginc</a></td>
+            <td class="status-review"><span class="badge badge-review">Review</span></td>
+            <td class="status-yellow"><span class="badge badge-yellow">On track</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-review"><span class="badge badge-review">Review</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-green"><span class="badge badge-green">Good</span></td>
+        </tr>
+        <tr><td class="tenant-name"><a href="scorecard_496456479.html">newenglandductless</a></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+        </tr>
+        <tr><td class="tenant-name"><a href="scorecard_616873805.html">norfolkairheatingcoolingplumbingelectrical</a></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-review"><span class="badge badge-review">Review</span></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+        </tr>
+        <tr><td class="tenant-name"><a href="scorecard_4520778773.html">oxfordplumbingandheating</a></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+            <td class="status-yellow"><span class="badge badge-yellow">On track</span></td>
+            <td class="status-review"><span class="badge badge-review">Review</span></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-green"><span class="badge badge-green">Good</span></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+        </tr>
+        <tr><td class="tenant-name"><a href="scorecard_2155881365.html">silamodeltenant</a></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+            <td class="status-review"><span class="badge badge-review">Review</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+        </tr>
+        <tr><td class="tenant-name"><a href="scorecard_857380280.html">silaservicesbos</a></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+            <td class="status-yellow"><span class="badge badge-yellow">On track</span></td>
+            <td class="status-review"><span class="badge badge-review">Review</span></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-green"><span class="badge badge-green">Good</span></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+        </tr>
+        <tr><td class="tenant-name"><a href="scorecard_787934405.html">silaservicesllc</a></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-review"><span class="badge badge-review">Review</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-review"><span class="badge badge-review">Review</span></td>
+            <td class="status-review"><span class="badge badge-review">Review</span></td>
+            <td class="status-green"><span class="badge badge-green">Good</span></td>
+        </tr>
+        <tr><td class="tenant-name"><a href="scorecard_857434397.html">silaservicesmd</a></td>
+            <td class="status-review"><span class="badge badge-review">Review</span></td>
+            <td class="status-review"><span class="badge badge-review">Review</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-review"><span class="badge badge-review">Review</span></td>
+            <td class="status-review"><span class="badge badge-review">Review</span></td>
+            <td class="status-green"><span class="badge badge-green">Good</span></td>
+        </tr>
+        <tr><td class="tenant-name"><a href="scorecard_857364776.html">silaservicesny</a></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+        </tr>
+        <tr><td class="tenant-name"><a href="scorecard_434841510.html">simpsonheatingandair</a></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-review"><span class="badge badge-review">Review</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-green"><span class="badge badge-green">Good</span></td>
+            <td class="status-review"><span class="badge badge-review">Review</span></td>
+            <td class="status-review"><span class="badge badge-review">Review</span></td>
+            <td class="status-green"><span class="badge badge-green">Good</span></td>
+        </tr>
+        <tr><td class="tenant-name"><a href="scorecard_349503491.html">sullivans</a></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+            <td class="status-review"><span class="badge badge-review">Review</span></td>
+            <td class="status-review"><span class="badge badge-review">Review</span></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+        </tr>
+        <tr><td class="tenant-name"><a href="scorecard_643464481.html">tmarkplumbing</a></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-review"><span class="badge badge-review">Review</span></td>
+            <td class="status-review"><span class="badge badge-review">Review</span></td>
+            <td class="status-green"><span class="badge badge-green">Good</span></td>
+        </tr>
+        <tr><td class="tenant-name"><a href="scorecard_1651977493.html">totalclimatecontrolinc</a></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+            <td class="status-review"><span class="badge badge-review">Review</span></td>
+            <td class="status-review"><span class="badge badge-review">Review</span></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+        </tr>
+        <tr><td class="tenant-name"><a href="scorecard_480118407.html">triangleheatingcooling</a></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+            <td class="status-yellow"><span class="badge badge-yellow">On track</span></td>
+            <td class="status-review"><span class="badge badge-review">Review</span></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-green"><span class="badge badge-green">Good</span></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+        </tr>
+        <tr><td class="tenant-name"><a href="scorecard_360659632.html">tristatehomeservices</a></td>
+            <td class="status-review"><span class="badge badge-review">Review</span></td>
+            <td class="status-yellow"><span class="badge badge-yellow">On track</span></td>
+            <td class="status-yellow"><span class="badge badge-yellow">On track</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-green"><span class="badge badge-green">Good</span></td>
+            <td class="status-review"><span class="badge badge-review">Review</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-green"><span class="badge badge-green">Good</span></td>
+        </tr>
+        <tr><td class="tenant-name"><a href="scorecard_4083381785.html">ultracleanductcleaning</a></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+            <td class="status-review"><span class="badge badge-review">Review</span></td>
+            <td class="status-review"><span class="badge badge-review">Review</span></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+        </tr>
+        <tr><td class="tenant-name"><a href="scorecard_399306757.html">uniqueindoorcomfortlibertyville</a></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-red"><span class="badge badge-red">Critical</span></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+            <td class="status-na"><span class="badge badge-na">N/A</span></td>
+        </tr>
+        </tbody>
+      </table>
+      </div>
+    </section>
+  </div>
+</body>
+</html>

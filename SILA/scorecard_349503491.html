@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Purchasing Audit Scorecard — sullivans</title>
+  <link rel="stylesheet" href="scorecard.css">
+</head>
+<body>
+  <div class="page">
+    <header class="header">
+      <h1>Purchasing Audit Scorecard</h1>
+      <p class="meta">
+        <span>sullivans</span>
+        <span>Last 90 days</span>
+        <span>Tenant ID: 349503491</span>
+        <span>Not yet live with inventory (tracking start: —)</span>
+      </p>
+    </header>
+
+    <div class="card scorecard">
+      <h2 class="card-title">Scorecard by area</h2>
+      <div class="scorecard-grid">
+        <div class="scorecard-item status-review"><span class="area-name">Pricebook</span><span class="badge badge-review">Review</span></div>
+        <div class="scorecard-item status-review"><span class="area-name">Purchasing</span><span class="badge badge-review">Review</span></div>
+        <div class="scorecard-item status-review"><span class="area-name">Invoicing</span><span class="badge badge-review">Review</span></div>
+        <div class="scorecard-item status-red"><span class="area-name">Replenishment</span><span class="badge badge-red">Critical</span></div>
+        <div class="scorecard-item status-red"><span class="area-name">Returns</span><span class="badge badge-red">Critical</span></div>
+      </div>
+      <p class="overall not-ok">Address red areas to improve setup and usage.</p>
+    </div>
+
+        <section class="card block inventory-readiness">
+      <h2 class="card-title">Inventory Readiness</h2>
+      <p class="overall not-ok">Address red items in Pricebook, Purchasing, and Invoicing to prepare for inventory implementation.</p>
+    </section>
+
+        <section class="card block">
+      <h2 class="card-title">Settings</h2>
+      <p><strong>Purchasing module:</strong> On
+    <p><strong>Inventory module:</strong> Off
+    <p><strong>Item requisitions:</strong> Off
+    <p><strong>Requisition closeout:</strong> Off
+    <p><strong>Transfers to jobs:</strong> Off
+    <p><strong>Consignment:</strong> Off
+    <p><strong>Purchase approval workflow:</strong> Off
+    <p><strong>Granular WAC:</strong> Off
+    </section>
+
+        <section class="card block">
+      <h2 class="card-title">Findings by area</h2>
+      <section class="findings-area border-review">
+        <h3 class="area-head">Pricebook <span class="badge badge-review">Review</span></h3>
+        <ul class="findings-list">
+          <li class="finding-ok">15 material(s) have $0 cost (1.3% of 1178); under 25% threshold.</li>
+          <li class="finding-err">802 material(s) have Default or Imported Default Replenishment Vendor as primary (68% of 1178). Assign a real primary vendor (red when &gt;25%).</li>
+        </ul>
+      </section>
+      <section class="findings-area border-review">
+        <h3 class="area-head">Purchasing <span class="badge badge-review">Review</span></h3>
+        <ul class="findings-list">
+          <li class="finding-ok">Pending POs over 90 days: 0 (0% of allowed pending 21).</li>
+          <li class="finding-ok">POs created in last 90 days: 2174; completed (received/exported): 2145.</li>
+          <li class="finding-ok">PO receive rate: 98% of POs created in period are received/exported (target ≥70%).</li>
+          <li class="finding-warn">PO line items: 9678 lines across 2174 POs; 1241 of 2174 (57%) have multiple lines (&lt;40% Needs attention, 40-50% Needs review, 50-60% Okay, &gt;60% Good).</li>
+          <li class="finding-err">Total pending POs: 29. Allowed (half of 43 trucks): 21; pending is 138% of allowed.</li>
+          <li class="finding-err">Majority of PO line items mention placeholder/generic/material (8855 of 9678). Use specific parts.</li>
+        </ul>
+      </section>
+      <section class="findings-area border-review">
+        <h3 class="area-head">Invoicing <span class="badge badge-review">Review</span></h3>
+        <ul class="findings-list">
+          <li class="finding-ok">Invoices with amount &gt; $0 in last 90 days: 7649; material lines: 132.</li>
+          <li class="finding-err">0 of 132 invoice material line(s) (0%) were added by a technician (≥60% Good, 50-60% Okay, 30-50% Needs review, &lt;30% Needs attention).</li>
+        </ul>
+      </section>
+      <section class="findings-area border-red">
+        <h3 class="area-head">Replenishment <span class="badge badge-red">Critical</span></h3>
+        <ul class="findings-list">
+          <li class="finding-err">Replenishment: 0 open (pending/in progress), 0 completed in last 90 days. No replenishment activity in lookback (0 of 0); treat as 0%.</li>
+        </ul>
+      </section>
+      <section class="findings-area border-red">
+        <h3 class="area-head">Returns <span class="badge badge-red">Critical</span></h3>
+        <ul class="findings-list">
+          <li class="finding-warn">Returns: 96 credit received of 97 returns in last 90 days. 53 pending. (54% of returns in period) 53 pending are older than 90 days. Returns to be resolved in timely manner.</li>
+        </ul>
+      </section>
+    </section>
+
+        <section class="card block action-plan">
+      <h2 class="card-title">Recommended actions</h2>
+      <ol class="action-plan-list">
+      <li>Review pending POs; receive or close old POs and keep pending count within half of truck count where possible.</li>
+      <li>Use multi-line POs for stock orders; avoid single-line or placeholder-heavy POs.</li>
+      <li>Ensure invoices with amount &gt; $0 include inventory materials where applicable; train office and field on invoice material usage.</li>
+      <li>Address open replenishment requests; complete and receive replenishments to improve turnover.</li>
+      <li>Process pending returns and issue credits so returns don&#x27;t age.</li>
+    </ol>
+    </section>
+
+      </div>
+</body>
+</html>
