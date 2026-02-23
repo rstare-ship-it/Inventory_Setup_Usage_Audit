@@ -200,6 +200,21 @@
   }
 
   window.runLookup = runLookup;
+
   var inputEl = document.getElementById('tenant-input');
   if (inputEl) inputEl.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); runLookup(); } });
+
+  /* Direct link: ?tenant=444875142 or ?tenant=westernheating — run lookup on load */
+  var q = (window.location.search || '').slice(1).split('&');
+  for (var i = 0; i < q.length; i++) {
+    var kv = q[i].split('=');
+    if (kv[0] === 'tenant' && kv[1]) {
+      var tenantParam = decodeURIComponent(kv[1].replace(/\+/g, ' ')).trim();
+      if (tenantParam && inputEl) {
+        inputEl.value = tenantParam;
+        runLookup();
+      }
+      break;
+    }
+  }
 })();
