@@ -36,9 +36,10 @@ try:
 except ImportError:
     pass
 
-# Result set keys (combined query returns 9 rows; first row = tenant_info for header).
+# Result set keys (combined query returns 10 rows; first row = tenant_info for header; pricebook for readiness).
 RESULT_KEYS = [
     "tenant_info",
+    "pricebook",
     "purchase_orders_summary",
     "invoice_materials",
     "replenishment_summary",
@@ -137,11 +138,94 @@ AUDIT_AREAS = [
 
 # Areas for purchasing-only audit (when not yet live with inventory; no template/setup — inventory-only)
 AUDIT_AREAS_PURCHASING = [
+    "Pricebook",
     "Purchasing",
     "Invoicing",
     "Replenishment",
     "Returns",
 ]
+
+# Areas that determine "ready for inventory implementation" (only these are listed when not ready)
+READINESS_AREAS = ["Pricebook", "Purchasing", "Invoicing"]
+
+# Pricebook readiness (from Inventory_Prepardness_Check): red if > this share of materials have $0 cost or Default Replenishment as primary
+PRICEBOOK_RED_PCT = 0.25
+
+
+def _readiness_areas_needing_work(findings_by_area: dict[str, dict[str, list[str]]]) -> list[str]:
+    """Return list of READINESS_AREAS that have any red findings (for 'what to work on' message)."""
+    return [a for a in READINESS_AREAS if findings_by_area.get(a, {}).get("red")]
+
+
+def _format_areas_for_message(areas: list[str]) -> str:
+    """Format area names for verdict message: 'A', 'A and B', or 'A, B, and C'."""
+    if not areas:
+        return ""
+    if len(areas) == 1:
+        return areas[0]
+    if len(areas) == 2:
+        return f"{areas[0]} and {areas[1]}"
+    return f"{areas[0]}, {areas[1]}, and {areas[2]}"
+
+
+# Go Live readiness: min share of materials marked IsInventory (same as full-audit template thresholds)
+GO_LIVE_ITEMS_INVENTORY_MIN_PCT = 50  # at least half of materials marked for inventory
+
+
+def _is_preparing_for_go_live(results: dict, is_live: bool) -> bool:
+    """True when not live but inventory module on, has items marked IsInventory, and has templates assigned."""
+    if is_live:
+        return False
+    cfg = results.get("readiness_config") or {}
+    if not cfg.get("inventory_module_on"):
+        return False
+    isinv = results.get("isinventory_counts") or {}
+    mat_isinv = _int(isinv.get("materials_isinventory_count"))
+    eq_isinv = _int(isinv.get("equipment_isinventory_count"))
+    if mat_isinv == 0 and eq_isinv == 0:
+        return False
+    setup = results.get("setup_data")
+    if not setup or not isinstance(setup, dict):
+        return False
+    truck_with_tpl = _int(setup.get("truck_with_template"))
+    wh_with_tpl = _int(setup.get("warehouse_with_template"))
+    return truck_with_tpl > 0 or wh_with_tpl > 0
+
+
+def _go_live_readiness(results: dict) -> tuple[bool, list[str]]:
+    """Check if ready for go live: half of materials IsInventory + template checks. Returns (ready, list of what needs work)."""
+    isinv = results.get("isinventory_counts") or {}
+    setup = results.get("setup_data") or {}
+    active_mats = _int(isinv.get("active_materials_count"))
+    mat_isinv = _int(isinv.get("materials_isinventory_count"))
+    truck_total = _int(setup.get("truck_total"))
+    truck_with_tpl = _int(setup.get("truck_with_template"))
+    wh_total = _int(setup.get("warehouse_total"))
+    wh_with_tpl = _int(setup.get("warehouse_with_template"))
+    templates_under_20 = _int(setup.get("templates_under_20_active_items"))
+
+    needs: list[str] = []
+    if active_mats > 0:
+        pct = (100 * mat_isinv) / active_mats
+        if pct < GO_LIVE_ITEMS_INVENTORY_MIN_PCT:
+            needs.append(
+                f"Mark at least half of pricebook materials as inventory (currently {mat_isinv} of {active_mats}, {pct:.0f}%)."
+            )
+    else:
+        needs.append("Mark at least half of pricebook materials as inventory.")
+    if truck_total > 0:
+        truck_pct = (100 * truck_with_tpl) / truck_total
+        if truck_pct < TRUCK_TEMPLATE_PCT_MIN:
+            needs.append(
+                f"Assign inventory templates to at least 80% of trucks (currently {truck_with_tpl} of {truck_total}, {truck_pct:.0f}%)."
+            )
+    if wh_total > 0 and wh_with_tpl < WAREHOUSE_WITH_TEMPLATE_MIN:
+        needs.append("Assign an inventory template to at least one warehouse.")
+    if templates_under_20 > 0:
+        needs.append(
+            f"Ensure all inventory templates have at least {TEMPLATE_MIN_ACTIVE_ITEMS} active items ({templates_under_20} template(s) have fewer)."
+        )
+    return (len(needs) == 0, needs)
 
 
 def is_live_with_inventory(results: dict) -> bool:
@@ -394,6 +478,22 @@ def parse_results(data: dict) -> dict:
             results["tenant_name"] = (str(row[1]).strip() or None) if row[1] is not None else None
             if results["tenant_id"] is not None:
                 results["tenant_id"] = _int(results["tenant_id"])
+
+    # Pricebook (6 values): v1=material_count, v2=with_cost, v3=zero_cost, v4=with_vendor_link, v5=with_primary_vendor, v6=primary_default_replenishment
+    pb = data.get("pricebook")
+    if pb is not None and isinstance(pb, list) and len(pb) >= 1:
+        row = pb[0]
+        if isinstance(row, (list, tuple)) and len(row) >= 1:
+            results["pricebook"] = {
+                "material_count": _int(row[0]) if len(row) > 0 else 0,
+                "materials_with_cost": _int(row[1]) if len(row) > 1 else 0,
+                "materials_zero_cost": _int(row[2]) if len(row) > 2 else 0,
+                "materials_with_vendor_link": _int(row[3]) if len(row) > 3 else 0,
+                "materials_with_primary_vendor": _int(row[4]) if len(row) > 4 else 0,
+                "primary_vendor_default_replenishment": _int(row[5]) if len(row) > 5 else 0,
+            }
+    if "pricebook" not in results:
+        results["pricebook"] = {}
 
     # Purchase orders summary: v1=total_pending, v2=po_created_in_period, v3=earliest, v4=latest, v5..v11=status_0..6, v12=po_count, v13=single_line_pos, v14=total_lines, v15=placeholder_like, v16=pending_over_90
     pos = data.get("purchase_orders_summary")
@@ -1108,9 +1208,35 @@ def evaluate_audit(results: dict, lookback_days: int) -> tuple[bool, dict[str, d
     return ok, findings_by_area
 
 
-def evaluate_audit_purchasing_only(results: dict, lookback_days: int) -> tuple[bool, dict[str, dict[str, list[str]]]]:
-    """Purchasing-only audit when not yet live with inventory. Includes replenishment and returns; no counts, adjustments, transfers, or IsInventory-specific checks."""
+def evaluate_audit_purchasing_only(results: dict, lookback_days: int) -> tuple[bool, dict[str, dict[str, list[str]]], bool]:
+    """Purchasing-only audit when not yet live with inventory. Includes Pricebook, Purchasing, Invoicing, Replenishment, Returns.
+    Returns (ok, findings_by_area, ready_for_inventory_implementation). ready = no red in Pricebook, Purchasing, or Invoicing."""
     findings_by_area: dict[str, dict[str, list[str]]] = {}
+
+    # --- Pricebook (from Inventory_Prepardness_Check: zero cost %, default replenishment vendor %) ---
+    area_pb = "Pricebook"
+    pb = results.get("pricebook", {})
+    mat_count = pb.get("material_count", 0)
+    zero_cost = pb.get("materials_zero_cost", 0)
+    def_repl = pb.get("primary_vendor_default_replenishment", 0)
+
+    if mat_count == 0:
+        _add(findings_by_area, area_pb, "red", "Pricebook has no materials. Add materials before starting inventory implementation.")
+    else:
+        zero_pct = (zero_cost / mat_count) if mat_count else 0
+        if zero_cost > 0 and zero_pct > PRICEBOOK_RED_PCT:
+            _add(findings_by_area, area_pb, "red", f"{zero_cost} material(s) have $0 cost ({zero_pct:.0%} of {mat_count}). Assign costs before inventory (red when >{PRICEBOOK_RED_PCT:.0%}).")
+        elif zero_cost > 0:
+            _add(findings_by_area, area_pb, "green", f"{zero_cost} material(s) have $0 cost ({zero_pct:.1%} of {mat_count}); under {PRICEBOOK_RED_PCT:.0%} threshold.")
+        else:
+            _add(findings_by_area, area_pb, "green", "All materials have a cost assigned.")
+        def_repl_pct = (def_repl / mat_count) if mat_count else 0
+        if def_repl > 0 and def_repl_pct > PRICEBOOK_RED_PCT:
+            _add(findings_by_area, area_pb, "red", f"{def_repl} material(s) have Default or Imported Default Replenishment Vendor as primary ({def_repl_pct:.0%} of {mat_count}). Assign a real primary vendor (red when >{PRICEBOOK_RED_PCT:.0%}).")
+        elif def_repl > 0:
+            _add(findings_by_area, area_pb, "green", f"{def_repl} material(s) use Default/Imported Default Replenishment as primary ({def_repl_pct:.1%}); under threshold.")
+        else:
+            _add(findings_by_area, area_pb, "green", "No materials use Default or Imported Default Replenishment Vendor as primary.")
 
     # --- Purchasing (same as full audit) ---
     po = results.get("purchase_orders", {})
@@ -1290,10 +1416,16 @@ def evaluate_audit_purchasing_only(results: dict, lookback_days: int) -> tuple[b
     elif inv_total_gt_zero > 0:
         _add(findings_by_area, area_inv, "red", "0 of 0 invoice material lines were added by a technician (no material line activity; 0%).")
 
-    # (No Pricebook & setup / templates for purchasing-only — those are inventory-only.)
+    # Ready for inventory implementation: pricebook good, purchasing good, invoicing good (no red in those three)
+    area_po = "Purchasing"
+    area_inv = "Invoicing"
+    pb_ok = not (findings_by_area.get(area_pb, {}).get("red"))
+    po_ok = not (findings_by_area.get(area_po, {}).get("red"))
+    inv_ok = not (findings_by_area.get(area_inv, {}).get("red"))
+    ready_for_inventory_implementation = bool(pb_ok and po_ok and inv_ok)
 
     ok = not any(f.get("red") for f in findings_by_area.values())
-    return ok, findings_by_area
+    return ok, findings_by_area, ready_for_inventory_implementation
 
 
 def _escape(s: str) -> str:
@@ -1519,8 +1651,9 @@ def render_scorecard_html(
     ok: bool,
     audit_areas: list[str] | None = None,
     is_live: bool = True,
+    ready_for_inventory_implementation: bool | None = None,
 ) -> str:
-    """Build a self-contained, customer-friendly HTML scorecard. All dynamic text is escaped. When is_live=False, title is Purchasing Audit and only audit_areas are shown."""
+    """Build a self-contained, customer-friendly HTML scorecard. All dynamic text is escaped. When is_live=False, title is Purchasing Audit and only audit_areas are shown. When not is_live and ready_for_inventory_implementation is True, show verdict 'Ready to start inventory implementation'."""
     audit_areas = audit_areas or AUDIT_AREAS
     tenant_display = _escape(tenant_name or f"Tenant {tenant_id}" if tenant_id else "Inventory Audit")
     if is_live:
@@ -1646,6 +1779,38 @@ def render_scorecard_html(
     ) if is_live else ""
 
     overall_msg = "No critical issues. Review any yellow areas as needed." if ok else "Address red areas to improve setup and usage."
+    # Readiness box (purchasing audit only): Go Live Readiness if preparing, else Inventory Readiness
+    readiness_section_html = ""
+    if not is_live:
+        if _is_preparing_for_go_live(results, is_live):
+            go_live_ready, go_live_needs = _go_live_readiness(results)
+            if go_live_ready:
+                readiness_body = "<p class=\"overall ok\">Ready to set your go live date and do inventory beginning balance counts.</p>"
+            else:
+                needs_list = "\n      ".join(f"<li>{_escape(n)}</li>" for n in go_live_needs)
+                readiness_body = f"<ul class=\"readiness-needs\">\n      {needs_list}\n    </ul>"
+            readiness_section_html = (
+                "    <section class=\"card block go-live-readiness\">\n"
+                "      <h2 class=\"card-title\">Go Live Readiness</h2>\n      "
+                + readiness_body + "\n"
+                "    </section>\n\n    "
+            )
+        elif ready_for_inventory_implementation is not None:
+            if ready_for_inventory_implementation is True:
+                readiness_body = "<p class=\"overall ok\">Ready to start inventory implementation.</p>"
+            else:
+                areas_needing_work = _readiness_areas_needing_work(findings_by_area)
+                areas_str = _format_areas_for_message(areas_needing_work)
+                if areas_str:
+                    readiness_body = f"<p class=\"overall not-ok\">Address red items in {_escape(areas_str)} to prepare for inventory implementation.</p>"
+                else:
+                    readiness_body = "<p class=\"overall not-ok\">Address red items above to prepare for inventory implementation.</p>"
+            readiness_section_html = (
+                "    <section class=\"card block inventory-readiness\">\n"
+                "      <h2 class=\"card-title\">Inventory Readiness</h2>\n      "
+                + readiness_body + "\n"
+                "    </section>\n\n    "
+            )
 
     # Action plan from findings (non-Green areas)
     action_plan = get_action_plan(findings_by_area, audit_areas)
@@ -1697,7 +1862,7 @@ def render_scorecard_html(
       <p class="overall {'ok' if ok else 'not-ok'}">{_escape(overall_msg)}</p>
     </div>
 
-    <section class="card block">
+    {readiness_section_html}    <section class="card block">
       <h2 class="card-title">Settings</h2>
       {settings_html}
     </section>
@@ -1728,6 +1893,7 @@ def main() -> int:
     parser.add_argument("--from-snowflake", action="store_true", help="Run the audit query in Snowflake (requires --tenant-id or --tenant-group; uses Okta via SNOWFLAKE_* env)")
     parser.add_argument("--tenant-group", type=str, default=None, metavar="NAME", help="Run audit for all tenants in this tenant group (requires --from-snowflake and --html)")
     parser.add_argument("--html", type=str, default=None, metavar="FILE", help="Write a customer-friendly HTML scorecard to FILE (for --tenant-group, write group summary here and scorecard_<id>.html alongside)")
+    parser.add_argument("--output-aggregate", type=str, default=None, metavar="FILE", help="Merge this run into an aggregated JSON file (for hosted lookup by tenant). Use with single or group run.")
     args = parser.parse_args()
 
     data = None
@@ -1771,7 +1937,7 @@ def main() -> int:
                 ok, findings_by_area = evaluate_audit(results, lookback)
                 audit_areas = AUDIT_AREAS
             else:
-                ok, findings_by_area = evaluate_audit_purchasing_only(results, lookback)
+                ok, findings_by_area, ready_for_inventory = evaluate_audit_purchasing_only(results, lookback)
                 audit_areas = AUDIT_AREAS_PURCHASING
             area_statuses = {}
             for area in AUDIT_AREAS:
@@ -1780,12 +1946,19 @@ def main() -> int:
                 else:
                     area_statuses[area] = _area_status(findings_by_area.get(area, {"green": [], "yellow": [], "review": [], "red": []}))
             action_plan = get_action_plan(findings_by_area, audit_areas)
-            tenant_results.append({"tenant_id": tid, "tenant_name": tname, "area_statuses": area_statuses, "ok": ok, "action_plan": action_plan})
-            html_content = render_scorecard_html(tid, tname, lookback, results, findings_by_area, ok, audit_areas=audit_areas, is_live=is_live)
+            tenant_results.append({
+                "tenant_id": tid, "tenant_name": tname, "area_statuses": area_statuses, "ok": ok, "action_plan": action_plan,
+                "results": results, "findings_by_area": findings_by_area, "is_live": is_live, "lookback_days": lookback,
+            })
+            html_content = render_scorecard_html(tid, tname, lookback, results, findings_by_area, ok, audit_areas=audit_areas, is_live=is_live, ready_for_inventory_implementation=(ready_for_inventory if not is_live else None))
             (output_dir / f"scorecard_{tid}.html").write_text(html_content, encoding="utf-8")
         group_html = render_group_summary_html(group_name, tenant_results, lookback)
         (output_dir / "index.html").write_text(group_html, encoding="utf-8")
         print(f"Wrote group summary to {output_dir / 'index.html'} and {len(tenant_results)} scorecards to {output_dir}", file=sys.stderr)
+        if args.output_aggregate and tenant_results:
+            from audit.aggregate import merge_into_aggregate
+            merge_into_aggregate(Path(args.output_aggregate), tenant_results, lookback)
+            print(f"Merged {len(tenant_results)} tenants into {args.output_aggregate}", file=sys.stderr)
         return 0
 
     # --- Tenant group mode: run audit for each tenant in the group, then write group summary + per-tenant scorecards ---
@@ -1813,7 +1986,7 @@ def main() -> int:
                     ok, findings_by_area = evaluate_audit(results, lookback)
                     audit_areas = AUDIT_AREAS
                 else:
-                    ok, findings_by_area = evaluate_audit_purchasing_only(results, lookback)
+                    ok, findings_by_area, ready_for_inventory = evaluate_audit_purchasing_only(results, lookback)
                     audit_areas = AUDIT_AREAS_PURCHASING
                 area_statuses = {}
                 for area in AUDIT_AREAS:
@@ -1828,14 +2001,22 @@ def main() -> int:
                     "area_statuses": area_statuses,
                     "ok": ok,
                     "action_plan": action_plan,
+                    "results": results,
+                    "findings_by_area": findings_by_area,
+                    "is_live": is_live,
+                    "lookback_days": lookback,
                 })
-                html_content = render_scorecard_html(tenant_id, tenant_name, lookback, results, findings_by_area, ok, audit_areas=audit_areas, is_live=is_live)
+                html_content = render_scorecard_html(tenant_id, tenant_name, lookback, results, findings_by_area, ok, audit_areas=audit_areas, is_live=is_live, ready_for_inventory_implementation=(ready_for_inventory if not is_live else None))
                 (output_dir / f"scorecard_{tenant_id}.html").write_text(html_content, encoding="utf-8")
         finally:
             conn.close()
         group_html = render_group_summary_html(args.tenant_group, tenant_results, lookback)
         (output_dir / "index.html").write_text(group_html, encoding="utf-8")
         print(f"Wrote group summary to {output_dir / 'index.html'} and {len(tenant_results)} scorecards to {output_dir}", file=sys.stderr)
+        if args.output_aggregate and tenant_results:
+            from audit.aggregate import merge_into_aggregate
+            merge_into_aggregate(Path(args.output_aggregate), tenant_results, lookback)
+            print(f"Merged {len(tenant_results)} tenants into {args.output_aggregate}", file=sys.stderr)
         return 0
 
     if args.from_snowflake:
@@ -1892,7 +2073,7 @@ def main() -> int:
                 continue
             row = rows[0] if rows else []
             if isinstance(row, (list, tuple)):
-                need = 2 if key == "tenant_info" else (16 if key == "purchase_orders_summary" else (10 if key == "invoice_materials" else (3 if key == "replenishment_summary" else (9 if key == "returns_summary" else (16 if key == "assessment_data" else (5 if key == "setup_data" else (8 if key == "usage_checks" else (1 if key == "inventory_settings" else 4))))))))
+                need = 2 if key == "tenant_info" else (6 if key == "pricebook" else (16 if key == "purchase_orders_summary" else (10 if key == "invoice_materials" else (3 if key == "replenishment_summary" else (9 if key == "returns_summary" else (16 if key == "assessment_data" else (5 if key == "setup_data" else (8 if key == "usage_checks" else (1 if key == "inventory_settings" else 4)))))))))
                 normalized[key] = [list(row) + [None] * max(0, need - len(row))]
             else:
                 normalized[key] = [row]
@@ -1900,11 +2081,12 @@ def main() -> int:
 
     results = parse_results(data)
     is_live = is_live_with_inventory(results)
+    ready_for_inventory = None
     if is_live:
         ok, findings_by_area = evaluate_audit(results, lookback)
         audit_areas = AUDIT_AREAS
     else:
-        ok, findings_by_area = evaluate_audit_purchasing_only(results, lookback)
+        ok, findings_by_area, ready_for_inventory = evaluate_audit_purchasing_only(results, lookback)
         audit_areas = AUDIT_AREAS_PURCHASING
 
     # --- Output: tenant, scorecard, Settings, Setup, then findings by area ---
@@ -1916,7 +2098,7 @@ def main() -> int:
         folder_name = f"scorecard_{tenant_id or 0}_{_sanitize_folder_name(tenant_name or 'tenant')}"
         output_dir = base / folder_name
         output_dir.mkdir(parents=True, exist_ok=True)
-        html_content = render_scorecard_html(tenant_id, tenant_name, lookback, results, findings_by_area, ok, audit_areas=audit_areas, is_live=is_live)
+        html_content = render_scorecard_html(tenant_id, tenant_name, lookback, results, findings_by_area, ok, audit_areas=audit_areas, is_live=is_live, ready_for_inventory_implementation=(ready_for_inventory if not is_live else None))
         (output_dir / "scorecard.html").write_text(html_content, encoding="utf-8")
         css_src = Path(__file__).resolve().parent / "css" / "scorecard.css"
         if css_src.is_file():
@@ -1924,6 +2106,22 @@ def main() -> int:
             print(f"Wrote scorecard to {output_dir / 'scorecard.html'} and CSS to {output_dir}", file=sys.stderr)
         else:
             print(f"Wrote scorecard to {output_dir / 'scorecard.html'} (no css/scorecard.css found)", file=sys.stderr)
+
+    if args.output_aggregate and data is not None:
+        action_plan = get_action_plan(findings_by_area, audit_areas)
+        area_statuses_single = {}
+        for area in AUDIT_AREAS:
+            if not is_live and area not in audit_areas:
+                area_statuses_single[area] = "N/A"
+            else:
+                area_statuses_single[area] = _area_status(findings_by_area.get(area, {"green": [], "yellow": [], "review": [], "red": []}))
+        from audit.aggregate import merge_into_aggregate
+        merge_into_aggregate(Path(args.output_aggregate), [{
+            "tenant_id": tenant_id, "tenant_name": tenant_name, "lookback_days": lookback,
+            "is_live": is_live, "results": results, "findings_by_area": findings_by_area,
+            "area_statuses": area_statuses_single, "action_plan": action_plan,
+        }], lookback)
+        print(f"Merged 1 tenant into {args.output_aggregate}", file=sys.stderr)
 
     width = 62
     print("=" * width)
@@ -1950,6 +2148,25 @@ def main() -> int:
     print("  " + "-" * (width - 2))
     overall = "No critical issues" if ok else "Address red items to improve setup and usage"
     print(f"  Overall: {overall}")
+    if not is_live:
+        if _is_preparing_for_go_live(results, is_live):
+            go_live_ready, go_live_needs = _go_live_readiness(results)
+            if go_live_ready:
+                print("  Go Live Readiness: Ready to set your go live date and do inventory beginning balance counts.")
+            else:
+                print("  Go Live Readiness:")
+                for n in go_live_needs:
+                    print(f"    • {n}")
+        else:
+            if ready_for_inventory:
+                print("  Inventory Readiness: Ready to start inventory implementation.")
+            else:
+                areas_needing_work = _readiness_areas_needing_work(findings_by_area)
+                areas_str = _format_areas_for_message(areas_needing_work)
+                if areas_str:
+                    print(f"  Inventory Readiness: Address red items in {areas_str} to prepare for inventory implementation.")
+                else:
+                    print("  Inventory Readiness: Address red items above to prepare for inventory implementation.")
     print()
 
     print("  --- Settings ---")

@@ -3,16 +3,141 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Inventory Scorecard — T3 Services Group</title>
-  <link rel="canonical" href="T3_Services_Group/">
-  <meta http-equiv="refresh" content="0; url=T3_Services_Group/">
-  <script>window.location.replace("T3_Services_Group/");</script>
+  <title>Inventory Scorecard — Home</title>
+  <link rel="stylesheet" href="css/scorecard.css">
   <style>
-    body { font-family: system-ui, sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; }
-    a { color: #2270ee; }
+    .lookup-form { margin: 1.5rem 0; display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; }
+    .lookup-form input { padding: 0.5rem 0.75rem; font-size: 1rem; min-width: 12rem; }
+    .lookup-form button { padding: 0.5rem 1rem; font-size: 1rem; cursor: pointer; }
+    .lookup-error { color: #c00; margin-top: 0.5rem; }
+    .scorecard-summary { margin-top: 1rem; }
+    .area-row { display: flex; align-items: center; gap: 0.5rem; padding: 0.25rem 0; }
+    .area-status { font-weight: 600; min-width: 5rem; }
+    .area-status.green { color: #0a0; }
+    .area-status.yellow { color: #880; }
+    .area-status.review { color: #f80; }
+    .area-status.red { color: #c00; }
+    .action-plan { list-style: none; padding-left: 0; }
+    .action-plan li { padding: 0.35rem 0; border-bottom: 1px solid #eee; }
+    .other-links { margin-top: 2rem; padding-top: 1rem; border-top: 1px solid #ddd; color: #666; font-size: 0.95rem; }
+    .other-links a { color: #2270ee; }
   </style>
 </head>
 <body>
-  <p>Redirecting to <a href="T3_Services_Group/">T3 Services Group scorecard</a>…</p>
+  <h1>Inventory scorecard</h1>
+  <p>Enter a <strong>tenant name</strong> or <strong>tenant ID</strong> to view that tenant’s audit scorecard.</p>
+  <form class="lookup-form" id="lookup-form">
+    <input type="text" id="tenant-input" placeholder="e.g. 444875142 or westernheating" autofocus>
+    <button type="submit">View scorecard</button>
+  </form>
+  <div id="lookup-error" class="lookup-error" aria-live="polite" hidden></div>
+  <div id="scorecard-container" class="scorecard-summary" hidden></div>
+
+  <div class="other-links">
+    <a href="T3_Services_Group/">T3 Services Group</a> — group scorecard and per-tenant links
+  </div>
+
+  <script>
+    (function () {
+      var aggregateUrl = 'data/audit_aggregate.json';
+      var form = document.getElementById('lookup-form');
+      var input = document.getElementById('tenant-input');
+      var errEl = document.getElementById('lookup-error');
+      var container = document.getElementById('scorecard-container');
+
+      function slugify(s) {
+        return (s || '').toLowerCase().trim().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').slice(0, 80);
+      }
+
+      function findTenant(data, query) {
+        var q = (query || '').trim();
+        if (!q) return null;
+        var byId = data.tenants_by_id || {};
+        var bySlug = data.tenants_by_slug || {};
+        if (/^\d+$/.test(q)) return byId[q] || null;
+        return byId[bySlug[slugify(q)]] || null;
+      }
+
+      function statusClass(s) {
+        if (!s) return '';
+        var v = (s + '').toLowerCase();
+        if (v === 'good' || v === 'green') return 'green';
+        if (v === 'on track' || v === 'yellow') return 'yellow';
+        if (v === 'review') return 'review';
+        if (v === 'critical' || v === 'red' || v === 'needs attention') return 'red';
+        if (v === 'n/a') return '';
+        return '';
+      }
+
+      function render(tenant) {
+        var areas = tenant.area_statuses || {};
+        var plan = tenant.action_plan || [];
+        var isLive = tenant.is_live ? 'Live' : 'Purchasing only';
+        var html = '<h2>' + (tenant.tenant_name || 'Tenant') + ' <span style="font-size:0.6em;color:#666;">(ID ' + tenant.tenant_id + ' · ' + isLive + ' · ' + (tenant.lookback_days || 90) + 'd lookback)</span></h2>';
+        html += '<h3>Scorecard</h3><div class="area-rows">';
+        Object.keys(areas).forEach(function (area) {
+          var status = areas[area];
+          if (status === 'N/A') return;
+          html += '<div class="area-row"><span class="area-status ' + statusClass(status) + '">' + status + '</span> ' + area + '</div>';
+        });
+        html += '</div>';
+        if (plan.length) {
+          html += '<h3>Action plan</h3><ul class="action-plan">';
+          plan.forEach(function (item) {
+            html += '<li>' + (item.action || item).replace(/</g, '&lt;') + '</li>';
+          });
+          html += '</ul>';
+        }
+        container.innerHTML = html;
+        container.hidden = false;
+      }
+
+      function showError(msg) {
+        errEl.textContent = msg;
+        errEl.hidden = false;
+        container.hidden = true;
+      }
+
+      function clearError() {
+        errEl.textContent = '';
+        errEl.hidden = true;
+      }
+
+      var cache = null;
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        clearError();
+        var query = input.value.trim();
+        if (!query) {
+          showError('Enter a tenant name or ID.');
+          return;
+        }
+        function run(data) {
+          var tenant = findTenant(data, query);
+          if (!tenant) {
+            showError('No tenant found for “‘ + query + '”. Try another name or ID.');
+            return;
+          }
+          render(tenant);
+        }
+        if (cache) {
+          run(cache);
+          return;
+        }
+        fetch(aggregateUrl)
+          .then(function (r) {
+            if (!r.ok) throw new Error('Could not load data.');
+            return r.json();
+          })
+          .then(function (data) {
+            cache = data;
+            run(data);
+          })
+          .catch(function () {
+            showError('Could not load audit data. Make sure data/audit_aggregate.json exists and this page is served over HTTP (or use a local server).');
+          });
+      });
+    })();
+  </script>
 </body>
 </html>
