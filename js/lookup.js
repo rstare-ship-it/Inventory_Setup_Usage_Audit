@@ -86,67 +86,6 @@
     return lines.join('\n');
   }
 
-  function render(tenant) {
-    var areas = tenant.area_statuses || {};
-    var plan = tenant.action_plan || [];
-    var findingsByArea = tenant.findings_by_area || {};
-    var results = tenant.results || {};
-    var lookback = tenant.lookback_days || 90;
-    var name = tenant.tenant_name || ('Tenant ' + tenant.tenant_id);
-    var hasRed = Object.keys(areas).some(function (a) { var s = (areas[a] || '').toLowerCase(); return s === 'red' || s === 'critical'; });
-    var ok = !hasRed;
-
-    var html = '<div class="page">';
-    html += '<header class="header"><h1>Inventory Setup &amp; Usage Scorecard</h1>';
-    html += '<p class="meta"><span>' + esc(name) + '</span><span>Last ' + lookback + ' days</span><span>Tenant ID: ' + tenant.tenant_id + '</span></p></header>';
-
-    html += '<div class="card scorecard"><h2 class="card-title">Scorecard by area</h2><div class="scorecard-grid">';
-    AREA_ORDER.forEach(function (area) {
-      var status = areas[area];
-      if (status === 'N/A') return;
-      var suf = statusSuffix(status);
-      var label = STATUS_TO_LABEL[status] || status;
-      html += '<div class="scorecard-item status-' + suf + '"><span class="area-name">' + esc(area) + '</span><span class="badge badge-' + suf + '">' + esc(label) + '</span></div>';
-    });
-    html += '</div><p class="overall ' + (ok ? 'ok' : 'not-ok') + '">' + (ok ? 'No critical issues.' : 'Address red areas to improve setup and usage.') + '</p></div>';
-
-    html += '<section class="card block"><h2 class="card-title">Settings</h2>' + formatSettings(results) + '</section>';
-    html += '<section class="card block"><h2 class="card-title">Setup summary</h2>' + formatSetup(results) + '</section>';
-
-    html += '<section class="card block"><h2 class="card-title">Findings by area</h2>';
-    AREA_ORDER.forEach(function (area) {
-      var status = areas[area];
-      if (status === 'N/A') return;
-      var suf = statusSuffix(status);
-      var label = STATUS_TO_LABEL[status] || status;
-      var findings = findingsByArea[area] || { green: [], yellow: [], review: [], red: [] };
-      var list = (findings.green || []).map(function (t) { return '<li class="finding-ok">' + esc(t) + '</li>'; }).join('') +
-        (findings.yellow || []).map(function (t) { return '<li class="finding-warn">' + esc(t) + '</li>'; }).join('') +
-        (findings.review || []).map(function (t) { return '<li class="finding-review">' + esc(t) + '</li>'; }).join('') +
-        (findings.red || []).map(function (t) { return '<li class="finding-err">' + esc(t) + '</li>'; }).join('');
-      if (!list) return;
-      html += '<section class="findings-area border-' + suf + '"><h3 class="area-head">' + esc(area) + ' <span class="badge badge-' + suf + '">' + esc(label) + '</span></h3><ul class="findings-list">' + list + '</ul></section>';
-    });
-    html += '</section>';
-
-    html += '<section class="card block action-plan"><h2 class="card-title">Recommended actions</h2>';
-    if (plan.length) {
-      html += '<ol class="action-plan-list">';
-      plan.forEach(function (item) {
-        var text = typeof item === 'string' ? item : (item && item.action) || String(item);
-        html += '<li>' + esc(text) + '</li>';
-      });
-      html += '</ol>';
-    } else {
-      html += '<p>No specific actions recommended; keep up current practices.</p>';
-    }
-    html += '</section></div>';
-
-    container.innerHTML = html;
-    container.hidden = false;
-    errEl.textContent = '';
-  }
-
   function runLookup() {
     var input = document.getElementById('tenant-input');
     var errEl = document.getElementById('lookup-error');
@@ -171,6 +110,66 @@
       errEl.textContent = msg;
       errEl.style.color = '#c00';
       container.hidden = true;
+    }
+    function render(tenant) {
+      var areas = tenant.area_statuses || {};
+      var plan = tenant.action_plan || [];
+      var findingsByArea = tenant.findings_by_area || {};
+      var results = tenant.results || {};
+      var lookback = tenant.lookback_days || 90;
+      var name = tenant.tenant_name || ('Tenant ' + tenant.tenant_id);
+      var hasRed = Object.keys(areas).some(function (a) { var s = (areas[a] || '').toLowerCase(); return s === 'red' || s === 'critical'; });
+      var ok = !hasRed;
+
+      var html = '<div class="page">';
+      html += '<header class="header"><h1>Inventory Setup &amp; Usage Scorecard</h1>';
+      html += '<p class="meta"><span>' + esc(name) + '</span><span>Last ' + lookback + ' days</span><span>Tenant ID: ' + tenant.tenant_id + '</span></p></header>';
+
+      html += '<div class="card scorecard"><h2 class="card-title">Scorecard by area</h2><div class="scorecard-grid">';
+      AREA_ORDER.forEach(function (area) {
+        var status = areas[area];
+        if (status === 'N/A') return;
+        var suf = statusSuffix(status);
+        var label = STATUS_TO_LABEL[status] || status;
+        html += '<div class="scorecard-item status-' + suf + '"><span class="area-name">' + esc(area) + '</span><span class="badge badge-' + suf + '">' + esc(label) + '</span></div>';
+      });
+      html += '</div><p class="overall ' + (ok ? 'ok' : 'not-ok') + '">' + (ok ? 'No critical issues.' : 'Address red areas to improve setup and usage.') + '</p></div>';
+
+      html += '<section class="card block"><h2 class="card-title">Settings</h2>' + formatSettings(results) + '</section>';
+      html += '<section class="card block"><h2 class="card-title">Setup summary</h2>' + formatSetup(results) + '</section>';
+
+      html += '<section class="card block"><h2 class="card-title">Findings by area</h2>';
+      AREA_ORDER.forEach(function (area) {
+        var status = areas[area];
+        if (status === 'N/A') return;
+        var suf = statusSuffix(status);
+        var label = STATUS_TO_LABEL[status] || status;
+        var findings = findingsByArea[area] || { green: [], yellow: [], review: [], red: [] };
+        var list = (findings.green || []).map(function (t) { return '<li class="finding-ok">' + esc(t) + '</li>'; }).join('') +
+          (findings.yellow || []).map(function (t) { return '<li class="finding-warn">' + esc(t) + '</li>'; }).join('') +
+          (findings.review || []).map(function (t) { return '<li class="finding-review">' + esc(t) + '</li>'; }).join('') +
+          (findings.red || []).map(function (t) { return '<li class="finding-err">' + esc(t) + '</li>'; }).join('');
+        if (!list) return;
+        html += '<section class="findings-area border-' + suf + '"><h3 class="area-head">' + esc(area) + ' <span class="badge badge-' + suf + '">' + esc(label) + '</span></h3><ul class="findings-list">' + list + '</ul></section>';
+      });
+      html += '</section>';
+
+      html += '<section class="card block action-plan"><h2 class="card-title">Recommended actions</h2>';
+      if (plan.length) {
+        html += '<ol class="action-plan-list">';
+        plan.forEach(function (item) {
+          var text = typeof item === 'string' ? item : (item && item.action) || String(item);
+          html += '<li>' + esc(text) + '</li>';
+        });
+        html += '</ol>';
+      } else {
+        html += '<p>No specific actions recommended; keep up current practices.</p>';
+      }
+      html += '</section></div>';
+
+      container.innerHTML = html;
+      container.hidden = false;
+      errEl.textContent = '';
     }
     function run(data) {
       var tenant = findTenant(data, query);
