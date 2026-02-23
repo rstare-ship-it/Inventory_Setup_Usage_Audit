@@ -6,6 +6,21 @@
   var aggregateUrl = base + 'data/audit_aggregate.json';
   var cache = null;
 
+  /* Tenant groups: search term (slug or key) -> folder path under base. Add new groups here. */
+  var GROUPS = {
+    't3': 'T3_Services_Group/',
+    't3-services-group': 'T3_Services_Group/',
+    't3 services group': 'T3_Services_Group/',
+    't3servicesgroup': 'T3_Services_Group/'
+  };
+  function matchGroup(query) {
+    if (!query) return null;
+    var q = query.trim().toLowerCase().replace(/\s+/g, ' ');
+    var slug = slugify(query);
+    var noSpaces = q.replace(/\s/g, '');
+    return GROUPS[q] || GROUPS[slug] || GROUPS[noSpaces] || null;
+  }
+
   var AREA_ORDER = ['Pricebook & setup', 'Purchasing', 'Invoicing', 'Technician usage', 'Replenishment', 'Returns', 'Transfers', 'Counts and adjustments', 'Other'];
   var STATUS_TO_LABEL = { 'Green': 'Good', 'Yellow': 'On track', 'Review': 'Review', 'Red': 'Critical' };
   var FG_LABELS = { 'item_requisitions': 'Item requisitions', 'requisition_closeout': 'Requisition closeout', 'install_requisitions': 'Enable Requisition Workflow for Service Job', 'transfers_to_jobs': 'Transfers to jobs', 'consignment': 'Consignment', 'purchase_approval_workflow': 'Purchase approval workflow', 'granular_wac': 'Granular WAC', 'stock_optimizer': 'Stock Optimizer' };
@@ -99,8 +114,13 @@
     container.hidden = true;
     var query = input.value.trim();
     if (!query) {
-      errEl.textContent = 'Enter a tenant name or ID.';
+      errEl.textContent = 'Enter a tenant name, tenant ID, or tenant group name.';
       errEl.style.color = '#c00';
+      return;
+    }
+    var groupFolder = matchGroup(query);
+    if (groupFolder) {
+      window.location = base + groupFolder;
       return;
     }
     errEl.textContent = 'Loading…';

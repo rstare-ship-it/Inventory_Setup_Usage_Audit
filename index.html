@@ -24,9 +24,9 @@
 </head>
 <body>
   <h1>Inventory scorecard</h1>
-  <p>Enter a <strong>tenant name</strong> or <strong>tenant ID</strong> to view that tenant's audit scorecard.</p>
+  <p>Enter a <strong>tenant name</strong>, <strong>tenant ID</strong>, or <strong>tenant group name</strong> to view an audit scorecard.</p>
   <form class="lookup-form" id="lookup-form">
-    <input type="text" id="tenant-input" placeholder="e.g. 444875142 or westernheating" autofocus>
+    <input type="text" id="tenant-input" placeholder="e.g. 444875142, westernheating, or T3 Services Group" autofocus>
     <button type="button" onclick="runLookup()">View scorecard</button>
   </form>
   <div id="lookup-error" class="lookup-error" aria-live="polite" style="min-height: 1.5em;"></div>
