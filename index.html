@@ -39,7 +39,16 @@
 
   <script>
     (function () {
-      var aggregateUrl = 'data/audit_aggregate.json';
+      // Resolve path so fetch works on GitHub Pages (with or without trailing slash)
+      var path = window.location.pathname;
+      var base;
+      if (path.endsWith('/')) base = path;
+      else {
+        var i = path.lastIndexOf('/');
+        if (i >= 0 && path.substring(i + 1).indexOf('.') >= 0) base = path.substring(0, i + 1);
+        else base = path + '/';
+      }
+      var aggregateUrl = base + 'data/audit_aggregate.json';
       var form = document.getElementById('lookup-form');
       var input = document.getElementById('tenant-input');
       var errEl = document.getElementById('lookup-error');
@@ -84,7 +93,8 @@
         if (plan.length) {
           html += '<h3>Action plan</h3><ul class="action-plan">';
           plan.forEach(function (item) {
-            html += '<li>' + (item.action || item).replace(/</g, '&lt;') + '</li>';
+            var text = typeof item === 'string' ? item : (item && item.action) || String(item);
+            html += '<li>' + text.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</li>';
           });
           html += '</ul>';
         }
@@ -118,7 +128,7 @@
             showError('No tenant found for “‘ + query + '”. Try another name or ID.');
             return;
           }
-          render(tenant);
+          try { render(tenant); } catch (err) { showError('Error showing scorecard: ' + (err.message || err)); }
         }
         if (cache) {
           run(cache);
@@ -126,15 +136,16 @@
         }
         fetch(aggregateUrl)
           .then(function (r) {
-            if (!r.ok) throw new Error('Could not load data.');
+            if (!r.ok) throw new Error('Data returned ' + r.status + ' — check that data/audit_aggregate.json exists.');
             return r.json();
           })
           .then(function (data) {
+            if (!data || (!data.tenants_by_id && !data.tenants)) throw new Error('Invalid data format.');
             cache = data;
             run(data);
           })
-          .catch(function () {
-            showError('Could not load audit data. Make sure data/audit_aggregate.json exists and this page is served over HTTP (or use a local server).');
+          .catch(function (err) {
+            showError(err.message || 'Could not load audit data. Open the browser console (F12) for details.');
           });
       });
     })();
