@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Inventory Scorecard — Home</title>
-  <link rel="stylesheet" href="css/scorecard.css">
+  <link rel="stylesheet" href="/Inventory_Setup_Usage_Audit/css/scorecard.css">
   <style>
     .lookup-form { margin: 1.5rem 0; display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; }
     .lookup-form input { padding: 0.5rem 0.75rem; font-size: 1rem; min-width: 12rem; }
@@ -25,10 +25,10 @@
 </head>
 <body>
   <h1>Inventory scorecard</h1>
-  <p>Enter a <strong>tenant name</strong> or <strong>tenant ID</strong> to view that tenant’s audit scorecard.</p>
+  <p>Enter a <strong>tenant name</strong> or <strong>tenant ID</strong> to view that tenant's audit scorecard.</p>
   <form class="lookup-form" id="lookup-form">
     <input type="text" id="tenant-input" placeholder="e.g. 444875142 or westernheating" autofocus>
-    <button type="button" id="lookup-btn">View scorecard</button>
+    <button type="button" onclick="runLookup()">View scorecard</button>
   </form>
   <div id="lookup-error" class="lookup-error" aria-live="polite" style="min-height: 1.5em;"></div>
   <div id="scorecard-container" class="scorecard-summary" hidden></div>
@@ -37,125 +37,7 @@
     <a href="T3_Services_Group/">T3 Services Group</a> — group scorecard and per-tenant links
   </div>
 
-  <script>
-    (function () {
-      var form = document.getElementById('lookup-form');
-      var input = document.getElementById('tenant-input');
-      var btn = document.getElementById('lookup-btn') || (form && form.querySelector('button'));
-      var errEl = document.getElementById('lookup-error');
-      var container = document.getElementById('scorecard-container');
-      if (!btn || !form || !input || !errEl || !container) { if (errEl) errEl.textContent = 'Page setup error: missing element.'; return; }
-      // Resolve path so fetch works on GitHub Pages (with or without trailing slash)
-      var path = window.location.pathname;
-      var base;
-      if (path.endsWith('/')) base = path;
-      else {
-        var i = path.lastIndexOf('/');
-        if (i >= 0 && path.substring(i + 1).indexOf('.') >= 0) base = path.substring(0, i + 1);
-        else base = path + '/';
-      }
-      var aggregateUrl = base + 'data/audit_aggregate.json';
-
-      function slugify(s) {
-        return (s || '').toLowerCase().trim().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').slice(0, 80);
-      }
-
-      function findTenant(data, query) {
-        var q = (query || '').trim();
-        if (!q) return null;
-        var byId = data.tenants_by_id || {};
-        var bySlug = data.tenants_by_slug || {};
-        if (/^\d+$/.test(q)) return byId[q] || null;
-        return byId[bySlug[slugify(q)]] || null;
-      }
-
-      function statusClass(s) {
-        if (!s) return '';
-        var v = (s + '').toLowerCase();
-        if (v === 'good' || v === 'green') return 'green';
-        if (v === 'on track' || v === 'yellow') return 'yellow';
-        if (v === 'review') return 'review';
-        if (v === 'critical' || v === 'red' || v === 'needs attention') return 'red';
-        if (v === 'n/a') return '';
-        return '';
-      }
-
-      function render(tenant) {
-        var areas = tenant.area_statuses || {};
-        var plan = tenant.action_plan || [];
-        var isLive = tenant.is_live ? 'Live' : 'Purchasing only';
-        var html = '<h2>' + (tenant.tenant_name || 'Tenant') + ' <span style="font-size:0.6em;color:#666;">(ID ' + tenant.tenant_id + ' · ' + isLive + ' · ' + (tenant.lookback_days || 90) + 'd lookback)</span></h2>';
-        html += '<h3>Scorecard</h3><div class="area-rows">';
-        Object.keys(areas).forEach(function (area) {
-          var status = areas[area];
-          if (status === 'N/A') return;
-          html += '<div class="area-row"><span class="area-status ' + statusClass(status) + '">' + status + '</span> ' + area + '</div>';
-        });
-        html += '</div>';
-        if (plan.length) {
-          html += '<h3>Action plan</h3><ul class="action-plan">';
-          plan.forEach(function (item) {
-            var text = typeof item === 'string' ? item : (item && item.action) || String(item);
-            html += '<li>' + text.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</li>';
-          });
-          html += '</ul>';
-        }
-        container.innerHTML = html;
-        container.hidden = false;
-      }
-
-      function showError(msg) {
-        errEl.textContent = msg;
-        errEl.style.color = '#c00';
-        container.hidden = true;
-      }
-
-      function clearError() {
-        errEl.textContent = '';
-        errEl.style.color = '';
-      }
-
-      var cache = null;
-      function runLookup() {
-        clearError();
-        container.hidden = true;
-        var query = input.value.trim();
-        if (!query) {
-          showError('Enter a tenant name or ID.');
-          return;
-        }
-        errEl.textContent = 'Loading…';
-        errEl.style.color = '#666';
-        function run(data) {
-          errEl.textContent = '';
-          var tenant = findTenant(data, query);
-          if (!tenant) {
-            showError('No tenant found for “‘ + query + '”. Try another name or ID.');
-            return;
-          }
-          try { render(tenant); } catch (err) { showError('Error showing scorecard: ' + (err.message || err)); }
-        }
-        if (cache) {
-          run(cache);
-          return;
-        }
-        fetch(aggregateUrl)
-          .then(function (r) {
-            if (!r.ok) throw new Error('Data returned ' + r.status + ' — check that data/audit_aggregate.json exists.');
-            return r.json();
-          })
-          .then(function (data) {
-            if (!data || (!data.tenants_by_id && !data.tenants)) throw new Error('Invalid data format.');
-            cache = data;
-            run(data);
-          })
-          .catch(function (err) {
-            showError(err.message || 'Could not load audit data. Open the browser console (F12) for details.');
-          });
-      }
-      btn.addEventListener('click', runLookup);
-      input.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); runLookup(); } });
-    })();
-  </script>
+  <!-- Use path from root so script loads even when page URL has no trailing slash -->
+  <script src="/Inventory_Setup_Usage_Audit/js/lookup.js"></script>
 </body>
 </html>
