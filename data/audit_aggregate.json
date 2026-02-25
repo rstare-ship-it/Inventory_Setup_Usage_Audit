@@ -342,6 +342,7 @@
       "tenant_id": 424143126,
       "tenant_name": "ambientedge",
       "lookback_days": 90,
+      "scorecard_path": "scorecard_424143126_ambientedge/scorecard.html",
       "is_live": false,
       "area_statuses": {
         "Pricebook & setup": "N/A",
@@ -13847,6 +13848,7 @@
       "tenant_id": 1458880803,
       "tenant_name": "blazerheating",
       "lookback_days": 90,
+      "scorecard_path": "scorecard_1458880803_blazerheating/scorecard.html",
       "is_live": true,
       "area_statuses": {
         "Pricebook & setup": "Review",
@@ -14125,6 +14127,7 @@
       "tenant_id": 2132666389,
       "tenant_name": "mdgsiebered",
       "lookback_days": 90,
+      "scorecard_path": "scorecard_2132666389_mdgsiebered/scorecard.html",
       "is_live": true,
       "area_statuses": {
         "Pricebook & setup": "Red",
@@ -14397,6 +14400,7 @@
       "tenant_id": 351758213,
       "tenant_name": "aderr",
       "lookback_days": 90,
+      "scorecard_path": "scorecard_351758213_aderr/scorecard.html",
       "is_live": false,
       "area_statuses": {
         "Pricebook & setup": "N/A",
@@ -14624,6 +14628,7 @@
       "tenant_id": 401477010,
       "tenant_name": "randazzo",
       "lookback_days": 90,
+      "scorecard_path": "scorecard_401477010_randazzo/scorecard.html",
       "is_live": false,
       "area_statuses": {
         "Pricebook & setup": "N/A",

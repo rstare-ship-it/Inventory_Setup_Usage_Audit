@@ -72,6 +72,8 @@ def merge_into_aggregate(
             "findings_by_area": _json_safe(t.get("findings_by_area") or {}),
             "updated_at": now,
         }
+        if t.get("scorecard_path"):
+            payload["scorecard_path"] = t["scorecard_path"]
         out["tenants_by_id"][tid_str] = payload
         if slug:
             out["tenants_by_slug"][slug] = tid_str

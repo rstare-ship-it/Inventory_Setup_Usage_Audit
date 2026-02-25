@@ -1946,9 +1946,11 @@ def main() -> int:
                 else:
                     area_statuses[area] = _area_status(findings_by_area.get(area, {"green": [], "yellow": [], "review": [], "red": []}))
             action_plan = get_action_plan(findings_by_area, audit_areas)
+            group_folder = _sanitize_folder_name(group_name)
             tenant_results.append({
                 "tenant_id": tid, "tenant_name": tname, "area_statuses": area_statuses, "ok": ok, "action_plan": action_plan,
                 "results": results, "findings_by_area": findings_by_area, "is_live": is_live, "lookback_days": lookback,
+                "scorecard_path": f"{group_folder}/scorecard_{tid}.html",
             })
             html_content = render_scorecard_html(tid, tname, lookback, results, findings_by_area, ok, audit_areas=audit_areas, is_live=is_live, ready_for_inventory_implementation=(ready_for_inventory if not is_live else None))
             (output_dir / f"scorecard_{tid}.html").write_text(html_content, encoding="utf-8")
@@ -1995,6 +1997,7 @@ def main() -> int:
                     else:
                         area_statuses[area] = _area_status(findings_by_area.get(area, {"green": [], "yellow": [], "review": [], "red": []}))
                 action_plan = get_action_plan(findings_by_area, audit_areas)
+                group_folder = _sanitize_folder_name(args.tenant_group)
                 tenant_results.append({
                     "tenant_id": tenant_id,
                     "tenant_name": tenant_name,
@@ -2005,6 +2008,7 @@ def main() -> int:
                     "findings_by_area": findings_by_area,
                     "is_live": is_live,
                     "lookback_days": lookback,
+                    "scorecard_path": f"{group_folder}/scorecard_{tenant_id}.html",
                 })
                 html_content = render_scorecard_html(tenant_id, tenant_name, lookback, results, findings_by_area, ok, audit_areas=audit_areas, is_live=is_live, ready_for_inventory_implementation=(ready_for_inventory if not is_live else None))
                 (output_dir / f"scorecard_{tenant_id}.html").write_text(html_content, encoding="utf-8")
@@ -2115,11 +2119,16 @@ def main() -> int:
                 area_statuses_single[area] = "N/A"
             else:
                 area_statuses_single[area] = _area_status(findings_by_area.get(area, {"green": [], "yellow": [], "review": [], "red": []}))
+        scorecard_path = None
+        if args.html:
+            folder_name = f"scorecard_{tenant_id or 0}_{_sanitize_folder_name(tenant_name or 'tenant')}"
+            scorecard_path = f"{folder_name}/scorecard.html"
         from audit.aggregate import merge_into_aggregate
         merge_into_aggregate(Path(args.output_aggregate), [{
             "tenant_id": tenant_id, "tenant_name": tenant_name, "lookback_days": lookback,
             "is_live": is_live, "results": results, "findings_by_area": findings_by_area,
             "area_statuses": area_statuses_single, "action_plan": action_plan,
+            "scorecard_path": scorecard_path,
         }], lookback)
         print(f"Merged 1 tenant into {args.output_aggregate}", file=sys.stderr)
 

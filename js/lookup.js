@@ -134,6 +134,15 @@
       container.hidden = true;
     }
     function render(tenant) {
+      /* When we have a scorecard_path, show the actual HTML file (so purchasing audit, Inventory Readiness, etc. display correctly). */
+      if (tenant.scorecard_path) {
+        var url = base + tenant.scorecard_path.replace(/^\/+/, '');
+        container.innerHTML = '<iframe src="' + url.replace(/"/g, '&quot;') + '" title="Scorecard" style="width:100%; border:none; min-height:800px;"></iframe>';
+        container.hidden = false;
+        errEl.textContent = '';
+        return;
+      }
+
       var areas = tenant.area_statuses || {};
       var plan = tenant.action_plan || [];
       var findingsByArea = tenant.findings_by_area || {};
