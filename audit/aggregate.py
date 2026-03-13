@@ -29,15 +29,29 @@ def _slug(name: str) -> str:
     return "-".join(s.lower().split())[:80]
 
 
+def _sanitize_group_id(name: str) -> str:
+    """Convert group name to a stable folder-like ID (e.g. 'T3 Services Group' → 'T3_Services_Group')."""
+    if not name or not isinstance(name, str):
+        return "group"
+    import re
+    s = re.sub(r"[^\w\-]+", "_", name.strip())
+    s = re.sub(r"_+", "_", s).strip("_")
+    return (s[:80] if len(s) > 80 else s) or "group"
+
+
 def merge_into_aggregate(
     aggregate_path: Path,
     tenants: list[dict],
     lookback_days: int = 90,
+    group_name: str | None = None,
 ) -> None:
     """
     Read existing aggregate JSON (if any), merge in the given tenant runs by tenant_id,
     write back. Each item in `tenants` must have: tenant_id, tenant_name, lookback_days,
     is_live, results, findings_by_area, area_statuses, action_plan.
+
+    If group_name is provided, also update data/groups.json alongside the aggregate to
+    record which tenant IDs belong to this group (used by the dynamic group.html page).
     """
     now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     out: dict = {
@@ -79,3 +93,36 @@ def merge_into_aggregate(
             out["tenants_by_slug"][slug] = tid_str
     aggregate_path.parent.mkdir(parents=True, exist_ok=True)
     aggregate_path.write_text(json.dumps(out, indent=2), encoding="utf-8")
+
+    # Update groups.json if a group_name was provided
+    if group_name and tenants:
+        _update_groups_json(aggregate_path.parent / "groups.json", group_name, tenants)
+
+
+def _update_groups_json(groups_path: Path, group_name: str, tenants: list[dict]) -> None:
+    """Upsert a group entry in groups.json with the current tenant ID list."""
+    existing: dict = {"groups": []}
+    if groups_path.is_file():
+        try:
+            existing = json.loads(groups_path.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError):
+            pass
+
+    group_id = _sanitize_group_id(group_name)
+    tenant_ids = [str(t["tenant_id"]) for t in tenants if t.get("tenant_id") is not None]
+
+    groups = existing.get("groups") or []
+    # Find existing entry by group_id or group_name
+    entry = next(
+        (g for g in groups if g.get("group_id") == group_id or g.get("group_name") == group_name),
+        None,
+    )
+    if entry is not None:
+        entry["group_name"] = group_name
+        entry["group_id"] = group_id
+        entry["tenant_ids"] = tenant_ids
+    else:
+        groups.append({"group_id": group_id, "group_name": group_name, "tenant_ids": tenant_ids})
+
+    existing["groups"] = groups
+    groups_path.write_text(json.dumps(existing, indent=2), encoding="utf-8")

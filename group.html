@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Group Scorecard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f0f2f5; --card: #ffffff; --nav-bg: #1a1a2e;
+      --accent: #4fc3f7; --text: #1a1a2e; --muted: #64748b;
+      --border: #e2e8f0; --shadow: 0 2px 10px rgba(0,0,0,0.07);
+      --red: #ef4444; --red-bg: #fef2f2;
+      --review: #f97316; --review-bg: #fff7ed;
+      --yellow: #eab308; --yellow-bg: #fefce8;
+      --green: #22c55e; --green-bg: #f0fdf4;
+      --na-bg: #f9fafb; --na: #9ca3af;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.5; }
+
+    /* ── NAV ── */
+    nav {
+      background: var(--nav-bg); padding: 0 2rem; height: 52px;
+      display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; z-index: 100;
+    }
+    .nav-logo { color: var(--accent); font-size: 15px; font-weight: 800; letter-spacing: 0.02em; }
+    .nav-logo span { color: rgba(255,255,255,0.7); font-weight: 500; }
+    .nav-back { color: rgba(255,255,255,0.6); font-size: 13px; text-decoration: none; display: flex; align-items: center; gap: 0.35rem; transition: color 0.15s; }
+    .nav-back:hover { color: var(--accent); }
+
+    /* ── HERO ── */
+    .hero {
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+      color: white; padding: 2.75rem 2rem 2.5rem;
+      position: relative; overflow: hidden;
+    }
+    .hero::after {
+      content: ''; position: absolute; top: -80px; right: -80px;
+      width: 380px; height: 380px;
+      background: radial-gradient(circle, rgba(79,195,247,0.07) 0%, transparent 65%);
+      border-radius: 50%; pointer-events: none;
+    }
+    .hero-inner { max-width: 860px; margin: 0 auto; position: relative; z-index: 1; }
+    .hero-label {
+      display: inline-block;
+      background: rgba(79,195,247,0.15); border: 1px solid rgba(79,195,247,0.3);
+      color: var(--accent); font-size: 0.63rem; font-weight: 700; letter-spacing: 0.12em;
+      text-transform: uppercase; padding: 0.2rem 0.65rem; border-radius: 9999px; margin-bottom: 0.75rem;
+    }
+    .hero h1 { font-size: 1.75rem; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 0.35rem; }
+    .hero-meta { color: rgba(255,255,255,0.5); font-size: 13px; margin-bottom: 1.5rem; }
+    .hero-meta span + span::before { content: '·'; margin: 0 0.5rem; }
+
+    /* ── STATS STRIP ── */
+    .stats-strip {
+      display: flex; gap: 1.25rem; flex-wrap: wrap;
+    }
+    .stat-pill {
+      display: flex; align-items: center; gap: 0.5rem;
+      background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 9999px; padding: 0.3rem 0.85rem; font-size: 13px;
+    }
+    .stat-pill .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .stat-pill .dot-red { background: var(--red); }
+    .stat-pill .dot-review { background: var(--review); }
+    .stat-pill .dot-yellow { background: var(--yellow); }
+    .stat-pill .dot-green { background: var(--green); }
+    .stat-pill .stat-num { font-weight: 700; color: white; }
+    .stat-pill .stat-lbl { color: rgba(255,255,255,0.55); }
+    .health-pill {
+      background: rgba(79,195,247,0.15); border-color: rgba(79,195,247,0.3);
+      color: rgba(255,255,255,0.85);
+    }
+    .health-pill .stat-num { color: var(--accent); }
+
+    /* ── MAIN ── */
+    main { max-width: 1000px; margin: 0 auto; padding: 2rem 1.5rem 3.5rem; }
+
+    .section-label {
+      font-size: 10.5px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.12em; color: var(--muted);
+      margin: 0 0 0.9rem; display: flex; align-items: center; gap: 0.6rem;
+    }
+    .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+    /* ── CARDS ── */
+    .card { background: var(--card); border-radius: 12px; padding: 1.4rem 1.5rem; box-shadow: var(--shadow); margin-bottom: 1.5rem; }
+    .card-title { font-size: 15px; font-weight: 700; margin-bottom: 0.85rem; }
+    .card-desc { font-size: 13px; color: var(--muted); margin-bottom: 0.75rem; }
+
+    /* ── TWO-COL LAYOUT ── */
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+    @media (max-width: 640px) { .two-col { grid-template-columns: 1fr; } }
+
+    /* ── STRUGGLES LIST ── */
+    .struggles-list { list-style: none; padding: 0; margin: 0; }
+    .struggles-list li {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.45rem 0; border-bottom: 1px solid var(--border); font-size: 13.5px;
+    }
+    .struggles-list li:last-child { border-bottom: none; }
+    .struggles-count {
+      font-size: 12px; font-weight: 600; color: var(--muted);
+      background: var(--bg); border-radius: 9999px; padding: 0.15rem 0.55rem;
+      white-space: nowrap; margin-left: 0.75rem;
+    }
+
+    /* ── ACTION LIST ── */
+    .action-list { padding-left: 1.35rem; margin: 0; }
+    .action-list li { margin: 0.45rem 0; font-size: 13.5px; }
+    .action-count { font-size: 12px; color: var(--muted); margin-left: 0.4rem; }
+
+    /* ── STATUS TABLE ── */
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; min-width: 700px; }
+    thead th {
+      font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em;
+      color: var(--muted); padding: 0.55rem 0.6rem; text-align: left;
+      border-bottom: 2px solid var(--border); white-space: nowrap;
+    }
+    thead th:first-child { min-width: 160px; }
+    tbody td { padding: 0.45rem 0.6rem; border-bottom: 1px solid var(--border); font-size: 13px; vertical-align: middle; }
+    tbody tr:last-child td { border-bottom: none; }
+    tbody tr:hover td { background: rgba(79,195,247,0.04) !important; }
+    .tenant-link { color: var(--text); text-decoration: none; font-weight: 600; }
+    .tenant-link:hover { color: #0f3460; text-decoration: underline; }
+
+    /* ── STATUS BADGES ── */
+    .badge {
+      display: inline-flex; align-items: center; gap: 0.3rem;
+      font-size: 11px; font-weight: 700; padding: 0.2rem 0.55rem;
+      border-radius: 9999px; white-space: nowrap;
+    }
+    .badge-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+    .badge-red    { background: var(--red-bg);    color: #b91c1c; }
+    .badge-red    .badge-dot { background: var(--red); }
+    .badge-review { background: var(--review-bg); color: #c2410c; }
+    .badge-review .badge-dot { background: var(--review); }
+    .badge-yellow { background: var(--yellow-bg); color: #92400e; }
+    .badge-yellow .badge-dot { background: var(--yellow); }
+    .badge-green  { background: var(--green-bg);  color: #15803d; }
+    .badge-green  .badge-dot { background: var(--green); }
+    .badge-na     { background: var(--na-bg);     color: var(--na); }
+
+    td.s-red    { background: var(--red-bg); }
+    td.s-review { background: var(--review-bg); }
+    td.s-yellow { background: var(--yellow-bg); }
+    td.s-green  { background: var(--green-bg); }
+    td.s-na     { background: var(--na-bg); }
+
+    /* ── LOADING / ERROR ── */
+    .state-msg { text-align: center; padding: 3rem 1rem; color: var(--muted); font-size: 15px; }
+    .state-msg strong { display: block; font-size: 22px; color: var(--text); margin-bottom: 0.5rem; }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <div class="nav-logo">Inventory<span> Scorecard</span></div>
+    <a class="nav-back" href="index.html">← All tenants</a>
+  </nav>
+
+  <div class="hero">
+    <div class="hero-inner">
+      <div class="hero-label">Group Summary</div>
+      <h1 id="hero-title">Loading…</h1>
+      <div class="hero-meta" id="hero-meta"></div>
+      <div class="stats-strip" id="stats-strip"></div>
+    </div>
+  </div>
+
+  <main id="main">
+    <div class="state-msg" id="loading-msg">
+      <strong>Loading group data…</strong>
+      Fetching tenant scorecards.
+    </div>
+  </main>
+
+  <script>
+  (function () {
+    'use strict';
+
+    var BASE = window.location.pathname.replace(/\/[^/]*$/, '/');
+    var AGGREGATE_URL = BASE + 'data/audit_aggregate.json';
+    var GROUPS_URL    = BASE + 'data/groups.json';
+
+    var AREAS = [
+      'Pricebook & setup', 'Purchasing', 'Invoicing', 'Technician usage',
+      'Replenishment', 'Returns', 'Transfers', 'Counts and adjustments', 'Other'
+    ];
+
+    var STATUS_ORDER = { Red: 0, Review: 1, Yellow: 2, Green: 3, 'N/A': 4 };
+    var BADGE_CLASS  = { Red: 'badge-red', Review: 'badge-review', Yellow: 'badge-yellow', Green: 'badge-green', 'N/A': 'badge-na' };
+    var BADGE_LABEL  = { Red: 'Critical', Review: 'Review', Yellow: 'On track', Green: 'Good', 'N/A': 'N/A' };
+    var CELL_CLASS   = { Red: 's-red', Review: 's-review', Yellow: 's-yellow', Green: 's-green', 'N/A': 's-na' };
+
+    function escHtml(s) {
+      return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    // ── URL param ─────────────────────────────────────────────────────────────
+    var params = {};
+    window.location.search.slice(1).split('&').forEach(function (p) {
+      var kv = p.split('=');
+      if (kv[0]) params[decodeURIComponent(kv[0])] = decodeURIComponent((kv[1] || '').replace(/\+/g,' '));
+    });
+    var groupParam = (params.group || params.g || '').trim();
+
+    if (!groupParam) {
+      renderError('No group specified.', 'Use <code>group.html?group=SILA</code> or include a group name in the URL.');
+      throw new Error('no group param');
+    }
+
+    // ── Fetch both JSON files in parallel ────────────────────────────────────
+    Promise.all([
+      fetch(GROUPS_URL).then(function(r){ if(!r.ok) throw new Error('groups.json: '+r.status); return r.json(); }),
+      fetch(AGGREGATE_URL).then(function(r){ if(!r.ok) throw new Error('audit_aggregate.json: '+r.status); return r.json(); })
+    ]).then(function(results) {
+      var groupsData   = results[0];
+      var aggregateData = results[1];
+      render(groupsData, aggregateData);
+    }).catch(function(err) {
+      renderError('Could not load data.', err.message);
+    });
+
+    // ── Find the group ────────────────────────────────────────────────────────
+    function findGroup(groupsData) {
+      var needle = groupParam.toLowerCase().replace(/\s+/g, ' ').trim();
+      return (groupsData.groups || []).find(function(g) {
+        return g.group_id.toLowerCase() === needle ||
+               g.group_name.toLowerCase() === needle ||
+               g.group_id.toLowerCase().replace(/_/g,' ') === needle;
+      });
+    }
+
+    // ── Main render ───────────────────────────────────────────────────────────
+    function render(groupsData, aggregateData) {
+      var group = findGroup(groupsData);
+      if (!group) {
+        renderError('Group not found.', 'No group matching "' + escHtml(groupParam) + '" in groups.json.');
+        return;
+      }
+
+      document.title = group.group_name + ' — Group Scorecard';
+
+      var byId = aggregateData.tenants_by_id || {};
+      var tenants = group.tenant_ids.map(function(tid) {
+        return byId[String(tid)] || null;
+      }).filter(Boolean);
+
+      tenants.sort(function(a,b){
+        return (a.tenant_name||'').localeCompare(b.tenant_name||'');
+      });
+
+      // ── Compute stats ────────────────────────────────────────────────────
+      var needAttn = tenants.filter(function(t) {
+        return Object.values(t.area_statuses || {}).some(function(s){ return s === 'Red' || s === 'Review' || s === 'Yellow'; });
+      }).length;
+
+      var totalCells = 0, goodCells = 0;
+      var areaCounts = {}; // area → count needing improvement
+      AREAS.forEach(function(a) { areaCounts[a] = 0; });
+
+      tenants.forEach(function(t) {
+        var statuses = t.area_statuses || {};
+        AREAS.forEach(function(a) {
+          var s = statuses[a];
+          if (!s || s === 'N/A') return;
+          totalCells++;
+          if (s === 'Green') { goodCells++; }
+          else { areaCounts[a] = (areaCounts[a] || 0) + 1; }
+        });
+      });
+
+      var healthPct = totalCells > 0 ? Math.round(goodCells / totalCells * 100) : 0;
+      var healthLabel = healthPct >= 80 ? 'Healthy' : healthPct >= 60 ? 'Fair' : healthPct >= 40 ? 'Needs work' : 'Critical';
+
+      // Status counts (per-tenant, any-area)
+      var statusCounts = { Red: 0, Review: 0, Yellow: 0, Green: 0 };
+      tenants.forEach(function(t) {
+        var s = t.area_statuses || {};
+        var worst = worstStatus(s);
+        if (worst && worst !== 'N/A') statusCounts[worst]++;
+      });
+
+      // ── Hero ─────────────────────────────────────────────────────────────
+      document.getElementById('hero-title').textContent = group.group_name;
+      document.getElementById('hero-meta').innerHTML =
+        '<span>' + tenants.length + ' tenant' + (tenants.length !== 1 ? 's' : '') + '</span>' +
+        '<span>Last 90 days</span>' +
+        '<span>' + needAttn + ' of ' + tenants.length + ' need attention</span>';
+
+      var strip = document.getElementById('stats-strip');
+      strip.innerHTML =
+        pill('dot-red',    statusCounts.Red,    'critical') +
+        pill('dot-review', statusCounts.Review, 'review') +
+        pill('dot-yellow', statusCounts.Yellow, 'on track') +
+        pill('dot-green',  statusCounts.Green,  'good') +
+        '<div class="stat-pill health-pill"><span class="stat-num">' + healthPct + '%</span><span class="stat-lbl">group health — ' + healthLabel + '</span></div>';
+
+      // ── Build main content ───────────────────────────────────────────────
+      var main = document.getElementById('main');
+      main.innerHTML = '';
+
+      // Common struggles
+      var struggles = AREAS.map(function(a) {
+        return { area: a, count: areaCounts[a] || 0 };
+      }).filter(function(x){ return x.count >= 2; })
+        .sort(function(a,b){ return b.count - a.count; });
+
+      // Action plan: collect & deduplicate
+      var actionMap = {};
+      tenants.forEach(function(t) {
+        (t.action_plan || []).forEach(function(item) {
+          var key = (item.text || item).trim();
+          if (!actionMap[key]) actionMap[key] = 0;
+          actionMap[key]++;
+        });
+      });
+      var actions = Object.keys(actionMap).map(function(k) {
+        return { text: k, count: actionMap[k] };
+      }).filter(function(x){ return x.count >= 2; })
+        .sort(function(a,b){ return b.count - a.count; });
+
+      // Card: common struggles + actions (two-col)
+      var html = '';
+      html += '<div class="section-label">Common struggles &amp; action plan</div>';
+      html += '<div class="two-col card">';
+
+      html += '<div>';
+      html += '<div class="card-title">Common struggles</div>';
+      html += '<p class="card-desc">Areas where multiple tenants need improvement.</p>';
+      if (struggles.length) {
+        html += '<ul class="struggles-list">';
+        struggles.forEach(function(s) {
+          html += '<li><span>' + escHtml(s.area) + '</span><span class="struggles-count">' + s.count + ' of ' + tenants.length + ' tenants</span></li>';
+        });
+        html += '</ul>';
+      } else {
+        html += '<p style="color:var(--muted);font-size:13px;">No widespread struggles. Great work!</p>';
+      }
+      html += '</div>';
+
+      html += '<div>';
+      html += '<div class="card-title">Recommended actions</div>';
+      html += '<p class="card-desc">Actions that apply to multiple tenants.</p>';
+      if (actions.length) {
+        html += '<ol class="action-list">';
+        actions.forEach(function(a) {
+          html += '<li>' + escHtml(a.text) + '<span class="action-count">(' + a.count + ' tenants)</span></li>';
+        });
+        html += '</ol>';
+      } else {
+        html += '<p style="color:var(--muted);font-size:13px;">No shared action items across tenants.</p>';
+      }
+      html += '</div>';
+
+      html += '</div>'; // two-col card
+
+      // Card: tenant table
+      html += '<div class="section-label" style="margin-top:1.5rem;">Tenants by area</div>';
+      html += '<div class="card" style="padding: 0; overflow: hidden;">';
+      html += '<div class="table-wrap">';
+      html += '<table aria-label="Tenant scorecard status by area">';
+      html += '<thead><tr>';
+      html += '<th>Tenant</th>';
+      AREAS.forEach(function(a) { html += '<th>' + escHtml(a) + '</th>'; });
+      html += '</tr></thead>';
+      html += '<tbody>';
+      tenants.forEach(function(t) {
+        var statuses = t.area_statuses || {};
+        html += '<tr>';
+        html += '<td><a class="tenant-link" href="scorecard.html?tenant_id=' + t.tenant_id + '">' + escHtml(t.tenant_name) + '</a></td>';
+        AREAS.forEach(function(a) {
+          var s = statuses[a] || 'N/A';
+          var cls = CELL_CLASS[s] || 's-na';
+          var bcls = BADGE_CLASS[s] || 'badge-na';
+          var lbl = BADGE_LABEL[s] || s;
+          var dot = (s !== 'N/A') ? '<span class="badge-dot"></span>' : '';
+          html += '<td class="' + cls + '"><span class="badge ' + bcls + '">' + dot + lbl + '</span></td>';
+        });
+        html += '</tr>';
+      });
+      html += '</tbody></table>';
+      html += '</div></div>'; // table-wrap, card
+
+      main.innerHTML = html;
+    }
+
+    // ── Helpers ───────────────────────────────────────────────────────────────
+    function pill(dotCls, num, lbl) {
+      return '<div class="stat-pill"><span class="dot ' + dotCls + '"></span>' +
+             '<span class="stat-num">' + num + '</span>' +
+             '<span class="stat-lbl">' + lbl + '</span></div>';
+    }
+
+    function worstStatus(statuses) {
+      var worst = null;
+      var worstRank = 99;
+      Object.values(statuses || {}).forEach(function(s) {
+        var r = STATUS_ORDER[s];
+        if (r !== undefined && r < worstRank) { worstRank = r; worst = s; }
+      });
+      return worst;
+    }
+
+    function renderError(title, detail) {
+      document.getElementById('hero-title').textContent = 'Group not found';
+      document.getElementById('hero-meta').innerHTML = '';
+      document.getElementById('stats-strip').innerHTML = '';
+      document.getElementById('main').innerHTML =
+        '<div class="state-msg"><strong>' + escHtml(title) + '</strong>' + (detail || '') + '</div>';
+    }
+
+  }());
+  </script>
+</body>
+</html>

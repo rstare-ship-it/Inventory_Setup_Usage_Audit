@@ -147,8 +147,57 @@ def main() -> int:
         print(f"Wrote group summary to {output_dir / 'index.html'} and {len(tenant_results)} scorecards to {output_dir}", file=sys.stderr)
         if args.output_aggregate and tenant_results:
             from audit.aggregate import merge_into_aggregate
-            merge_into_aggregate(Path(args.output_aggregate), tenant_results, lookback)
+            merge_into_aggregate(Path(args.output_aggregate), tenant_results, lookback, group_name=group_name)
             print(f"Merged {len(tenant_results)} tenants into {args.output_aggregate}", file=sys.stderr)
+        return 0
+
+    # --- Tenant group mode (aggregate-only): run audit for each tenant, update aggregate + groups.json, no HTML ---
+    if args.tenant_group and args.from_snowflake and not args.html:
+        if not args.output_aggregate:
+            print("--tenant-group without --html requires --output-aggregate to store results.", file=sys.stderr)
+            return 1
+        conn = _snowflake_conn()
+        tenant_results = []
+        try:
+            members = get_tenant_group_members(conn, args.tenant_group)
+            if not members:
+                print(f"No tenants found for group: {args.tenant_group}", file=sys.stderr)
+                return 1
+            for i, (tenant_id, tenant_name) in enumerate(members):
+                print(f"  [{i+1}/{len(members)}] {tenant_name} ({tenant_id}) ...", file=sys.stderr)
+                data = load_results_from_snowflake(tenant_id, args.lookback_days, conn=conn)
+                lookback = _int(data.get("lookback_days")) or args.lookback_days
+                results = parse_results(data)
+                is_live = is_live_with_inventory(results)
+                if is_live:
+                    ok, findings_by_area = evaluate_audit(results, lookback)
+                    audit_areas = AUDIT_AREAS
+                else:
+                    ok, findings_by_area, ready_for_inventory = evaluate_audit_purchasing_only(results, lookback)
+                    audit_areas = AUDIT_AREAS_PURCHASING
+                area_statuses = {}
+                for area in AUDIT_AREAS:
+                    if not is_live and area not in audit_areas:
+                        area_statuses[area] = "N/A"
+                    else:
+                        area_statuses[area] = _area_status(findings_by_area.get(area, {"green": [], "yellow": [], "review": [], "red": []}))
+                action_plan = get_action_plan(findings_by_area, audit_areas)
+                tenant_results.append({
+                    "tenant_id": tenant_id,
+                    "tenant_name": tenant_name,
+                    "area_statuses": area_statuses,
+                    "ok": ok,
+                    "action_plan": action_plan,
+                    "results": results,
+                    "findings_by_area": findings_by_area,
+                    "is_live": is_live,
+                    "lookback_days": lookback,
+                })
+        finally:
+            conn.close()
+        from audit.aggregate import merge_into_aggregate
+        merge_into_aggregate(Path(args.output_aggregate), tenant_results, lookback, group_name=args.tenant_group)
+        print(f"Merged {len(tenant_results)} tenants into {args.output_aggregate} (group: {args.tenant_group})", file=sys.stderr)
         return 0
 
     # --- Tenant group mode: run audit for each tenant in the group, then write group summary + per-tenant scorecards ---
@@ -207,7 +256,7 @@ def main() -> int:
         print(f"Wrote group summary to {output_dir / 'index.html'} and {len(tenant_results)} scorecards to {output_dir}", file=sys.stderr)
         if args.output_aggregate and tenant_results:
             from audit.aggregate import merge_into_aggregate
-            merge_into_aggregate(Path(args.output_aggregate), tenant_results, lookback)
+            merge_into_aggregate(Path(args.output_aggregate), tenant_results, lookback, group_name=args.tenant_group)
             print(f"Merged {len(tenant_results)} tenants into {args.output_aggregate}", file=sys.stderr)
         return 0
 

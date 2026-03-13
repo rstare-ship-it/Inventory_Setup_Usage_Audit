@@ -71,20 +71,6 @@
     }
     .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
 
-    /* ── GROUP CARDS ── */
-    .groups-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; margin-bottom: 2.25rem; }
-    .group-card {
-      background: var(--card); border-radius: 12px; padding: 1.25rem 1.4rem;
-      box-shadow: var(--shadow); text-decoration: none; color: inherit;
-      border-left: 4px solid var(--accent);
-      display: flex; align-items: center; justify-content: space-between;
-      transition: box-shadow 0.15s, transform 0.1s;
-    }
-    .group-card:hover { box-shadow: 0 4px 18px rgba(0,0,0,0.12); transform: translateY(-1px); }
-    .group-name  { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 0.2rem; }
-    .group-count { font-size: 12px; color: var(--muted); }
-    .group-arrow { color: var(--accent); font-size: 18px; font-weight: 700; }
-
     /* ── INFO ── */
     .info-card { background: var(--card); border-radius: 12px; padding: 1.25rem 1.5rem; box-shadow: var(--shadow); }
     .info-card p { font-size: 13px; color: var(--muted); line-height: 1.6; }
@@ -105,11 +91,11 @@
     <div class="hero-inner">
       <div class="hero-label">Inventory Audit</div>
       <h1>Tenant Scorecard Lookup</h1>
-      <p>Enter a tenant name, tenant ID, or group name to view an audit scorecard.</p>
+      <p>Enter a tenant ID, tenant name, or tenant group name to view an audit scorecard.</p>
       <div class="search-wrap">
         <input
           id="search-input" class="search-input" type="text"
-          placeholder="e.g. 444875142, westernheating, SILA…"
+          placeholder="Tenant ID, name, or group name"
           autocomplete="off" autofocus
         >
         <button class="search-btn" onclick="doSearch()">View →</button>
@@ -119,32 +105,13 @@
   </div>
 
   <main>
-    <div class="section-label">Tenant Groups</div>
-    <div class="groups-grid">
-      <a href="SILA/" class="group-card">
-        <div>
-          <div class="group-name">SILA Group</div>
-          <div class="group-count">View group scorecard summary</div>
-        </div>
-        <div class="group-arrow">›</div>
-      </a>
-      <a href="T3_Services_Group/" class="group-card">
-        <div>
-          <div class="group-name">T3 Services Group</div>
-          <div class="group-count">View group scorecard summary</div>
-        </div>
-        <div class="group-arrow">›</div>
-      </a>
-    </div>
-
     <div class="section-label">Direct link format</div>
     <div class="info-card">
       <p>
-        Search by <strong>tenant name</strong> (e.g. <code>westernheating</code>),
-        <strong>tenant ID</strong> (e.g. <code>444875142</code>),
-        or bookmark a direct link with <code>scorecard.html?tenant_id=444875142</code>.
-        Group names like <code>SILA</code> or <code>T3 Services Group</code>
-        open the group summary instead.
+        Search by <strong>tenant name</strong>, <strong>tenant ID</strong>,
+        or <strong>group name</strong>. You can also bookmark a direct scorecard link:
+        <code>scorecard.html?tenant_id=444875142</code> or a group page:
+        <code>group.html?group=SILA</code>.
       </p>
     </div>
   </main>
@@ -153,18 +120,31 @@
   (function () {
     'use strict';
 
-    var GROUPS = {
-      'sila': 'SILA/', 'sila group': 'SILA/',
-      't3': 'T3_Services_Group/', 't3 services group': 'T3_Services_Group/',
-      't3servicesgroup': 'T3_Services_Group/'
-    };
+    var BASE = window.location.pathname.replace(/\/[^/]*$/, '/');
+    var _groupsCache = null;
 
     function slugify(s) {
       return (s || '').toLowerCase().trim()
         .replace(/[^\w\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').slice(0, 80);
     }
 
-    var BASE = window.location.pathname.replace(/\/[^/]*$/, '/');
+    function loadGroups() {
+      if (_groupsCache) return Promise.resolve(_groupsCache);
+      return fetch(BASE + 'data/groups.json')
+        .then(function(r) { return r.ok ? r.json() : { groups: [] }; })
+        .then(function(d) { _groupsCache = d; return d; })
+        .catch(function() { return { groups: [] }; });
+    }
+
+    function findGroupMatch(groupsData, q) {
+      var needle = q.toLowerCase().replace(/\s+/g,' ').trim();
+      return (groupsData.groups || []).find(function(g) {
+        return g.group_id.toLowerCase() === needle ||
+               g.group_name.toLowerCase() === needle ||
+               g.group_id.toLowerCase().replace(/_/g,' ') === needle ||
+               g.group_id.toLowerCase().replace(/_/g,'') === needle.replace(/\s/g,'');
+      });
+    }
 
     function doSearch() {
       var inp = document.getElementById('search-input');
@@ -174,31 +154,37 @@
       var q = inp.value.trim();
       if (!q) { err.textContent = 'Enter a tenant name, ID, or group name.'; return; }
 
-      var qLow = q.toLowerCase().replace(/\s+/g, ' ');
-      var groupPath = GROUPS[qLow] || GROUPS[q.toLowerCase().replace(/\s/g, '')] || null;
-      if (groupPath) { window.location.href = BASE + groupPath; return; }
-
       err.textContent = 'Searching…';
-      fetch(BASE + 'data/audit_aggregate.json')
-        .then(function (r) {
-          if (!r.ok) throw new Error('Could not load data (' + r.status + ')');
-          return r.json();
-        })
-        .then(function (data) {
+
+      // Load groups first, then aggregate
+      loadGroups().then(function(groupsData) {
+        var grp = findGroupMatch(groupsData, q);
+        if (grp) {
           err.textContent = '';
-          var byId   = data.tenants_by_id   || {};
-          var bySlug = data.tenants_by_slug  || {};
-          var tenant;
-          if (/^\d+$/.test(q)) {
-            tenant = byId[q];
-          } else {
-            var id = bySlug[slugify(q)];
-            tenant = id ? byId[id] : null;
-          }
-          if (!tenant) { err.textContent = 'No tenant found for "' + q + '". Try a different name or ID.'; return; }
-          window.location.href = BASE + 'scorecard.html?tenant_id=' + tenant.tenant_id;
-        })
-        .catch(function (e) { err.textContent = e.message || 'Could not load data.'; });
+          window.location.href = BASE + 'group.html?group=' + encodeURIComponent(grp.group_id);
+          return;
+        }
+
+        return fetch(BASE + 'data/audit_aggregate.json')
+          .then(function (r) {
+            if (!r.ok) throw new Error('Could not load data (' + r.status + ')');
+            return r.json();
+          })
+          .then(function (data) {
+            err.textContent = '';
+            var byId   = data.tenants_by_id   || {};
+            var bySlug = data.tenants_by_slug  || {};
+            var tenant;
+            if (/^\d+$/.test(q)) {
+              tenant = byId[q];
+            } else {
+              var id = bySlug[slugify(q)];
+              tenant = id ? byId[id] : null;
+            }
+            if (!tenant) { err.textContent = 'No tenant found for "' + q + '". Try a different name or ID.'; return; }
+            window.location.href = BASE + 'scorecard.html?tenant_id=' + tenant.tenant_id;
+          });
+      }).catch(function (e) { err.textContent = e.message || 'Could not load data.'; });
     }
 
     window.doSearch = doSearch;
@@ -206,7 +192,7 @@
     var inp = document.getElementById('search-input');
     if (inp) inp.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); doSearch(); } });
 
-    // Backward compat: ?tenant=X on index
+    // Backward compat: ?tenant=X or ?tenant_id=X on index
     var params = {};
     window.location.search.slice(1).split('&').forEach(function (p) {
       var kv = p.split('=');

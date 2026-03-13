@@ -116,9 +116,8 @@ commit_and_push() {
   echo ""
   echo "━━━ Committing results ━━━"
 
-  # Stage everything that changed
-  # Only the aggregate JSON changes now; scorecards are rendered dynamically
-  git add "$AGGREGATE" 2>/dev/null || true
+  # Stage data files — aggregate and groups (groups.json updated on group runs)
+  git add "$AGGREGATE" "data/groups.json" 2>/dev/null || true
 
   # Only commit if there are staged changes
   if git diff --cached --quiet; then
