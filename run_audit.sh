@@ -64,20 +64,17 @@ run_group() {
   local group="$1"
   local folder
   folder=$(_sanitize "$group")
-  local html_out="${folder}/index.html"
 
   echo ""
   echo "━━━ Running audit: ${group} ━━━"
-  echo "  Output folder : ${folder}/"
-  echo "  Aggregate     : ${AGGREGATE}"
-  echo "  Lookback      : ${LOOKBACK} days"
+  echo "  Aggregate : ${AGGREGATE}"
+  echo "  Lookback  : ${LOOKBACK} days"
   echo ""
 
   python3 audit_report.py \
     --from-snowflake \
     --tenant-group "$group" \
     --lookback-days "$LOOKBACK" \
-    --html "$html_out" \
     --output-aggregate "$AGGREGATE"
 
   echo "  ✓ Audit complete for ${group}"
@@ -85,21 +82,17 @@ run_group() {
 
 run_tenant() {
   local tid="$1"
-  local folder
-  folder="scorecard_${tid}"
 
   echo ""
   echo "━━━ Running audit: tenant ${tid} ━━━"
-  echo "  Output folder : ${folder}/"
-  echo "  Aggregate     : ${AGGREGATE}"
-  echo "  Lookback      : ${LOOKBACK} days"
+  echo "  Aggregate : ${AGGREGATE}"
+  echo "  Lookback  : ${LOOKBACK} days"
   echo ""
 
   python3 audit_report.py \
     --from-snowflake \
     --tenant-id "$tid" \
     --lookback-days "$LOOKBACK" \
-    --html "${folder}/scorecard.html" \
     --output-aggregate "$AGGREGATE"
 
   echo "  ✓ Audit complete for tenant ${tid}"
@@ -124,18 +117,8 @@ commit_and_push() {
   echo "━━━ Committing results ━━━"
 
   # Stage everything that changed
+  # Only the aggregate JSON changes now; scorecards are rendered dynamically
   git add "$AGGREGATE" 2>/dev/null || true
-
-  if [[ "${targets[0]}" == "__tenant__" ]]; then
-    local folder="scorecard_${TENANT_ID}"
-    git add "${folder}/" 2>/dev/null || true
-  else
-    for t in "${targets[@]}"; do
-      local folder
-      folder=$(_sanitize "$t")
-      git add "${folder}/" 2>/dev/null || true
-    done
-  fi
 
   # Only commit if there are staged changes
   if git diff --cached --quiet; then

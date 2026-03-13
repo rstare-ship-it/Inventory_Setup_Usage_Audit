@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Inventory Scorecard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f0f2f5;
+      --card: #ffffff;
+      --nav-bg: #1a1a2e;
+      --accent: #4fc3f7;
+      --text: #1a1a2e;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --shadow: 0 2px 10px rgba(0,0,0,0.07);
+      --green:        #16a34a; --green-bg:   #dcfce7; --green-border:  #86efac;
+      --yellow:       #a16207; --yellow-bg:  #fef9c3; --yellow-border: #fde047;
+      --review:       #c2410c; --review-bg:  #ffedd5; --review-border: #fdba74;
+      --red:          #b91c1c; --red-bg:     #fee2e2; --red-border:    #fca5a5;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.5; }
+
+    /* ── NAV ── */
+    nav {
+      background: var(--nav-bg);
+      padding: 0 2rem;
+      display: flex; align-items: center; height: 52px; gap: 0.75rem;
+      position: sticky; top: 0; z-index: 100;
+    }
+    .nav-back { color: var(--accent); text-decoration: none; font-size: 13px; font-weight: 500; display: flex; align-items: center; gap: 0.3rem; white-space: nowrap; }
+    .nav-back:hover { text-decoration: underline; }
+    .nav-sep { color: rgba(255,255,255,0.2); }
+    .nav-title { color: rgba(255,255,255,0.65); font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    /* ── HERO ── */
+    .hero {
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+      color: white; padding: 2.5rem 2rem 2rem;
+      position: relative; overflow: hidden;
+    }
+    .hero::after {
+      content: ''; position: absolute; top: -60px; right: -60px;
+      width: 300px; height: 300px;
+      background: radial-gradient(circle, rgba(79,195,247,0.08) 0%, transparent 65%);
+      border-radius: 50%; pointer-events: none;
+    }
+    .hero-inner { max-width: 1100px; margin: 0 auto; position: relative; z-index: 1; }
+    .hero-label {
+      display: inline-block;
+      background: rgba(79,195,247,0.15); border: 1px solid rgba(79,195,247,0.3);
+      color: var(--accent); font-size: 0.63rem; font-weight: 700; letter-spacing: 0.12em;
+      text-transform: uppercase; padding: 0.2rem 0.65rem; border-radius: 9999px; margin-bottom: 0.8rem;
+    }
+    .hero h1 { font-size: 1.85rem; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 0.35rem; }
+    .hero-meta {
+      display: flex; gap: 1.5rem; flex-wrap: wrap;
+      color: rgba(255,255,255,0.55); font-size: 12px; margin-top: 0.6rem;
+    }
+    .hero-status-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 1.1rem; }
+    .hbadge {
+      padding: 3px 11px; border-radius: 20px;
+      font-size: 11.5px; font-weight: 700; letter-spacing: 0.01em;
+    }
+    .hbadge.red    { background: rgba(239,68,68,0.2);  border: 1px solid rgba(239,68,68,0.4);  color: #f87171; }
+    .hbadge.review { background: rgba(249,115,22,0.2); border: 1px solid rgba(249,115,22,0.4); color: #fb923c; }
+    .hbadge.yellow { background: rgba(234,179,8,0.2);  border: 1px solid rgba(234,179,8,0.4);  color: #fbbf24; }
+    .hbadge.green  { background: rgba(34,197,94,0.2);  border: 1px solid rgba(34,197,94,0.4);  color: #4ade80; }
+
+    /* ── MAIN CONTENT ── */
+    main { max-width: 1100px; margin: 0 auto; padding: 1.75rem 1.5rem 3.5rem; }
+
+    .section-label {
+      font-size: 10.5px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.12em; color: var(--muted);
+      margin: 1.75rem 0 0.8rem; display: flex; align-items: center; gap: 0.6rem;
+    }
+    .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+    /* ── SCORE TILES ── */
+    .tiles-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+      gap: 10px; margin-bottom: 0.25rem;
+    }
+    .tile {
+      background: var(--card); border-radius: 10px;
+      padding: 0.85rem 1rem; box-shadow: var(--shadow);
+      border-left: 4px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between; gap: 0.5rem;
+      transition: box-shadow 0.15s;
+    }
+    .tile:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.11); }
+    .tile.red    { border-left-color: #ef4444; }
+    .tile.review { border-left-color: #f97316; }
+    .tile.yellow { border-left-color: #eab308; }
+    .tile.green  { border-left-color: #22c55e; }
+    .tile-name  { font-size: 13px; font-weight: 600; color: var(--text); }
+    .tbadge {
+      font-size: 11px; font-weight: 700; padding: 2px 9px; border-radius: 10px;
+      white-space: nowrap; flex-shrink: 0;
+    }
+    .tbadge.red    { background: var(--red-bg);    color: var(--red);    }
+    .tbadge.review { background: var(--review-bg); color: var(--review); }
+    .tbadge.yellow { background: var(--yellow-bg); color: var(--yellow); }
+    .tbadge.green  { background: var(--green-bg);  color: var(--green);  }
+
+    /* ── CARDS ── */
+    .card { background: var(--card); border-radius: 12px; padding: 1.4rem 1.5rem; box-shadow: var(--shadow); margin-bottom: 1.25rem; }
+    .card-title {
+      font-size: 11px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.08em; color: var(--muted);
+      margin-bottom: 1rem; padding-bottom: 0.6rem; border-bottom: 1px solid var(--border);
+    }
+
+    /* ── FINDINGS ── */
+    .findings-area { margin-bottom: 1.3rem; }
+    .findings-area:last-child { margin-bottom: 0; }
+    .area-head {
+      display: flex; align-items: center; gap: 0.5rem;
+      font-size: 13.5px; font-weight: 700; color: var(--text);
+      margin-bottom: 0.5rem;
+    }
+    .findings-list { list-style: none; display: flex; flex-direction: column; gap: 3px; }
+    .findings-list li {
+      padding: 0.4rem 0.7rem; font-size: 13px;
+      border-radius: 6px; line-height: 1.45;
+    }
+    .finding-ok     { background: var(--green-bg);  color: #166534; }
+    .finding-warn   { background: var(--yellow-bg); color: #713f12; }
+    .finding-review { background: var(--review-bg); color: #7c2d12; }
+    .finding-err    { background: var(--red-bg);    color: var(--red); }
+    .finding-ok::before     { content: '✓ '; font-weight: 700; }
+    .finding-warn::before   { content: '⚠ '; }
+    .finding-review::before { content: '● '; }
+    .finding-err::before    { content: '✗ '; font-weight: 700; }
+
+    /* ── SETTINGS ── */
+    .settings-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0 2.5rem;
+    }
+    @media (max-width: 640px) { .settings-grid { grid-template-columns: 1fr; } }
+    .setting-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.32rem 0; border-bottom: 1px solid var(--border);
+      font-size: 13px; gap: 0.5rem;
+    }
+    .setting-row:last-child { border-bottom: none; }
+    .setting-label { color: var(--muted); }
+    .setting-val { font-weight: 600; }
+    .setting-val.on  { color: var(--green); }
+    .setting-val.off { color: #94a3b8; }
+
+    /* ── ACTION PLAN ── */
+    .action-list { padding-left: 1.3rem; }
+    .action-list li {
+      padding: 0.45rem 0; border-bottom: 1px solid var(--border);
+      font-size: 13px; color: #334155; line-height: 1.55;
+    }
+    .action-list li:last-child { border-bottom: none; }
+
+    /* ── STATE MESSAGES ── */
+    .state-msg { text-align: center; padding: 5rem 2rem; color: var(--muted); font-size: 15px; }
+    .state-msg.error { color: var(--red); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 600px) {
+      .hero h1 { font-size: 1.4rem; }
+      main { padding: 1.25rem 1rem 2.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a href="./" class="nav-back">← Scorecards</a>
+    <span class="nav-sep">|</span>
+    <span class="nav-title" id="nav-title">Loading…</span>
+  </nav>
+
+  <div id="hero" hidden>
+    <div class="hero">
+      <div class="hero-inner">
+        <div class="hero-label">Inventory Audit</div>
+        <h1 id="hero-name"></h1>
+        <div class="hero-meta">
+          <span id="meta-id"></span>
+          <span id="meta-lookback"></span>
+          <span id="meta-updated"></span>
+        </div>
+        <div class="hero-status-row" id="hero-badges"></div>
+      </div>
+    </div>
+  </div>
+
+  <main>
+    <div id="state-loading" class="state-msg">Loading scorecard…</div>
+    <div id="state-error"   class="state-msg error" hidden></div>
+
+    <div id="body" hidden>
+      <div class="section-label">Scorecard Overview</div>
+      <div class="tiles-grid" id="tiles"></div>
+
+      <div class="section-label">Findings by Area</div>
+      <div class="card" id="findings-card">
+        <div id="findings"></div>
+      </div>
+
+      <div class="section-label">Settings &amp; Configuration</div>
+      <div class="card">
+        <div class="card-title">Modules &amp; Feature Gates</div>
+        <div class="settings-grid" id="settings-modules"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Pricebook &amp; Setup Counts</div>
+        <div class="settings-grid" id="settings-setup"></div>
+      </div>
+
+      <div class="section-label">Action Plan</div>
+      <div class="card">
+        <ol class="action-list" id="action-plan"></ol>
+      </div>
+    </div>
+  </main>
+
+  <script>
+  (function () {
+    'use strict';
+
+    var AREA_ORDER = [
+      'Pricebook & setup', 'Purchasing', 'Invoicing', 'Technician usage',
+      'Replenishment', 'Returns', 'Transfers', 'Counts and adjustments', 'Other'
+    ];
+    var STATUS_LABEL = { Green: 'Good', Yellow: 'On track', Review: 'Review', Red: 'Critical' };
+    var STATUS_KEY   = { Green: 'green', Yellow: 'yellow', Review: 'review', Red: 'red' };
+
+    var FG_LABELS = {
+      item_requisitions:          'Item requisitions',
+      requisition_closeout:       'Requisition closeout',
+      install_requisitions:       'Requisition workflow (service)',
+      transfers_to_jobs:          'Transfers to jobs',
+      consignment:                'Consignment',
+      purchase_approval_workflow: 'Purchase approval workflow',
+      granular_wac:               'Granular WAC',
+      stock_optimizer:            'Stock Optimizer'
+    };
+    var VALUATION  = { 0: 'Standard costing', 1: 'Weighted average', 2: 'Weighted avg (granular)' };
+    var PO_COPY    = { 0: 'Add items at $0', 1: 'Add at receipt cost' };
+    var PO_APPROVAL= { 0: 'PO total', 1: 'PO subtotal' };
+
+    // ── Helpers ──────────────────────────────────────────────────────────────
+    function esc(s) {
+      return (s == null) ? '' : String(s)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+    function slugify(s) {
+      return (s || '').toLowerCase().trim()
+        .replace(/[^\w\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').slice(0, 80);
+    }
+    function el(id)        { return document.getElementById(id); }
+    function html(id, h)   { var e = el(id); if (e) e.innerHTML = h; }
+    function text(id, t)   { var e = el(id); if (e) e.textContent = t; }
+    function show(id)      { var e = el(id); if (e) e.hidden = false; }
+    function hide(id)      { var e = el(id); if (e) e.hidden = true; }
+
+    // ── URL params ───────────────────────────────────────────────────────────
+    var params = {};
+    window.location.search.slice(1).split('&').forEach(function (p) {
+      var kv = p.split('=');
+      if (kv[0]) params[kv[0]] = decodeURIComponent((kv[1] || '').replace(/\+/g, ' '));
+    });
+    var tenantParam = (params.tenant_id || params.tenant || params.id || '').trim();
+
+    // ── Base path & aggregate URL ────────────────────────────────────────────
+    var BASE         = window.location.pathname.replace(/\/[^/]*$/, '/');
+    var AGGREGATE    = BASE + 'data/audit_aggregate.json';
+
+    // ── Tenant lookup ────────────────────────────────────────────────────────
+    function findTenant(data, query) {
+      if (!query) return null;
+      var byId   = data.tenants_by_id   || {};
+      var bySlug = data.tenants_by_slug || {};
+      if (/^\d+$/.test(query)) return byId[query] || null;
+      return byId[bySlug[slugify(query)]] || null;
+    }
+
+    // ── Render helpers ───────────────────────────────────────────────────────
+    function settingRow(label, val, onOff) {
+      var cls = onOff ? (' ' + (val === 'On' || val === 'Yes' ? 'on' : 'off')) : '';
+      return '<div class="setting-row">'
+           + '<span class="setting-label">' + esc(label) + '</span>'
+           + '<span class="setting-val' + cls + '">' + esc(val) + '</span>'
+           + '</div>';
+    }
+
+    // ── Full render ──────────────────────────────────────────────────────────
+    function render(t) {
+      var name      = t.tenant_name || ('Tenant ' + t.tenant_id);
+      var areas     = t.area_statuses    || {};
+      var findings  = t.findings_by_area || {};
+      var results   = t.results          || {};
+      var plan      = t.action_plan      || [];
+
+      // Hero
+      var counts = { red: 0, review: 0, yellow: 0, green: 0 };
+      Object.values(areas).forEach(function (s) {
+        var k = STATUS_KEY[s]; if (k) counts[k]++;
+      });
+      text('nav-title', name);
+      document.title = 'Inventory Scorecard — ' + name;
+      text('hero-name', name);
+      html('meta-id',       '🔑 ' + t.tenant_id);
+      html('meta-lookback', '📅 Last ' + (t.lookback_days || 90) + ' days');
+      if (t.updated_at) html('meta-updated', '🕐 Updated ' + t.updated_at.substring(0, 10));
+
+      var badges = '';
+      if (counts.red)    badges += '<span class="hbadge red">'    + counts.red    + ' Critical</span>';
+      if (counts.review) badges += '<span class="hbadge review">' + counts.review + ' Review</span>';
+      if (counts.yellow) badges += '<span class="hbadge yellow">' + counts.yellow + ' On Track</span>';
+      if (counts.green)  badges += '<span class="hbadge green">'  + counts.green  + ' Good</span>';
+      html('hero-badges', badges);
+      show('hero');
+
+      // Tiles
+      var tilesHtml = '';
+      AREA_ORDER.forEach(function (area) {
+        var s = areas[area];
+        if (!s || s === 'N/A') return;
+        var k = STATUS_KEY[s] || 'green';
+        tilesHtml += '<div class="tile ' + k + '">'
+          + '<span class="tile-name">' + esc(area) + '</span>'
+          + '<span class="tbadge ' + k + '">' + esc(STATUS_LABEL[s] || s) + '</span>'
+          + '</div>';
+      });
+      html('tiles', tilesHtml);
+
+      // Findings — sorted red → review → yellow → green
+      var sortOrder = { Red: 0, Review: 1, Yellow: 2, Green: 3 };
+      var sortedAreas = AREA_ORDER.slice().sort(function (a, b) {
+        return (sortOrder[areas[a]] || 9) - (sortOrder[areas[b]] || 9);
+      });
+      var findingsHtml = '';
+      sortedAreas.forEach(function (area) {
+        var s = areas[area];
+        if (!s || s === 'N/A') return;
+        var f = findings[area] || {};
+        var allItems = [].concat(f.red || [], f.review || [], f.yellow || [], f.green || []);
+        if (!allItems.length) return;
+        var k = STATUS_KEY[s] || 'green';
+        findingsHtml += '<div class="findings-area">'
+          + '<div class="area-head">' + esc(area)
+          + ' <span class="tbadge ' + k + '">' + esc(STATUS_LABEL[s] || s) + '</span></div>'
+          + '<ul class="findings-list">';
+        (f.red    || []).forEach(function (t) { findingsHtml += '<li class="finding-err">'    + esc(t) + '</li>'; });
+        (f.review || []).forEach(function (t) { findingsHtml += '<li class="finding-review">' + esc(t) + '</li>'; });
+        (f.yellow || []).forEach(function (t) { findingsHtml += '<li class="finding-warn">'   + esc(t) + '</li>'; });
+        (f.green  || []).forEach(function (t) { findingsHtml += '<li class="finding-ok">'     + esc(t) + '</li>'; });
+        findingsHtml += '</ul></div>';
+      });
+      html('findings', findingsHtml || '<p style="color:#94a3b8;font-size:13px;padding:0.5rem 0">No findings available.</p>');
+
+      // Settings — modules
+      var cfg = results.readiness_config || {};
+      var fg  = results.feature_gates    || {};
+      var modHtml = '';
+      modHtml += settingRow('Purchasing module', cfg.purchasing_module_on ? 'On' : 'Off', true);
+      modHtml += settingRow('Inventory module',  cfg.inventory_module_on  ? 'On' : 'Off', true);
+      Object.keys(FG_LABELS).forEach(function (k) {
+        if (fg[k] !== undefined) modHtml += settingRow(FG_LABELS[k], fg[k] ? 'On' : 'Off', true);
+      });
+      html('settings-modules', modHtml);
+
+      // Settings — setup
+      var setup = results.setup_data          || {};
+      var isinv = results.isinventory_counts  || {};
+      var inv   = results.inventory_settings  || {};
+      var setupHtml = '';
+      if (setup.truck_total     != null) setupHtml += settingRow('Trucks with template',     (setup.truck_with_template     || 0) + ' / ' + setup.truck_total,     false);
+      if (setup.warehouse_total != null) setupHtml += settingRow('Warehouses with template', (setup.warehouse_with_template || 0) + ' / ' + setup.warehouse_total, false);
+      if (isinv.active_materials_count != null) {
+        setupHtml += settingRow('Materials (total)',       isinv.active_materials_count,    false);
+        setupHtml += settingRow('Materials (IsInventory)', isinv.materials_isinventory_count || 0, false);
+      }
+      if (inv.InventoryValuationMethod !== undefined)
+        setupHtml += settingRow('Valuation method', VALUATION[inv.InventoryValuationMethod] || String(inv.InventoryValuationMethod), false);
+      if (inv.PoItemCostCopyOption !== undefined)
+        setupHtml += settingRow('PO cost copy', PO_COPY[inv.PoItemCostCopyOption] || String(inv.PoItemCostCopyOption), false);
+      var start = results.inventory_tracking_start_date;
+      if (start) setupHtml += settingRow('Tracking start date', String(start).substring(0, 10), false);
+      html('settings-setup', setupHtml || '<p style="color:#94a3b8;font-size:13px">No setup data.</p>');
+
+      // Action plan
+      var actionHtml = '';
+      if (plan.length) {
+        plan.forEach(function (item) {
+          var t = typeof item === 'string' ? item : ((item && item.action) || String(item));
+          actionHtml += '<li>' + esc(t) + '</li>';
+        });
+      } else {
+        actionHtml = '<li style="list-style:none;padding:0.5rem 0;color:#94a3b8">No specific actions — keep up current practices.</li>';
+      }
+      html('action-plan', actionHtml);
+
+      hide('state-loading');
+      show('body');
+    }
+
+    function showError(msg) {
+      hide('state-loading');
+      var e = el('state-error');
+      if (e) { e.textContent = msg; e.hidden = false; }
+    }
+
+    // ── Boot ─────────────────────────────────────────────────────────────────
+    if (!tenantParam) {
+      showError('No tenant specified. Add ?tenant_id=YOUR_TENANT_ID to the URL, or go back and search.');
+      return;
+    }
+
+    fetch(AGGREGATE)
+      .then(function (r) {
+        if (!r.ok) throw new Error('Could not load aggregate data (' + r.status + ')');
+        return r.json();
+      })
+      .then(function (data) {
+        var tenant = findTenant(data, tenantParam);
+        if (!tenant) throw new Error('No scorecard found for "' + tenantParam + '".');
+        render(tenant);
+      })
+      .catch(function (err) {
+        showError(err.message || 'Failed to load scorecard.');
+      });
+
+  }());
+  </script>
+</body>
+</html>

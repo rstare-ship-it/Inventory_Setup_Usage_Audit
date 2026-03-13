@@ -4,35 +4,218 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Inventory Scorecard — Home</title>
-  <link rel="stylesheet" href="/Inventory_Setup_Usage_Audit/css/scorecard.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
-    .lookup-form { margin: 1.5rem 0; display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; }
-    .lookup-form input { padding: 0.5rem 0.75rem; font-size: 1rem; min-width: 12rem; }
-    .lookup-form button { padding: 0.5rem 1rem; font-size: 1rem; cursor: pointer; }
-    .lookup-error { color: #c00; margin-top: 0.5rem; }
-    .scorecard-summary { margin-top: 1rem; }
-    .area-row { display: flex; align-items: center; gap: 0.5rem; padding: 0.25rem 0; }
-    .area-status { font-weight: 600; min-width: 5rem; }
-    .area-status.green { color: #0a0; }
-    .area-status.yellow { color: #880; }
-    .area-status.review { color: #f80; }
-    .area-status.red { color: #c00; }
-    .action-plan { list-style: none; padding-left: 0; }
-    .action-plan li { padding: 0.35rem 0; border-bottom: 1px solid #eee; }
-    .scorecard-page-wrap { margin-top: 1.5rem; }
+    :root {
+      --bg: #f0f2f5; --card: #ffffff; --nav-bg: #1a1a2e;
+      --accent: #4fc3f7; --text: #1a1a2e; --muted: #64748b;
+      --border: #e2e8f0; --shadow: 0 2px 10px rgba(0,0,0,0.07);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.5; }
+
+    /* ── NAV ── */
+    nav { background: var(--nav-bg); padding: 0 2rem; height: 52px; display: flex; align-items: center; }
+    .nav-logo { color: var(--accent); font-size: 15px; font-weight: 800; letter-spacing: 0.02em; }
+    .nav-logo span { color: rgba(255,255,255,0.7); font-weight: 500; }
+
+    /* ── HERO ── */
+    .hero {
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+      color: white; padding: 3rem 2rem 2.75rem;
+      position: relative; overflow: hidden;
+    }
+    .hero::after {
+      content: ''; position: absolute; top: -80px; right: -80px;
+      width: 380px; height: 380px;
+      background: radial-gradient(circle, rgba(79,195,247,0.07) 0%, transparent 65%);
+      border-radius: 50%; pointer-events: none;
+    }
+    .hero-inner { max-width: 680px; margin: 0 auto; position: relative; z-index: 1; text-align: center; }
+    .hero-label {
+      display: inline-block;
+      background: rgba(79,195,247,0.15); border: 1px solid rgba(79,195,247,0.3);
+      color: var(--accent); font-size: 0.63rem; font-weight: 700; letter-spacing: 0.12em;
+      text-transform: uppercase; padding: 0.2rem 0.65rem; border-radius: 9999px; margin-bottom: 1rem;
+    }
+    .hero h1 { font-size: 2rem; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 0.6rem; }
+    .hero p  { color: rgba(255,255,255,0.6); font-size: 14px; max-width: 480px; margin: 0 auto 1.75rem; }
+
+    /* ── SEARCH ── */
+    .search-wrap { display: flex; gap: 0.5rem; max-width: 480px; margin: 0 auto; }
+    .search-input {
+      flex: 1; padding: 0.65rem 1rem; border-radius: 8px;
+      border: 1.5px solid rgba(79,195,247,0.3); background: rgba(255,255,255,0.08);
+      color: white; font-size: 14px; font-family: inherit;
+      outline: none; transition: border-color 0.15s, background 0.15s;
+    }
+    .search-input::placeholder { color: rgba(255,255,255,0.4); }
+    .search-input:focus { border-color: var(--accent); background: rgba(255,255,255,0.12); }
+    .search-btn {
+      padding: 0.65rem 1.3rem; border-radius: 8px;
+      background: var(--accent); color: #0f172a;
+      font-size: 14px; font-weight: 700; font-family: inherit;
+      border: none; cursor: pointer; white-space: nowrap; transition: opacity 0.15s;
+    }
+    .search-btn:hover { opacity: 0.88; }
+    .search-error { color: #f87171; font-size: 13px; text-align: center; margin-top: 0.6rem; min-height: 1.4em; }
+
+    /* ── MAIN ── */
+    main { max-width: 900px; margin: 0 auto; padding: 2rem 1.5rem 3.5rem; }
+
+    .section-label {
+      font-size: 10.5px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.12em; color: var(--muted);
+      margin: 0 0 0.9rem; display: flex; align-items: center; gap: 0.6rem;
+    }
+    .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+    /* ── GROUP CARDS ── */
+    .groups-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; margin-bottom: 2.25rem; }
+    .group-card {
+      background: var(--card); border-radius: 12px; padding: 1.25rem 1.4rem;
+      box-shadow: var(--shadow); text-decoration: none; color: inherit;
+      border-left: 4px solid var(--accent);
+      display: flex; align-items: center; justify-content: space-between;
+      transition: box-shadow 0.15s, transform 0.1s;
+    }
+    .group-card:hover { box-shadow: 0 4px 18px rgba(0,0,0,0.12); transform: translateY(-1px); }
+    .group-name  { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 0.2rem; }
+    .group-count { font-size: 12px; color: var(--muted); }
+    .group-arrow { color: var(--accent); font-size: 18px; font-weight: 700; }
+
+    /* ── INFO ── */
+    .info-card { background: var(--card); border-radius: 12px; padding: 1.25rem 1.5rem; box-shadow: var(--shadow); }
+    .info-card p { font-size: 13px; color: var(--muted); line-height: 1.6; }
+    .info-card code {
+      background: #f1f5f9; border: 1px solid var(--border);
+      padding: 0.1rem 0.4rem; border-radius: 4px;
+      font-size: 12px; color: #334155; font-family: 'SFMono-Regular', Consolas, monospace;
+    }
   </style>
 </head>
 <body>
-  <h1>Inventory scorecard</h1>
-  <p>Enter a <strong>tenant name</strong>, <strong>tenant ID</strong>, or <strong>tenant group name</strong> to view an audit scorecard.</p>
-  <form class="lookup-form" id="lookup-form">
-    <input type="text" id="tenant-input" placeholder="e.g. 444875142, westernheating, or T3 Services Group" autofocus>
-    <button type="button" onclick="runLookup()">View scorecard</button>
-  </form>
-  <div id="lookup-error" class="lookup-error" aria-live="polite" style="min-height: 1.5em;"></div>
-  <div id="scorecard-container" class="scorecard-page-wrap" hidden></div>
 
-  <!-- Use path from root so script loads even when page URL has no trailing slash -->
-  <script src="/Inventory_Setup_Usage_Audit/js/lookup.js"></script>
+  <nav>
+    <div class="nav-logo">Inventory<span> Scorecard</span></div>
+  </nav>
+
+  <div class="hero">
+    <div class="hero-inner">
+      <div class="hero-label">Inventory Audit</div>
+      <h1>Tenant Scorecard Lookup</h1>
+      <p>Enter a tenant name, tenant ID, or group name to view an audit scorecard.</p>
+      <div class="search-wrap">
+        <input
+          id="search-input" class="search-input" type="text"
+          placeholder="e.g. 444875142, westernheating, SILA…"
+          autocomplete="off" autofocus
+        >
+        <button class="search-btn" onclick="doSearch()">View →</button>
+      </div>
+      <div id="search-error" class="search-error"></div>
+    </div>
+  </div>
+
+  <main>
+    <div class="section-label">Tenant Groups</div>
+    <div class="groups-grid">
+      <a href="SILA/" class="group-card">
+        <div>
+          <div class="group-name">SILA Group</div>
+          <div class="group-count">View group scorecard summary</div>
+        </div>
+        <div class="group-arrow">›</div>
+      </a>
+      <a href="T3_Services_Group/" class="group-card">
+        <div>
+          <div class="group-name">T3 Services Group</div>
+          <div class="group-count">View group scorecard summary</div>
+        </div>
+        <div class="group-arrow">›</div>
+      </a>
+    </div>
+
+    <div class="section-label">Direct link format</div>
+    <div class="info-card">
+      <p>
+        Search by <strong>tenant name</strong> (e.g. <code>westernheating</code>),
+        <strong>tenant ID</strong> (e.g. <code>444875142</code>),
+        or bookmark a direct link with <code>scorecard.html?tenant_id=444875142</code>.
+        Group names like <code>SILA</code> or <code>T3 Services Group</code>
+        open the group summary instead.
+      </p>
+    </div>
+  </main>
+
+  <script>
+  (function () {
+    'use strict';
+
+    var GROUPS = {
+      'sila': 'SILA/', 'sila group': 'SILA/',
+      't3': 'T3_Services_Group/', 't3 services group': 'T3_Services_Group/',
+      't3servicesgroup': 'T3_Services_Group/'
+    };
+
+    function slugify(s) {
+      return (s || '').toLowerCase().trim()
+        .replace(/[^\w\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').slice(0, 80);
+    }
+
+    var BASE = window.location.pathname.replace(/\/[^/]*$/, '/');
+
+    function doSearch() {
+      var inp = document.getElementById('search-input');
+      var err = document.getElementById('search-error');
+      err.textContent = '';
+
+      var q = inp.value.trim();
+      if (!q) { err.textContent = 'Enter a tenant name, ID, or group name.'; return; }
+
+      var qLow = q.toLowerCase().replace(/\s+/g, ' ');
+      var groupPath = GROUPS[qLow] || GROUPS[q.toLowerCase().replace(/\s/g, '')] || null;
+      if (groupPath) { window.location.href = BASE + groupPath; return; }
+
+      err.textContent = 'Searching…';
+      fetch(BASE + 'data/audit_aggregate.json')
+        .then(function (r) {
+          if (!r.ok) throw new Error('Could not load data (' + r.status + ')');
+          return r.json();
+        })
+        .then(function (data) {
+          err.textContent = '';
+          var byId   = data.tenants_by_id   || {};
+          var bySlug = data.tenants_by_slug  || {};
+          var tenant;
+          if (/^\d+$/.test(q)) {
+            tenant = byId[q];
+          } else {
+            var id = bySlug[slugify(q)];
+            tenant = id ? byId[id] : null;
+          }
+          if (!tenant) { err.textContent = 'No tenant found for "' + q + '". Try a different name or ID.'; return; }
+          window.location.href = BASE + 'scorecard.html?tenant_id=' + tenant.tenant_id;
+        })
+        .catch(function (e) { err.textContent = e.message || 'Could not load data.'; });
+    }
+
+    window.doSearch = doSearch;
+
+    var inp = document.getElementById('search-input');
+    if (inp) inp.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); doSearch(); } });
+
+    // Backward compat: ?tenant=X on index
+    var params = {};
+    window.location.search.slice(1).split('&').forEach(function (p) {
+      var kv = p.split('=');
+      if (kv[0]) params[kv[0]] = decodeURIComponent((kv[1] || '').replace(/\+/g, ' '));
+    });
+    var pre = params.tenant || params.tenant_id;
+    if (pre && inp) { inp.value = pre; doSearch(); }
+
+  }());
+  </script>
 </body>
 </html>

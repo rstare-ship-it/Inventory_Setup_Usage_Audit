@@ -1,3 +1,15 @@
+---
+tags:
+  - effort
+  - inventory
+  - audit
+status: Active
+started: 2026-03-06
+goal: Audit tenants using the inventory module for setup quality, configuration, and usage patterns — flag issues and recommend improvements.
+aliases:
+  - "# Inventory Setup / Usage Audit"
+---
+
 # Inventory Setup / Usage Audit
 
 Audit app for **tenants who are already using the inventory module**. Checks that they are set up well and using the module appropriately (configuration, data quality, and usage patterns).

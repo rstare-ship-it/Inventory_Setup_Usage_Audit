@@ -1,4 +1,4 @@
--- Inventory Setup/Usage Audit: one query returning 9 rows (tenant_info, POs, invoice, replenishment, returns, assessment, inventory_settings, setup_data, usage_checks).
+-- Inventory Setup/Usage Audit: one query returning 10 rows (tenant_info, pricebook, POs, invoice, replenishment, returns, assessment, inventory_settings, setup_data, usage_checks).
 -- For tenants already on the inventory module. Export to Excel or CSV; run audit_report.py --from-excel.
 -- Columns: source, v1..v16 (shorter rows have NULL in trailing columns). inventory_settings row: v1 = NamedValue VALUE (JSON).
 --
@@ -11,6 +11,31 @@ tenant_info AS (
     FROM tenant_param tp
     LEFT JOIN tenant_data.MASTER_DB.TENANTRECORD tr ON tr._TENANT_ID = tp.tenant_id
     LIMIT 1
+),
+-- Pricebook (6 values): material count, with cost, zero cost, with vendor link, with primary vendor, primary = Default/Imported Default Replenishment
+pb AS (
+    SELECT
+        COUNT(DISTINCT m.ID) AS v1,
+        COUNT(DISTINCT CASE WHEN m.COST > 0 THEN m.ID END) AS v2,
+        COUNT(DISTINCT CASE WHEN m.COST = 0 OR m.COST IS NULL THEN m.ID END) AS v3,
+        COUNT(DISTINCT mv.MATERIAL_ID) AS v4,
+        COUNT(DISTINCT CASE WHEN m.PRIMARYVENDOR_ID IS NOT NULL THEN m.ID END) AS v5,
+        (SELECT COUNT(DISTINCT m2.ID)
+         FROM tenant_data.DBO.Material m2
+         JOIN tenant_data.DBO.MaterialVendor mv2 ON mv2.ID = m2.PRIMARYVENDOR_ID AND mv2._TENANT_ID = m2._TENANT_ID
+         JOIN tenant_data.DBO.Vendor v ON v.ID = mv2.VENDOR_ID AND v._TENANT_ID = mv2._TENANT_ID
+         CROSS JOIN tenant_param tp2
+         WHERE (m2.ARCHIVED = FALSE OR m2.ARCHIVED IS NULL)
+           AND (m2.ACTIVE = TRUE OR m2.ACTIVE IS NULL)
+           AND (v.NAME = 'Default Replenishment Vendor' OR v.NAME = 'Imported Default Replenishment Vendor')
+           AND m2._TENANT_ID = tp2.tenant_id
+        ) AS v6
+    FROM tenant_data.DBO.Material m
+    CROSS JOIN tenant_param tp
+    LEFT JOIN tenant_data.DBO.MaterialVendor mv ON mv.MATERIAL_ID = m.ID AND mv._TENANT_ID = m._TENANT_ID AND mv.VENDOR_ID IS NOT NULL
+    WHERE (m.ARCHIVED = FALSE OR m.ARCHIVED IS NULL)
+      AND (m.ACTIVE = TRUE OR m.ACTIVE IS NULL)
+      AND m._TENANT_ID = tp.tenant_id
 ),
 -- 1) Purchase orders summary (16 values): same as readiness check
 pos_in_period AS (
@@ -395,6 +420,12 @@ SELECT 'tenant_info' AS source,
     CAST(NULL AS VARCHAR) AS v7, CAST(NULL AS VARCHAR) AS v8, CAST(NULL AS VARCHAR) AS v9, CAST(NULL AS VARCHAR) AS v10,
     CAST(NULL AS VARCHAR) AS v11, CAST(NULL AS VARCHAR) AS v12, CAST(NULL AS VARCHAR) AS v13, CAST(NULL AS VARCHAR) AS v14, CAST(NULL AS VARCHAR) AS v15, CAST(NULL AS VARCHAR) AS v16
 FROM tenant_info ti
+UNION ALL
+SELECT 'pricebook' AS source,
+    TO_VARCHAR(pb.v1), TO_VARCHAR(pb.v2), TO_VARCHAR(pb.v3), TO_VARCHAR(pb.v4), TO_VARCHAR(pb.v5), TO_VARCHAR(pb.v6),
+    CAST(NULL AS VARCHAR) AS v7, CAST(NULL AS VARCHAR) AS v8, CAST(NULL AS VARCHAR) AS v9, CAST(NULL AS VARCHAR) AS v10,
+    CAST(NULL AS VARCHAR) AS v11, CAST(NULL AS VARCHAR) AS v12, CAST(NULL AS VARCHAR) AS v13, CAST(NULL AS VARCHAR) AS v14, CAST(NULL AS VARCHAR) AS v15, CAST(NULL AS VARCHAR) AS v16
+FROM pb
 UNION ALL
 SELECT 'purchase_orders_summary' AS source,
     TO_VARCHAR(po.v1), TO_VARCHAR(po.v2), TO_VARCHAR(po.v3), TO_VARCHAR(po.v4), TO_VARCHAR(po.v5), TO_VARCHAR(po.v6), TO_VARCHAR(po.v7), TO_VARCHAR(po.v8), TO_VARCHAR(po.v9), TO_VARCHAR(po.v10), TO_VARCHAR(po.v11), TO_VARCHAR(po.v12), TO_VARCHAR(po.v13), TO_VARCHAR(po.v14), TO_VARCHAR(po.v15), TO_VARCHAR(po.v16)
