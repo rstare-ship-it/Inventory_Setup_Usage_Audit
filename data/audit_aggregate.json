@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-03-14T15:35:57Z",
+  "updated_at": "2026-03-14T15:38:10Z",
   "lookback_days": 90,
   "tenants_by_id": {
     "444875142": {
@@ -573,10 +573,9 @@
       "lookback_days": 90,
       "is_live": true,
       "area_statuses": {
-        "Pricebook & setup": "Yellow",
-        "Purchasing": "Review",
+        "Pricebook & setup": "Review",
+        "Purchasing": "Yellow",
         "Invoicing": "Red",
-        "Technician usage": "Red",
         "Replenishment": "Red",
         "Returns": "Red",
         "Transfers": "Review",
@@ -584,15 +583,14 @@
         "Other": "Green"
       },
       "action_plan": [
-        "Review trucks and warehouses; assign inventory templates to trucks and warehouses as needed.",
-        "Review pending POs; receive or close old POs and keep pending count within half of truck count where possible.",
-        "Use multi-line POs for stock orders; avoid single-line or placeholder-heavy POs.",
-        "Ensure invoices with amount > $0 include inventory materials where applicable; train office and field on invoice material usage.",
-        "Review cost flow from PO/receiving to invoice; fix zero-cost IsInventory lines where cost should flow.",
-        "Schedule technician training on adding materials to invoices in the field.",
-        "Address open replenishment requests; complete and receive replenishments to improve turnover.",
-        "Process pending returns and issue credits so returns don't age.",
-        "Complete or cancel aging transfers; encourage transfer-to-job usage where appropriate.",
+        "Assign inventory templates to trucks and warehouses.",
+        "Use multi-line POs for stock orders.",
+        "Add inventory materials to invoices; train office and field staff on material usage.",
+        "Train technicians to add materials to invoices in the field.",
+        "Review cost flow from PO receiving to invoice; fix zero-cost material lines.",
+        "Complete open replenishments.",
+        "Resolve pending returns and issue credits.",
+        "Complete or cancel aging transfers.",
         "Run an inventory count and adjustments to resolve negative quantities.",
         "Review direct adjustment practices; reduce manual adjustments where possible.",
         "Schedule and complete cycle counts for all warehouses."
@@ -601,78 +599,78 @@
         "tenant_id": 1056144950,
         "tenant_name": "aaservicecoheatingcooling",
         "pricebook": {
-          "material_count": 6336,
-          "materials_with_cost": 6294,
+          "material_count": 6550,
+          "materials_with_cost": 6508,
           "materials_zero_cost": 42,
-          "materials_with_vendor_link": 6336,
-          "materials_with_primary_vendor": 6314,
-          "primary_vendor_default_replenishment": 2826
+          "materials_with_vendor_link": 6550,
+          "materials_with_primary_vendor": 6528,
+          "primary_vendor_default_replenishment": 2875
         },
-        "total_pending_pos": 22,
+        "total_pending_pos": 8,
         "po_activity": {
-          "po_created_in_period": 2917,
+          "po_created_in_period": 2951,
           "earliest_po": "2024-08-22 13:53:40.205",
-          "latest_po": "2026-02-23 13:39:01.122"
+          "latest_po": "2026-03-14 13:20:33.837"
         },
         "purchase_orders": {
           "by_status": {
-            "0": 17,
+            "0": 8,
             "1": 0,
-            "2": 386,
-            "3": 39,
-            "4": 2475,
+            "2": 425,
+            "3": 47,
+            "4": 2471,
             "5": 0,
             "6": 0
           },
-          "pending_count": 442,
-          "completed_count": 2475
+          "pending_count": 480,
+          "completed_count": 2471
         },
         "po_line_quality": {
-          "po_count": 2917,
-          "pos_with_one_line_only": 1620,
-          "total_line_items": 8481,
+          "po_count": 2951,
+          "pos_with_one_line_only": 1654,
+          "total_line_items": 8656,
           "line_items_placeholder_like": 11
         },
-        "pending_pos_over_90_days": 5,
+        "pending_pos_over_90_days": 0,
         "invoice_materials": {
-          "material_line_count": 14128,
-          "invoices_with_materials": 2577,
-          "material_lines_added_by_technician": 4885,
-          "material_lines_placeholder_like": 34,
-          "invoices_total_gt_zero": 13871,
-          "invoices_gt_zero_with_material": 1600,
-          "material_lines_IsInventory": 9412,
-          "material_lines_zero_cost": 776,
+          "material_line_count": 13456,
+          "invoices_with_materials": 2317,
+          "material_lines_added_by_technician": 4541,
+          "material_lines_placeholder_like": 38,
+          "invoices_total_gt_zero": 13710,
+          "invoices_gt_zero_with_material": 1383,
+          "material_lines_IsInventory": 8727,
+          "material_lines_zero_cost": 790,
           "material_lines_from_transfer": 0,
-          "distinct_IsInventory_materials_used_90d": 692
+          "distinct_IsInventory_materials_used_90d": 708
         },
         "replenishment_summary": {
-          "open_count": 1063,
-          "completed_in_lookback": 1970,
+          "open_count": 518,
+          "completed_in_lookback": 1792,
           "used_materials_can_be_replenished": 42918
         },
-        "total_pending_returns": 61,
+        "total_pending_returns": 66,
         "returns_activity": {
-          "returns_in_period": 362,
+          "returns_in_period": 371,
           "earliest_return": "2024-09-04 20:38:50.127",
-          "latest_return": "2026-02-20 21:21:02.790"
+          "latest_return": "2026-03-13 23:01:48.190"
         },
         "returns_by_status": {
-          "0": 41,
-          "1": 72,
-          "2": 249,
+          "0": 42,
+          "1": 70,
+          "2": 259,
           "3": 0
         },
-        "pending_returns_over_90_days": 23,
+        "pending_returns_over_90_days": 25,
         "readiness_config": {
           "purchasing_module_on": true,
           "inventory_module_on": true
         },
         "isinventory_counts": {
-          "active_materials_count": 6336,
-          "active_equipment_count": 6374,
-          "materials_isinventory_count": 1377,
-          "equipment_isinventory_count": 63
+          "active_materials_count": 6550,
+          "active_equipment_count": 6385,
+          "materials_isinventory_count": 1637,
+          "equipment_isinventory_count": 71
         },
         "inventory_tracking_start_date": "2024-09-10T00:00:00",
         "feature_gates": {
@@ -731,19 +729,19 @@
           "StockHealthCategoryEditModel": null
         },
         "setup_data": {
-          "truck_total": 112,
+          "truck_total": 114,
           "truck_with_template": 80,
           "warehouse_total": 3,
           "warehouse_with_template": 1,
           "templates_under_20_active_items": 0
         },
         "usage_checks": {
-          "replenishment_older_than_30_days": 1032,
+          "replenishment_older_than_30_days": 354,
           "pending_transfers_older_than_14_days": 0,
           "requisitions_older_than_90_days": 0,
           "past_due_inventory_counts": 2,
-          "negative_balance_count": 270,
-          "direct_adjustments_in_90_days": 239,
+          "negative_balance_count": 336,
+          "direct_adjustments_in_90_days": 240,
           "warehouses_no_completed_count_90d": 3,
           "completed_transfers_in_90_days": 0
         }
@@ -751,16 +749,13 @@
       "findings_by_area": {
         "Purchasing": {
           "green": [
-            "POs created in last 90 days: 2917; completed (received/exported): 2475.",
-            "PO receive rate: 84% of POs created in period are received/exported (target \u226570%).",
-            "PO line descriptions: 11 of 8481 lines with placeholder-like text (under 50%)."
+            "Pending POs: 8 of 57 allowed.",
+            "PO usage: 2951 created, 2471 received/exported in last 90 days (83% receive rate).",
+            "PO line descriptions: 11 of 8656 lines with placeholder-like text."
           ],
-          "yellow": [
-            "Total pending POs: 22. 5 of these are older than 90 days. Allowed (half of 112 trucks): 56; pending is 39% of allowed.",
-            "Pending POs over 90 days: 5 (8% of allowed pending 56)."
-          ],
+          "yellow": [],
           "review": [
-            "PO line items: 8481 lines across 2917 POs; 1297 of 2917 (44%) have multiple lines (<40% Needs attention, 40-50% Needs review, 50-60% Okay, >60% Good)."
+            "PO line items: 8656 lines across 2951 POs; 1297 of 2951 (43%) have multiple lines. Reach 50% (1476+ POs) to move to Okay."
           ],
           "red": []
         },
@@ -768,82 +763,77 @@
           "green": [],
           "yellow": [],
           "review": [
-            "Of 14128 invoice material lines, 9412 (66%) are IsInventory (85%+ Good, 75-85% Okay, 50-75% Needs review, <50% Needs attention).",
-            "Zero-cost IsInventory lines: 776 of 9412 (8%). Review cost flow if unexpected."
+            "Invoice IsInventory lines: 8727 of 13456 material lines (64%) are IsInventory. Convert 1365 more line(s) to IsInventory to reach Okay (75%+).",
+            "Zero-cost IsInventory lines: 790 of 8727 (9%). Fix 354 line(s) to reach Okay (under 5%). Review cost flow from PO receiving.",
+            "Technician-added materials: 4541 of 13456 invoice material line(s) (33%) added by a technician. Reach 6728+ tech-added lines (50%) to reach Okay."
           ],
           "red": [
-            "Of 13871 invoice(s) with amount > $0, 1600 (11%) have at least one IsInventory material line (85%+ Good, 75-85% Okay, 50-75% Needs review, <50% Needs attention)."
+            "Invoice material coverage: 1383 of 13710 invoices (10%) include at least one IsInventory material line. Add materials to 5472 more invoice(s) to reach Needs Review (50%+)."
           ]
-        },
-        "Technician usage": {
-          "green": [],
-          "yellow": [],
-          "review": [
-            "4885 of 14128 invoice material line(s) (34%) were added by a technician (\u226560% Good, 50-60% Okay, 30-50% Needs review, <30% Needs attention)."
-          ],
-          "red": []
         },
         "Replenishment": {
           "green": [],
-          "yellow": [],
+          "yellow": [
+            "Replenishment: 518 open, 1792 completed in last 90 days. Reduce open to 358 or fewer to reach Good."
+          ],
           "review": [],
           "red": [
-            "Replenishment: 1063 open (pending/in progress), 1970 completed in last 90 days.",
-            "Replenishment requests older than 30 days: 1032 (max 20). Address aging replenishment requests."
+            "Replenishment requests older than 30 days: 354. Address aging requests."
           ]
         },
         "Returns": {
           "green": [],
           "yellow": [
-            "Returns: 249 credit received of 362 returns in last 90 days. 61 pending. (16% of returns in period) 23 pending are older than 90 days. Returns to be resolved in timely manner."
+            "Returns: 259 credit received of 371 in last 90 days. 66 pending. (17% of period returns still pending); 25 older than 90 days. Resolve aged returns to reach Good."
           ],
           "review": [],
           "red": []
         },
         "Pricebook & setup": {
           "green": [
-            "Warehouses: 1 of 3 with inventory template.",
-            "All templates have at least 20 active items.",
-            "IsInventory materials with no invoice usage in last 90 days: 685 of 1377 (49%)."
+            "Warehouses: 1 of 3 have an inventory template.",
+            "All templates have at least 20 active items."
           ],
-          "yellow": [],
+          "yellow": [
+            "IsInventory materials unused in last 90 days: 929 of 1637 (56%). Reduce unused to 50% or fewer to reach Good \u2014 review pricebook for low-use items."
+          ],
           "review": [],
           "red": [
-            "Trucks: 80 of 112 with inventory template (min 80% expected)."
+            "Trucks: 80 of 114 have an inventory template. Assign templates to 12 more truck(s) to reach Good."
           ]
         },
         "Transfers": {
           "green": [
-            "Pending transfers older than 14 days: 0 (max 20)."
+            "Pending transfers older than 14 days: 0."
           ],
           "yellow": [],
           "review": [],
           "red": [
-            "Completed transfers in last 90 days: 0 (expected \u2265720 for ~50% of 112 trucks at least once per week). Increase transfer usage."
+            "Completed transfers in last 90 days: 0 (expected 732+). Increase transfer usage."
           ]
         },
         "Counts and adjustments": {
           "green": [
-            "Past due inventory counts: 2 (max 5)."
+            "Past due inventory counts: 2."
           ],
           "yellow": [],
           "review": [],
           "red": [
-            "Negative inventory balances: 270 location/SKU combination(s) with negative quantity. Resolve negative balances.",
-            "Direct (quantity) adjustments in last 90 days: 239 (max 20). High volume may indicate process or data issues.",
+            "Negative inventory balances: 336 location/SKU combination(s). Run a count or adjustment to resolve.",
+            "Direct (quantity) adjustments in last 90 days: 240. High volume may indicate process or data issues.",
             "Warehouses with no completed count in last 90 days: 3. Schedule and complete cycle counts."
           ]
         },
         "Other": {
           "green": [
-            "Requisitions older than 90 days: 0 (max 20)."
+            "Requisitions older than 90 days: 0."
           ],
           "yellow": [],
           "review": [],
           "red": []
         }
       },
-      "updated_at": "2026-02-23T15:51:05Z"
+      "updated_at": "2026-03-14T15:38:10Z"
     },
     "2058000021": {
       "tenant_id": 2058000021,
