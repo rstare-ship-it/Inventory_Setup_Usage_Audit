@@ -11,6 +11,7 @@ import argparse
 import json
 import re
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
 
 from audit.constants import (
@@ -58,6 +59,23 @@ def _sanitize_folder_name(s: str, max_len: int = 80) -> str:
     return (name[:max_len] if len(name) > max_len else name) or "report"
 
 
+def _save_raw(raw_dir: Path, tenant_id: int, tenant_name: str, lookback: int,
+              results: dict, is_live: bool) -> None:
+    """Cache parsed results for a tenant so checks can be re-run without Snowflake."""
+    raw_dir.mkdir(parents=True, exist_ok=True)
+    payload = {
+        "tenant_id": tenant_id,
+        "tenant_name": tenant_name,
+        "lookback_days": lookback,
+        "is_live": is_live,
+        "fetched_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "results": results,
+    }
+    (raw_dir / f"{tenant_id}.json").write_text(
+        json.dumps(payload, indent=2, default=str), encoding="utf-8"
+    )
+
+
 # Load .env from project directory so SNOWFLAKE_* are set when using --from-snowflake
 try:
     from dotenv import load_dotenv
@@ -82,7 +100,73 @@ def main() -> int:
     parser.add_argument("--tenant-group", type=str, default=None, metavar="NAME", help="Run audit for all tenants in this tenant group (requires --from-snowflake and --html)")
     parser.add_argument("--html", type=str, default=None, metavar="FILE", help="Write a customer-friendly HTML scorecard to FILE (for --tenant-group, write group summary here and scorecard_<id>.html alongside)")
     parser.add_argument("--output-aggregate", type=str, default=None, metavar="FILE", help="Merge this run into an aggregated JSON file (for hosted lookup by tenant). Use with single or group run.")
+    parser.add_argument("--reprocess", action="store_true", help="Re-run checks against cached raw data without querying Snowflake. Use with --output-aggregate. Add --tenant-id to reprocess a single tenant.")
+    parser.add_argument("--raw-dir", type=str, default="data/raw", metavar="DIR", help="Directory for cached raw tenant data (default: data/raw)")
     args = parser.parse_args()
+
+    raw_dir = Path(args.raw_dir)
+
+    # --- Reprocess mode: re-run checks against cached raw data (no Snowflake) ---
+    if args.reprocess:
+        if not args.output_aggregate:
+            print("--reprocess requires --output-aggregate to update results.", file=sys.stderr)
+            return 1
+        if args.tenant_id:
+            raw_files = [raw_dir / f"{args.tenant_id}.json"]
+        else:
+            raw_files = sorted(raw_dir.glob("*.json"))
+        if not raw_files:
+            print(f"No cached raw data found in {raw_dir}. Run a Snowflake audit first.", file=sys.stderr)
+            return 1
+        tenant_results = []
+        ok_count = 0
+        for raw_file in raw_files:
+            if not raw_file.is_file():
+                print(f"  Raw file not found: {raw_file}", file=sys.stderr)
+                continue
+            try:
+                payload = json.loads(raw_file.read_text(encoding="utf-8"))
+            except (json.JSONDecodeError, OSError) as e:
+                print(f"  Skipping {raw_file.name}: {e}", file=sys.stderr)
+                continue
+            tenant_id = payload.get("tenant_id")
+            tenant_name = payload.get("tenant_name") or f"Tenant {tenant_id}"
+            lookback = payload.get("lookback_days") or args.lookback_days
+            is_live = payload.get("is_live", True)
+            results = payload.get("results") or {}
+            if is_live:
+                ok, findings_by_area = evaluate_audit(results, lookback)
+                audit_areas = AUDIT_AREAS
+                ready_for_inventory = None
+            else:
+                ok, findings_by_area, ready_for_inventory = evaluate_audit_purchasing_only(results, lookback)
+                audit_areas = AUDIT_AREAS_PURCHASING
+            area_statuses = {
+                area: _area_status(findings_by_area.get(area, {"green": [], "yellow": [], "review": [], "red": []}))
+                for area in audit_areas
+            }
+            action_plan = get_action_plan(findings_by_area, audit_areas)
+            tenant_results.append({
+                "tenant_id": tenant_id,
+                "tenant_name": tenant_name,
+                "lookback_days": lookback,
+                "is_live": is_live,
+                "results": results,
+                "findings_by_area": findings_by_area,
+                "area_statuses": area_statuses,
+                "action_plan": action_plan,
+            })
+            status = "✓" if ok else "✗"
+            print(f"  {status} {tenant_name} ({tenant_id})", file=sys.stderr)
+            if ok:
+                ok_count += 1
+        if not tenant_results:
+            print("No tenants reprocessed.", file=sys.stderr)
+            return 1
+        from audit.aggregate import merge_into_aggregate
+        merge_into_aggregate(Path(args.output_aggregate), tenant_results, args.lookback_days)
+        print(f"\nReprocessed {len(tenant_results)} tenant(s) ({ok_count} clean) → {args.output_aggregate}", file=sys.stderr)
+        return 0
 
     data = None
     lookback = args.lookback_days
@@ -128,11 +212,8 @@ def main() -> int:
                 ok, findings_by_area, ready_for_inventory = evaluate_audit_purchasing_only(results, lookback)
                 audit_areas = AUDIT_AREAS_PURCHASING
             area_statuses = {}
-            for area in AUDIT_AREAS:
-                if not is_live and area not in audit_areas:
-                    area_statuses[area] = "N/A"
-                else:
-                    area_statuses[area] = _area_status(findings_by_area.get(area, {"green": [], "yellow": [], "review": [], "red": []}))
+            for area in audit_areas:
+                area_statuses[area] = _area_status(findings_by_area.get(area, {"green": [], "yellow": [], "review": [], "red": []}))
             action_plan = get_action_plan(findings_by_area, audit_areas)
             group_folder = _sanitize_folder_name(group_name)
             tenant_results.append({
@@ -169,6 +250,7 @@ def main() -> int:
                 lookback = _int(data.get("lookback_days")) or args.lookback_days
                 results = parse_results(data)
                 is_live = is_live_with_inventory(results)
+                _save_raw(raw_dir, tenant_id, tenant_name, lookback, results, is_live)
                 if is_live:
                     ok, findings_by_area = evaluate_audit(results, lookback)
                     audit_areas = AUDIT_AREAS
@@ -176,11 +258,8 @@ def main() -> int:
                     ok, findings_by_area, ready_for_inventory = evaluate_audit_purchasing_only(results, lookback)
                     audit_areas = AUDIT_AREAS_PURCHASING
                 area_statuses = {}
-                for area in AUDIT_AREAS:
-                    if not is_live and area not in audit_areas:
-                        area_statuses[area] = "N/A"
-                    else:
-                        area_statuses[area] = _area_status(findings_by_area.get(area, {"green": [], "yellow": [], "review": [], "red": []}))
+                for area in audit_areas:
+                    area_statuses[area] = _area_status(findings_by_area.get(area, {"green": [], "yellow": [], "review": [], "red": []}))
                 action_plan = get_action_plan(findings_by_area, audit_areas)
                 tenant_results.append({
                     "tenant_id": tenant_id,
@@ -221,6 +300,7 @@ def main() -> int:
                 lookback = _int(data.get("lookback_days")) or args.lookback_days
                 results = parse_results(data)
                 is_live = is_live_with_inventory(results)
+                _save_raw(raw_dir, tenant_id, tenant_name, lookback, results, is_live)
                 if is_live:
                     ok, findings_by_area = evaluate_audit(results, lookback)
                     audit_areas = AUDIT_AREAS
@@ -228,11 +308,8 @@ def main() -> int:
                     ok, findings_by_area, ready_for_inventory = evaluate_audit_purchasing_only(results, lookback)
                     audit_areas = AUDIT_AREAS_PURCHASING
                 area_statuses = {}
-                for area in AUDIT_AREAS:
-                    if not is_live and area not in audit_areas:
-                        area_statuses[area] = "N/A"
-                    else:
-                        area_statuses[area] = _area_status(findings_by_area.get(area, {"green": [], "yellow": [], "review": [], "red": []}))
+                for area in audit_areas:
+                    area_statuses[area] = _area_status(findings_by_area.get(area, {"green": [], "yellow": [], "review": [], "red": []}))
                 action_plan = get_action_plan(findings_by_area, audit_areas)
                 group_folder = _sanitize_folder_name(args.tenant_group)
                 tenant_results.append({
@@ -322,6 +399,12 @@ def main() -> int:
 
     results = parse_results(data)
     is_live = is_live_with_inventory(results)
+
+    # Cache raw results for future reprocessing (Snowflake runs only)
+    if args.from_snowflake and args.tenant_id:
+        tenant_name_for_raw = args.tenant_name or (results.get("tenant_name") or f"Tenant {args.tenant_id}")
+        _save_raw(raw_dir, args.tenant_id, tenant_name_for_raw, lookback, results, is_live)
+
     ready_for_inventory = None
     if is_live:
         ok, findings_by_area = evaluate_audit(results, lookback)
@@ -351,11 +434,8 @@ def main() -> int:
     if args.output_aggregate and data is not None:
         action_plan = get_action_plan(findings_by_area, audit_areas)
         area_statuses_single = {}
-        for area in AUDIT_AREAS:
-            if not is_live and area not in audit_areas:
-                area_statuses_single[area] = "N/A"
-            else:
-                area_statuses_single[area] = _area_status(findings_by_area.get(area, {"green": [], "yellow": [], "review": [], "red": []}))
+        for area in audit_areas:
+            area_statuses_single[area] = _area_status(findings_by_area.get(area, {"green": [], "yellow": [], "review": [], "red": []}))
         scorecard_path = None
         if args.html:
             folder_name = f"scorecard_{tenant_id or 0}_{_sanitize_folder_name(tenant_name or 'tenant')}"

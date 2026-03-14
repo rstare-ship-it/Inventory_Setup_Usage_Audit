@@ -42,6 +42,9 @@ env.bak/
 .DS_Store
 Thumbs.db
 
+# Cached raw tenant data (local reprocess cache — not needed in repo)
+data/raw/
+
 # Optional: uncomment to ignore generated outputs (keep if you want to track sample reports)
 # *.html
 # scorecard_*.html

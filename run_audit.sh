@@ -29,6 +29,7 @@ AGGREGATE="data/audit_aggregate.json"
 LOOKBACK=90
 PUSH=true
 TENANT_ID=""
+REPROCESS=false
 
 # Parse flags
 while [[ $# -gt 0 && "$1" == --* ]]; do
@@ -36,15 +37,18 @@ while [[ $# -gt 0 && "$1" == --* ]]; do
     --lookback)   LOOKBACK="$2"; shift 2 ;;
     --no-push)    PUSH=false; shift ;;
     --tenant-id)  TENANT_ID="$2"; shift 2 ;;
+    --reprocess)  REPROCESS=true; shift ;;
     *) echo "Unknown option: $1" >&2; exit 1 ;;
   esac
 done
 
 # Determine what to run
-if [[ -n "$TENANT_ID" ]]; then
+if $REPROCESS; then
+  RUN_TARGETS=("__reprocess__")
+elif [[ -n "$TENANT_ID" ]]; then
   RUN_TARGETS=("__tenant__")
 elif [[ $# -eq 0 ]]; then
-  echo "Usage: $0 [--lookback N] [--no-push] [--tenant-id ID] <group> [group2 ...] | all" >&2
+  echo "Usage: $0 [--lookback N] [--no-push] [--tenant-id ID] [--reprocess] <group> [group2 ...] | all" >&2
   echo "Groups: ${AUDIT_GROUPS[*]}" >&2
   exit 1
 elif [[ "$1" == "all" ]]; then
@@ -98,6 +102,25 @@ run_tenant() {
   echo "  ✓ Audit complete for tenant ${tid}"
 }
 
+run_reprocess() {
+  local tid_arg=""
+  [[ -n "$TENANT_ID" ]] && tid_arg="--tenant-id $TENANT_ID"
+
+  echo ""
+  echo "━━━ Reprocessing cached audit data ━━━"
+  echo "  Aggregate : ${AGGREGATE}"
+  [[ -n "$TENANT_ID" ]] && echo "  Tenant ID : ${TENANT_ID}" || echo "  Tenants   : all cached"
+  echo ""
+
+  # shellcheck disable=SC2086
+  python3 audit_report.py \
+    --reprocess \
+    $tid_arg \
+    --output-aggregate "$AGGREGATE"
+
+  echo "  ✓ Reprocess complete"
+}
+
 commit_and_push() {
   local targets=("$@")
   local date_str
@@ -140,7 +163,9 @@ commit_and_push() {
 
 FAILED=()
 
-if [[ -n "$TENANT_ID" ]]; then
+if $REPROCESS; then
+  run_reprocess || FAILED+=("reprocess")
+elif [[ -n "$TENANT_ID" ]]; then
   run_tenant "$TENANT_ID" || FAILED+=("tenant:${TENANT_ID}")
 else
   for target in "${RUN_TARGETS[@]}"; do
