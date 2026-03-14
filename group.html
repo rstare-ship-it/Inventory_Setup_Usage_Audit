@@ -187,11 +187,6 @@
     var AGGREGATE_URL = BASE + 'data/audit_aggregate.json';
     var GROUPS_URL    = BASE + 'data/groups.json';
 
-    var AREAS = [
-      'Pricebook & setup', 'Purchasing', 'Invoicing',
-      'Replenishment', 'Returns', 'Transfers', 'Counts and adjustments', 'Other'
-    ];
-
     var STATUS_ORDER = { Red: 0, Review: 1, Yellow: 2, Green: 3, 'N/A': 4 };
     var BADGE_CLASS  = { Red: 'badge-red', Review: 'badge-review', Yellow: 'badge-yellow', Green: 'badge-green', 'N/A': 'badge-na' };
     var BADGE_LABEL  = { Red: 'Critical', Review: 'Review', Yellow: 'On track', Green: 'Good', 'N/A': 'N/A' };
@@ -254,6 +249,8 @@
       tenants.sort(function(a,b){
         return (a.tenant_name||'').localeCompare(b.tenant_name||'');
       });
+
+      var AREAS = Object.keys((tenants[0] || {}).area_statuses || {});
 
       // ── Compute stats ────────────────────────────────────────────────────
       var needAttn = tenants.filter(function(t) {

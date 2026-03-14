@@ -232,10 +232,6 @@
   (function () {
     'use strict';
 
-    var AREA_ORDER = [
-      'Pricebook & setup', 'Purchasing', 'Invoicing',
-      'Replenishment', 'Returns', 'Transfers', 'Counts and adjustments', 'Other'
-    ];
     var STATUS_LABEL = { Green: 'Good', Yellow: 'On track', Review: 'Review', Red: 'Critical' };
     var STATUS_KEY   = { Green: 'green', Yellow: 'yellow', Review: 'review', Red: 'red' };
 
@@ -303,6 +299,7 @@
     function render(t) {
       var name      = t.tenant_name || ('Tenant ' + t.tenant_id);
       var areas     = t.area_statuses    || {};
+      var AREA_ORDER = Object.keys(areas);
       var findings  = t.findings_by_area || {};
       var results   = t.results          || {};
       var plan      = t.action_plan      || [];
