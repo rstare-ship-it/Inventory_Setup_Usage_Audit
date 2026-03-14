@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-03-14T15:22:34Z",
+  "updated_at": "2026-03-14T15:34:54Z",
   "lookback_days": 90,
   "tenants_by_id": {
     "444875142": {
@@ -851,22 +851,20 @@
       "lookback_days": 90,
       "is_live": false,
       "area_statuses": {
-        "Pricebook & setup": "N/A",
+        "Pricebook": "Review",
         "Purchasing": "Review",
-        "Invoicing": "Review",
-        "Technician usage": "N/A",
+        "Invoicing": "Red",
         "Replenishment": "Red",
         "Returns": "Red",
-        "Transfers": "N/A",
-        "Counts and adjustments": "N/A",
-        "Other": "N/A"
+        "Readiness": "Red"
       },
       "action_plan": [
-        "Review pending POs; receive or close old POs and keep pending count within half of truck count where possible.",
-        "Use multi-line POs for stock orders; avoid single-line or placeholder-heavy POs.",
-        "Ensure invoices with amount > $0 include inventory materials where applicable; train office and field on invoice material usage.",
-        "Address open replenishment requests; complete and receive replenishments to improve turnover.",
-        "Process pending returns and issue credits so returns don't age."
+        "Reduce pending POs; receive or close old POs.",
+        "Use multi-line POs for stock orders.",
+        "Add inventory materials to invoices; train office and field staff on material usage.",
+        "Train technicians to add materials to invoices in the field.",
+        "Complete open replenishments.",
+        "Resolve pending returns and issue credits."
       ],
       "results": {
         "tenant_id": 2058000021,
@@ -879,40 +877,40 @@
           "materials_with_primary_vendor": 7012,
           "primary_vendor_default_replenishment": 3122
         },
-        "total_pending_pos": 32,
+        "total_pending_pos": 38,
         "po_activity": {
-          "po_created_in_period": 913,
-          "earliest_po": "2024-12-16 13:27:39.555",
-          "latest_po": "2026-02-20 21:42:01.994"
+          "po_created_in_period": 915,
+          "earliest_po": "2024-11-21 15:42:33.384",
+          "latest_po": "2026-03-13 20:29:51.672"
         },
         "purchase_orders": {
           "by_status": {
             "0": 22,
-            "1": 2,
+            "1": 6,
             "2": 38,
-            "3": 15,
-            "4": 836,
+            "3": 14,
+            "4": 835,
             "5": 0,
             "6": 0
           },
-          "pending_count": 75,
-          "completed_count": 838
+          "pending_count": 74,
+          "completed_count": 841
         },
         "po_line_quality": {
-          "po_count": 913,
-          "pos_with_one_line_only": 525,
-          "total_line_items": 2370,
-          "line_items_placeholder_like": 43
+          "po_count": 915,
+          "pos_with_one_line_only": 562,
+          "total_line_items": 2235,
+          "line_items_placeholder_like": 79
         },
-        "pending_pos_over_90_days": 11,
+        "pending_pos_over_90_days": 17,
         "invoice_materials": {
-          "material_line_count": 3275,
-          "invoices_with_materials": 727,
-          "material_lines_added_by_technician": 744,
-          "material_lines_placeholder_like": 71,
-          "invoices_total_gt_zero": 3635,
-          "invoices_gt_zero_with_material": 13,
-          "material_lines_IsInventory": 24,
+          "material_line_count": 3337,
+          "invoices_with_materials": 677,
+          "material_lines_added_by_technician": 692,
+          "material_lines_placeholder_like": 68,
+          "invoices_total_gt_zero": 3627,
+          "invoices_gt_zero_with_material": 10,
+          "material_lines_IsInventory": 15,
           "material_lines_zero_cost": 1,
           "material_lines_from_transfer": 0,
           "distinct_IsInventory_materials_used_90d": 4
@@ -922,16 +920,16 @@
           "completed_in_lookback": 0,
           "used_materials_can_be_replenished": 0
         },
-        "total_pending_returns": 53,
+        "total_pending_returns": 48,
         "returns_activity": {
-          "returns_in_period": 68,
+          "returns_in_period": 108,
           "earliest_return": "2025-11-18 20:39:33.307",
-          "latest_return": "2026-02-13 13:54:07.710"
+          "latest_return": "2026-03-04 17:25:27.612"
         },
         "returns_by_status": {
-          "0": 18,
+          "0": 13,
           "1": 0,
-          "2": 50,
+          "2": 95,
           "3": 0
         },
         "pending_returns_over_90_days": 35,
@@ -1023,27 +1021,24 @@
       "findings_by_area": {
         "Pricebook": {
           "green": [
-            "341 material(s) have $0 cost (4.9% of 7012); under 25% threshold."
+            "341 material(s) have $0 cost (4.9%) \u2014 within acceptable range."
           ],
           "yellow": [],
           "review": [],
           "red": [
-            "3122 material(s) have Default or Imported Default Replenishment Vendor as primary (45% of 7012). Assign a real primary vendor (red when >25%)."
+            "3122 material(s) (45%) use Default or Imported Default Replenishment as primary vendor. Assign a real vendor before go-live."
           ]
         },
         "Purchasing": {
           "green": [
-            "POs created in last 90 days: 913; completed (received/exported): 838.",
-            "PO receive rate: 91% of POs created in period are received/exported (target \u226570%).",
-            "PO line descriptions: 43 of 2370 lines with placeholder-like text (under 50%)."
+            "PO usage: 915 created, 841 received/exported in last 90 days (91% receive rate).",
+            "PO line descriptions: 79 of 2235 lines with placeholder-like text."
           ],
           "yellow": [],
-          "review": [
-            "PO line items: 2370 lines across 913 POs; 388 of 913 (42%) have multiple lines (<40% Needs attention, 40-50% Needs review, 50-60% Okay, >60% Good)."
-          ],
+          "review": [],
           "red": [
-            "Total pending POs: 32. 11 of these are older than 90 days. Allowed (half of 26 trucks): 13; pending is 246% of allowed.",
-            "Pending POs over 90 days: 11 (84% of allowed pending 13)."
+            "Pending POs: 38 of 13 allowed. 17 are older than 90 days. Reduce to 7 or fewer to reach Needs Review.",
+            "PO line items: 2235 lines across 915 POs; 353 of 915 (38%) have multiple lines. Use multi-line POs \u2014 reach 50% (458+ POs) to move to Needs Review."
           ]
         },
         "Replenishment": {
@@ -1051,29 +1046,35 @@
           "yellow": [],
           "review": [],
           "red": [
-            "Replenishment: 0 open (pending/in progress), 0 completed in last 90 days. No replenishment activity in lookback (0 of 0); treat as 0%."
+            "Replenishment: 0 open, 0 completed in last 90 days. No replenishment activity in lookback period."
           ]
         },
         "Returns": {
           "green": [],
           "yellow": [
-            "Returns: 50 credit received of 68 returns in last 90 days. 53 pending. (77% of returns in period) 35 pending are older than 90 days. Returns to be resolved in timely manner."
+            "Returns: 95 credit received of 108 in last 90 days. 48 pending. (44% of period returns still pending); 35 older than 90 days. Resolve aged returns to reach Good."
           ],
           "review": [],
           "red": []
         },
         "Invoicing": {
-          "green": [
-            "Invoices with amount > $0 in last 90 days: 3635; material lines: 3275."
-          ],
+          "green": [],
           "yellow": [],
           "review": [],
           "red": [
-            "744 of 3275 invoice material line(s) (22%) were added by a technician (\u226560% Good, 50-60% Okay, 30-50% Needs review, <30% Needs attention)."
+            "Technician-added materials: 692 of 3337 invoice material line(s) (20%) added by a technician. Reach 1002+ tech-added lines (30%) to reach Needs Review."
+          ]
+        },
+        "Readiness": {
+          "green": [],
+          "yellow": [],
+          "review": [],
+          "red": [
+            "Not yet ready for inventory implementation. Complete the following: Assign real primary vendors \u2014 Default Replenishment is 45% of materials (target <25%); PO multi-line rate is 38% \u2014 reach 50%+ to qualify; Technician-added materials is 20% \u2014 reach 50%+ to qualify."
           ]
         }
       },
-      "updated_at": "2026-02-23T15:51:05Z"
+      "updated_at": "2026-03-14T15:34:54Z"
     },
     "4099649302": {
       "tenant_id": 4099649302,
