@@ -203,14 +203,6 @@
     <div id="state-error"   class="state-msg error" hidden></div>
 
     <div id="body" hidden>
-      <div class="section-label">Scorecard Overview</div>
-      <div class="tiles-grid" id="tiles"></div>
-
-      <div class="section-label">Findings by Area</div>
-      <div class="card" id="findings-card">
-        <div id="findings"></div>
-      </div>
-
       <div class="section-label">Settings &amp; Configuration</div>
       <div class="card">
         <div class="card-title">Modules &amp; Feature Gates</div>
@@ -219,6 +211,14 @@
       <div class="card">
         <div class="card-title">Pricebook &amp; Setup Counts</div>
         <div class="settings-grid" id="settings-setup"></div>
+      </div>
+
+      <div class="section-label">Scorecard Overview</div>
+      <div class="tiles-grid" id="tiles"></div>
+
+      <div class="section-label">Findings by Area</div>
+      <div class="card" id="findings-card">
+        <div id="findings"></div>
       </div>
 
       <div class="section-label">Action Plan</div>
@@ -337,13 +337,9 @@
       });
       html('tiles', tilesHtml);
 
-      // Findings — sorted red → review → yellow → green
-      var sortOrder = { Red: 0, Review: 1, Yellow: 2, Green: 3 };
-      var sortedAreas = AREA_ORDER.slice().sort(function (a, b) {
-        return (sortOrder[areas[a]] || 9) - (sortOrder[areas[b]] || 9);
-      });
+      // Findings — in area order as defined by AUDIT_AREAS in constants.py
       var findingsHtml = '';
-      sortedAreas.forEach(function (area) {
+      AREA_ORDER.forEach(function (area) {
         var s = areas[area];
         if (!s || s === 'N/A') return;
         var f = findings[area] || {};
