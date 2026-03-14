@@ -98,24 +98,26 @@ def check_pending_pos(results: dict, lookback_days: int) -> list[Finding]:
     truck_total = (setup.get("truck_total", 0) or 0) if setup and isinstance(setup, dict) else 0
     allowed_pending = max(0, int(truck_total * PENDING_POS_ALLOWED_PER_TRUCK)) if truck_total > 0 else None
 
-    msg = f"Total pending POs: {total_pending}."
+    msg = f"Pending POs: {total_pending} of {allowed_pending} allowed." if allowed_pending else f"Pending POs: {total_pending}."
     if pending_po_over_90 > 0:
-        msg += f" {pending_po_over_90} of these are older than 90 days."
+        msg += f" {pending_po_over_90} are older than 90 days."
 
     if allowed_pending is not None and allowed_pending > 0:
         pct = (100 * total_pending) // allowed_pending
-        msg += f" Allowed (half of {truck_total} trucks): {allowed_pending}; pending is {pct}% of allowed."
         if pct <= PENDING_PCT_OF_ALLOWED_GOOD_MAX:
             findings.append(_f(area, "green", msg))
         elif pct <= PENDING_PCT_OF_ALLOWED_OKAY_MAX:
-            findings.append(_f(area, "yellow", msg))
+            target = (allowed_pending * PENDING_PCT_OF_ALLOWED_GOOD_MAX) // 100
+            findings.append(_f(area, "yellow", msg + f" Reduce to {target} or fewer to reach Good."))
         elif pct <= PENDING_PCT_OF_ALLOWED_REVIEW_MAX:
-            findings.append(_f(area, "review", msg))
+            target = (allowed_pending * PENDING_PCT_OF_ALLOWED_OKAY_MAX) // 100
+            findings.append(_f(area, "review", msg + f" Reduce to {target} or fewer to reach Okay."))
         else:
-            findings.append(_f(area, "red", msg))
+            target = (allowed_pending * PENDING_PCT_OF_ALLOWED_REVIEW_MAX) // 100
+            findings.append(_f(area, "red", msg + f" Reduce to {target} or fewer to reach Needs Review."))
     else:
         if total_pending > TOTAL_PENDING_ABSOLUTE_RED or pending_po_over_90 > 0:
-            findings.append(_f(area, "red", msg))
+            findings.append(_f(area, "red", msg + " Reduce pending POs and resolve aged orders."))
         else:
             findings.append(_f(area, "green", msg))
 
@@ -136,27 +138,27 @@ def check_po_usage(results: dict, lookback_days: int) -> list[Finding]:
     pending_waiting = by_status.get(PENDING_STATUS_WAITING_TO_SEND, 0)
 
     if po_created == 0:
-        findings.append(_f(area, "red", f"No POs created in the last {lookback_days} days. Purchasing module may not be in use."))
+        findings.append(_f(area, "red", f"No POs created in the last {lookback_days} days. Start creating and receiving purchase orders."))
         return findings
 
     if completed == 0:
-        extra = f" {pending_waiting} POs are still waiting to send." if pending_waiting > 5 else ""
-        findings.append(_f(area, "red", f"{po_created} POs created in last {lookback_days} days but none received/exported.{extra} Ensure receipts are being processed in ServiceTitan."))
+        extra = f" {pending_waiting} POs are waiting to send." if pending_waiting > 5 else ""
+        findings.append(_f(area, "red", f"{po_created} POs created but none received/exported.{extra} Begin processing receipts in ServiceTitan."))
         return findings
 
     rate_pct = (100 * completed) // po_created
-    msg = (
-        f"PO usage: {po_created} created, {completed} received/exported in last {lookback_days} days "
-        f"({rate_pct}% receive rate; ≥80% Good, 65-79% Okay, 50-64% Needs review, <50% Needs attention)."
-    )
+    base = f"PO usage: {po_created} created, {completed} received/exported in last {lookback_days} days ({rate_pct}% receive rate)."
     if rate_pct >= PO_RECEIVE_RATE_GOOD_MIN_PCT:
-        findings.append(_f(area, "green", msg))
+        findings.append(_f(area, "green", base))
     elif rate_pct >= PO_RECEIVE_RATE_OKAY_MIN_PCT:
-        findings.append(_f(area, "yellow", msg))
+        target = (po_created * PO_RECEIVE_RATE_GOOD_MIN_PCT + 99) // 100
+        findings.append(_f(area, "yellow", base + f" Receive {target}+ POs ({PO_RECEIVE_RATE_GOOD_MIN_PCT}%) to reach Good."))
     elif rate_pct >= PO_RECEIVE_RATE_REVIEW_MIN_PCT:
-        findings.append(_f(area, "review", msg))
+        target = (po_created * PO_RECEIVE_RATE_OKAY_MIN_PCT + 99) // 100
+        findings.append(_f(area, "review", base + f" Receive {target}+ POs ({PO_RECEIVE_RATE_OKAY_MIN_PCT}%) to reach Okay."))
     else:
-        findings.append(_f(area, "red", msg))
+        target = (po_created * PO_RECEIVE_RATE_REVIEW_MIN_PCT + 99) // 100
+        findings.append(_f(area, "red", base + f" Receive {target}+ POs ({PO_RECEIVE_RATE_REVIEW_MIN_PCT}%) to reach Needs Review."))
     return findings
 
 
@@ -176,24 +178,26 @@ def check_po_line_quality(results: dict, lookback_days: int) -> list[Finding]:
     multi_pct = (100 * multi) // po_count
     line_msg = (
         f"PO line items: {total_lines} lines across {po_count} POs; "
-        f"{multi} of {po_count} ({multi_pct}%) have multiple lines "
-        f"(<40% Needs attention, 40-50% Needs review, 50-60% Okay, >60% Good)."
+        f"{multi} of {po_count} ({multi_pct}%) have multiple lines."
     )
     if multi_pct < PO_MULTI_LINE_RED_MAX_PCT:
-        findings.append(_f(area, "red", line_msg))
+        target = (po_count * PO_MULTI_LINE_REVIEW_MAX_PCT + 99) // 100
+        findings.append(_f(area, "red", line_msg + f" Use multi-line POs — reach {PO_MULTI_LINE_REVIEW_MAX_PCT}% ({target}+ POs) to move to Needs Review."))
     elif multi_pct < PO_MULTI_LINE_REVIEW_MAX_PCT:
-        findings.append(_f(area, "review", line_msg))
+        target = (po_count * PO_MULTI_LINE_YELLOW_MIN_PCT + 99) // 100
+        findings.append(_f(area, "review", line_msg + f" Reach {PO_MULTI_LINE_YELLOW_MIN_PCT}% ({target}+ POs) to move to Okay."))
     elif PO_MULTI_LINE_YELLOW_MIN_PCT <= multi_pct <= PO_MULTI_LINE_YELLOW_MAX_PCT:
-        findings.append(_f(area, "yellow", line_msg))
+        target = (po_count * (PO_MULTI_LINE_YELLOW_MAX_PCT + 1) + 99) // 100
+        findings.append(_f(area, "yellow", line_msg + f" Reach {PO_MULTI_LINE_YELLOW_MAX_PCT + 1}%+ ({target}+ POs) to reach Good."))
     else:
         findings.append(_f(area, "green", line_msg))
 
     if total_lines > 0 and (placeholder / total_lines) > PO_PLACEHOLDER_MAJORITY:
-        findings.append(_f(area, "red", f"Majority of PO line items mention placeholder/generic/material ({placeholder} of {total_lines}). Use specific parts."))
+        findings.append(_f(area, "red", f"Majority of PO line items use placeholder/generic descriptions ({placeholder} of {total_lines}). Use specific part names."))
     elif total_lines > 0 and placeholder > 0:
-        findings.append(_f(area, "green", f"PO line descriptions: {placeholder} of {total_lines} lines with placeholder-like text (under 50%)."))
+        findings.append(_f(area, "green", f"PO line descriptions: {placeholder} of {total_lines} lines with placeholder-like text."))
     elif total_lines > 0:
-        findings.append(_f(area, "green", "PO line descriptions: majority are specific parts."))
+        findings.append(_f(area, "green", "PO line descriptions: all specific part names."))
 
     return findings
 
@@ -216,17 +220,20 @@ def check_invoicing_coverage(results: dict, lookback_days: int) -> list[Finding]
 
     pct = (100 * gt_zero_with_mat) // total_gt_zero
     line = (
-        f"Of {total_gt_zero} invoice(s) with amount > $0, {gt_zero_with_mat} ({pct}%) have at least one "
-        f"IsInventory material line (85%+ Good, 75-85% Okay, 50-75% Needs review, <50% Needs attention)."
+        f"Invoice material coverage: {gt_zero_with_mat} of {total_gt_zero} invoices ({pct}%) "
+        f"include at least one IsInventory material line."
     )
     if pct >= INVOICE_GT_ZERO_WITH_MATERIAL_GOOD_MIN_PCT:
         findings.append(_f(area, "green", line))
     elif pct >= INVOICE_GT_ZERO_WITH_MATERIAL_OKAY_MIN_PCT:
-        findings.append(_f(area, "yellow", line))
+        target = (total_gt_zero * INVOICE_GT_ZERO_WITH_MATERIAL_GOOD_MIN_PCT + 99) // 100
+        findings.append(_f(area, "yellow", line + f" Add materials to {target - gt_zero_with_mat} more invoice(s) to reach Good ({INVOICE_GT_ZERO_WITH_MATERIAL_GOOD_MIN_PCT}%+)."))
     elif pct >= INVOICE_GT_ZERO_WITH_MATERIAL_REVIEW_MIN_PCT:
-        findings.append(_f(area, "review", line))
+        target = (total_gt_zero * INVOICE_GT_ZERO_WITH_MATERIAL_OKAY_MIN_PCT + 99) // 100
+        findings.append(_f(area, "review", line + f" Add materials to {target - gt_zero_with_mat} more invoice(s) to reach Okay ({INVOICE_GT_ZERO_WITH_MATERIAL_OKAY_MIN_PCT}%+)."))
     else:
-        findings.append(_f(area, "red", line))
+        target = (total_gt_zero * INVOICE_GT_ZERO_WITH_MATERIAL_REVIEW_MIN_PCT + 99) // 100
+        findings.append(_f(area, "red", line + f" Add materials to {target - gt_zero_with_mat} more invoice(s) to reach Needs Review ({INVOICE_GT_ZERO_WITH_MATERIAL_REVIEW_MIN_PCT}%+)."))
     return findings
 
 
@@ -241,17 +248,19 @@ def check_invoicing_isinventory_lines(results: dict, lookback_days: int) -> list
         return findings
     pct = (100 * mat_isinv) // mat_total
     line = (
-        f"Of {mat_total} invoice material lines, {mat_isinv} ({pct}%) are IsInventory "
-        f"(85%+ Good, 75-85% Okay, 50-75% Needs review, <50% Needs attention)."
+        f"Invoice IsInventory lines: {mat_isinv} of {mat_total} material lines ({pct}%) are IsInventory."
     )
     if pct >= INVOICE_MATERIAL_LINES_ISINVENTORY_GOOD_MIN_PCT:
         findings.append(_f(area, "green", line))
     elif pct >= INVOICE_MATERIAL_LINES_ISINVENTORY_OKAY_MIN_PCT:
-        findings.append(_f(area, "yellow", line))
+        target = (mat_total * INVOICE_MATERIAL_LINES_ISINVENTORY_GOOD_MIN_PCT + 99) // 100
+        findings.append(_f(area, "yellow", line + f" Convert {target - mat_isinv} more line(s) to IsInventory to reach Good ({INVOICE_MATERIAL_LINES_ISINVENTORY_GOOD_MIN_PCT}%+)."))
     elif pct >= INVOICE_MATERIAL_LINES_ISINVENTORY_REVIEW_MIN_PCT:
-        findings.append(_f(area, "review", line))
+        target = (mat_total * INVOICE_MATERIAL_LINES_ISINVENTORY_OKAY_MIN_PCT + 99) // 100
+        findings.append(_f(area, "review", line + f" Convert {target - mat_isinv} more line(s) to IsInventory to reach Okay ({INVOICE_MATERIAL_LINES_ISINVENTORY_OKAY_MIN_PCT}%+)."))
     else:
-        findings.append(_f(area, "red", line))
+        target = (mat_total * INVOICE_MATERIAL_LINES_ISINVENTORY_REVIEW_MIN_PCT + 99) // 100
+        findings.append(_f(area, "red", line + f" Convert {target - mat_isinv} more line(s) to IsInventory to reach Needs Review ({INVOICE_MATERIAL_LINES_ISINVENTORY_REVIEW_MIN_PCT}%+)."))
     return findings
 
 
@@ -265,14 +274,18 @@ def check_invoicing_zero_cost(results: dict, lookback_days: int) -> list[Finding
         return findings
     zero_cost = inv.get("material_lines_zero_cost", 0)
     pct = (100 * zero_cost) // mat_isinv
+    base = f"Zero-cost IsInventory lines: {zero_cost} of {mat_isinv} ({pct}%)."
     if pct < INVOICE_ZERO_COST_GOOD_MAX_PCT:
-        findings.append(_f(area, "green", f"Zero-cost IsInventory lines: {zero_cost} of {mat_isinv} ({pct}%)."))
+        findings.append(_f(area, "green", base))
     elif pct < INVOICE_ZERO_COST_OKAY_MAX_PCT:
-        findings.append(_f(area, "yellow", f"Zero-cost IsInventory lines: {zero_cost} of {mat_isinv} ({pct}%)."))
+        target_zero = (mat_isinv * INVOICE_ZERO_COST_GOOD_MAX_PCT) // 100
+        findings.append(_f(area, "yellow", base + f" Fix {zero_cost - target_zero} line(s) to reach Good (under {INVOICE_ZERO_COST_GOOD_MAX_PCT}%)."))
     elif pct < INVOICE_ZERO_COST_REVIEW_MAX_PCT:
-        findings.append(_f(area, "review", f"Zero-cost IsInventory lines: {zero_cost} of {mat_isinv} ({pct}%). Review cost flow if unexpected."))
+        target_zero = (mat_isinv * INVOICE_ZERO_COST_OKAY_MAX_PCT) // 100
+        findings.append(_f(area, "review", base + f" Fix {zero_cost - target_zero} line(s) to reach Okay (under {INVOICE_ZERO_COST_OKAY_MAX_PCT}%). Review cost flow from PO receiving."))
     else:
-        findings.append(_f(area, "red", f"Zero-cost IsInventory lines: {zero_cost} of {mat_isinv} ({pct}%). Review cost flow from PO/receiving."))
+        target_zero = (mat_isinv * INVOICE_ZERO_COST_REVIEW_MAX_PCT) // 100
+        findings.append(_f(area, "red", base + f" Fix {zero_cost - target_zero} line(s) to reach Needs Review (under {INVOICE_ZERO_COST_REVIEW_MAX_PCT}%). Review cost flow from PO receiving."))
     return findings
 
 
@@ -288,21 +301,23 @@ def check_tech_usage(results: dict, lookback_days: int) -> list[Finding]:
     mat_lines = inv.get("material_line_count", 0)
     added_by_tech = inv.get("material_lines_added_by_technician", 0)
     if mat_lines <= 0:
-        findings.append(_f(area, "red", "0 of 0 invoice material lines were added by a technician (no material line activity; 0%)."))
+        findings.append(_f(area, "red", "No invoice material lines found; technician usage cannot be assessed."))
         return findings
     pct = (100 * added_by_tech) // mat_lines
     line = (
-        f"{added_by_tech} of {mat_lines} invoice material line(s) ({pct}%) were added by a technician "
-        f"(≥60% Good, 50-60% Okay, 30-50% Needs review, <30% Needs attention)."
+        f"Technician-added materials: {added_by_tech} of {mat_lines} invoice material line(s) ({pct}%) added by a technician."
     )
     if pct >= INVOICE_TECH_ADDED_GOOD_MIN_PCT:
         findings.append(_f(area, "green", line))
     elif pct >= INVOICE_TECH_ADDED_OKAY_MIN_PCT:
-        findings.append(_f(area, "yellow", line))
+        target = (mat_lines * INVOICE_TECH_ADDED_GOOD_MIN_PCT + 99) // 100
+        findings.append(_f(area, "yellow", line + f" Reach {target}+ tech-added lines ({INVOICE_TECH_ADDED_GOOD_MIN_PCT}%) to reach Good."))
     elif pct >= INVOICE_TECH_ADDED_REVIEW_MIN_PCT:
-        findings.append(_f(area, "review", line))
+        target = (mat_lines * INVOICE_TECH_ADDED_OKAY_MIN_PCT + 99) // 100
+        findings.append(_f(area, "review", line + f" Reach {target}+ tech-added lines ({INVOICE_TECH_ADDED_OKAY_MIN_PCT}%) to reach Okay."))
     else:
-        findings.append(_f(area, "red", line))
+        target = (mat_lines * INVOICE_TECH_ADDED_REVIEW_MIN_PCT + 99) // 100
+        findings.append(_f(area, "red", line + f" Reach {target}+ tech-added lines ({INVOICE_TECH_ADDED_REVIEW_MIN_PCT}%) to reach Needs Review."))
     return findings
 
 
@@ -317,28 +332,31 @@ def check_replenishment(results: dict, lookback_days: int) -> list[Finding]:
     repl = results.get("replenishment_summary", {})
     repl_open = repl.get("open_count", 0)
     repl_completed = repl.get("completed_in_lookback", 0)
-    msg = f"Replenishment: {repl_open} open (pending/in progress), {repl_completed} completed in last {lookback_days} days."
+    msg = f"Replenishment: {repl_open} open, {repl_completed} completed in last {lookback_days} days."
 
     if repl_completed > 0:
         rate_pct = 100 * (1 - (repl_open / repl_completed))
         if rate_pct >= REPLENISHMENT_RATE_GOOD_MIN_PCT:
             findings.append(_f(area, "green", msg))
         elif rate_pct >= REPLENISHMENT_RATE_OKAY_MIN_PCT:
-            findings.append(_f(area, "yellow", msg))
+            target_open = (repl_completed * (100 - REPLENISHMENT_RATE_GOOD_MIN_PCT)) // 100
+            findings.append(_f(area, "yellow", msg + f" Reduce open to {target_open} or fewer to reach Good."))
         elif rate_pct >= REPLENISHMENT_RATE_REVIEW_MIN_PCT:
-            findings.append(_f(area, "review", msg))
+            target_open = (repl_completed * (100 - REPLENISHMENT_RATE_OKAY_MIN_PCT)) // 100
+            findings.append(_f(area, "review", msg + f" Reduce open to {target_open} or fewer to reach Okay."))
         else:
-            findings.append(_f(area, "red", msg))
+            target_open = (repl_completed * (100 - REPLENISHMENT_RATE_REVIEW_MIN_PCT)) // 100
+            findings.append(_f(area, "red", msg + f" Reduce open to {target_open} or fewer to reach Needs Review."))
     elif repl_open > 0:
-        findings.append(_f(area, "red", msg + " No completed replenishments to compare; address open requests."))
+        findings.append(_f(area, "red", msg + " Complete open replenishments before a rate can be measured."))
     else:
-        findings.append(_f(area, "red", msg + " No replenishment activity in lookback (0 of 0); treat as 0%."))
+        findings.append(_f(area, "red", msg + " No replenishment activity in lookback period."))
 
     uc = results.get("usage_checks")
     if uc and isinstance(uc, dict):
         repl_30 = uc.get("replenishment_older_than_30_days", 0)
         if repl_30 > USAGE_REPLENISHMENT_OLD_30D_MAX:
-            findings.append(_f(area, "red", f"Replenishment requests older than 30 days: {repl_30} (max {USAGE_REPLENISHMENT_OLD_30D_MAX}). Address aging replenishment requests."))
+            findings.append(_f(area, "red", f"Replenishment requests older than 30 days: {repl_30}. Address aging requests."))
 
     return findings
 
@@ -358,29 +376,32 @@ def check_returns(results: dict, lookback_days: int) -> list[Finding]:
     ret_activity = results.get("returns_activity") or {}
     returns_in_period = ret_activity.get("returns_in_period", 0)
 
-    msg = f"Returns: {ret_received} credit received of {returns_in_period} returns in last {lookback_days} days. {total_pending} pending."
+    msg = f"Returns: {ret_received} credit received of {returns_in_period} in last {lookback_days} days. {total_pending} pending."
     if returns_in_period > 0 and total_pending > 0:
         pct_pending = (100 * total_pending) // returns_in_period
-        msg += f" ({pct_pending}% of returns in period)"
+        msg += f" ({pct_pending}% of period returns still pending)"
     if pending_over_90 > 0:
-        msg += f" {pending_over_90} pending are older than 90 days."
+        msg += f"; {pending_over_90} older than 90 days."
 
     if pending_over_90 > 0:
-        findings.append(_f(area, "yellow", msg + " Returns to be resolved in timely manner."))
+        findings.append(_f(area, "yellow", msg + " Resolve aged returns to reach Good."))
     elif returns_in_period > 0 and total_pending > 0:
         pct_pending = (100 * total_pending) // returns_in_period
         if pct_pending <= RETURN_PENDING_PCT_GOOD_MAX:
             findings.append(_f(area, "green", msg))
         elif pct_pending <= RETURN_PENDING_PCT_OKAY_MAX:
-            findings.append(_f(area, "yellow", msg))
+            target_pending = (returns_in_period * RETURN_PENDING_PCT_GOOD_MAX) // 100
+            findings.append(_f(area, "yellow", msg + f" Resolve {total_pending - target_pending} return(s) to reach Good ({RETURN_PENDING_PCT_GOOD_MAX}% or fewer pending)."))
         elif pct_pending <= RETURN_PENDING_PCT_REVIEW_MAX:
-            findings.append(_f(area, "review", msg + " Returns to be resolved in timely manner."))
+            target_pending = (returns_in_period * RETURN_PENDING_PCT_OKAY_MAX) // 100
+            findings.append(_f(area, "review", msg + f" Resolve {total_pending - target_pending} return(s) to reach Okay ({RETURN_PENDING_PCT_OKAY_MAX}% or fewer pending)."))
         else:
-            findings.append(_f(area, "red", msg + " Returns to be resolved in timely manner."))
+            target_pending = (returns_in_period * RETURN_PENDING_PCT_REVIEW_MAX) // 100
+            findings.append(_f(area, "red", msg + f" Resolve {total_pending - target_pending} return(s) to reach Needs Review ({RETURN_PENDING_PCT_REVIEW_MAX}% or fewer pending)."))
     elif total_pending > 0:
-        findings.append(_f(area, "yellow", msg + " Returns to be resolved in timely manner."))
+        findings.append(_f(area, "yellow", msg + " Resolve pending returns."))
     elif returns_in_period == 0:
-        findings.append(_f(area, "red", msg + " No returns activity in lookback (0 of 0); treat as 0%."))
+        findings.append(_f(area, "red", msg + " No returns activity in lookback period."))
     else:
         findings.append(_f(area, "green", msg))
 
@@ -408,18 +429,19 @@ def check_setup(results: dict, lookback_days: int) -> list[Finding]:
     if truck_total > 0:
         truck_pct = (100 * truck_with_tpl) // truck_total
         if truck_pct >= TRUCK_TEMPLATE_PCT_MIN:
-            findings.append(_f(area, "green", f"Trucks: {truck_with_tpl} of {truck_total} with inventory template (≥80%)."))
+            findings.append(_f(area, "green", f"Trucks: {truck_with_tpl} of {truck_total} have an inventory template."))
         else:
-            findings.append(_f(area, "red", f"Trucks: {truck_with_tpl} of {truck_total} with inventory template (min 80% expected)."))
+            need = ((truck_total * TRUCK_TEMPLATE_PCT_MIN + 99) // 100) - truck_with_tpl
+            findings.append(_f(area, "red", f"Trucks: {truck_with_tpl} of {truck_total} have an inventory template. Assign templates to {need} more truck(s) to reach Good."))
 
     if wh_total > 0:
         if wh_with_tpl < WAREHOUSE_WITH_TEMPLATE_MIN:
-            findings.append(_f(area, "red", f"Warehouses with inventory template: {wh_with_tpl} of {wh_total}. At least {WAREHOUSE_WITH_TEMPLATE_MIN} warehouse(s) must have a template assigned."))
+            findings.append(_f(area, "red", f"Warehouses: {wh_with_tpl} of {wh_total} have an inventory template. Assign a template to at least {WAREHOUSE_WITH_TEMPLATE_MIN} warehouse."))
         else:
-            findings.append(_f(area, "green", f"Warehouses: {wh_with_tpl} of {wh_total} with inventory template."))
+            findings.append(_f(area, "green", f"Warehouses: {wh_with_tpl} of {wh_total} have an inventory template."))
 
     if templates_under > 0:
-        findings.append(_f(area, "red", f"Templates with fewer than {TEMPLATE_MIN_ACTIVE_ITEMS} active items: {templates_under}. Each template should have at least {TEMPLATE_MIN_ACTIVE_ITEMS} active items."))
+        findings.append(_f(area, "red", f"{templates_under} template(s) have fewer than {TEMPLATE_MIN_ACTIVE_ITEMS} active items. Add items or replace with a complete template."))
     elif truck_total + wh_total > 0:
         findings.append(_f(area, "green", f"All templates have at least {TEMPLATE_MIN_ACTIVE_ITEMS} active items."))
 
@@ -441,11 +463,11 @@ def check_unused_materials(results: dict, lookback_days: int) -> list[Finding]:
     if unused <= 0:
         return findings
     pct = (100 * unused) // mat_isinv_total
-    line = f"IsInventory materials with no invoice usage in last {lookback_days} days: {unused} of {mat_isinv_total} ({pct}%)."
+    line = f"IsInventory materials unused in last {lookback_days} days: {unused} of {mat_isinv_total} ({pct}%)."
     if pct >= MATERIALS_UNUSED_90D_RED_MIN_PCT:
-        findings.append(_f(area, "red", line))
+        findings.append(_f(area, "red", line + f" Reduce unused below {MATERIALS_UNUSED_90D_RED_MIN_PCT}% to reach Yellow — archive pricebook items that are no longer used."))
     elif pct > MATERIALS_UNUSED_90D_YELLOW_MAX_PCT:
-        findings.append(_f(area, "yellow", line))
+        findings.append(_f(area, "yellow", line + f" Reduce unused to {MATERIALS_UNUSED_90D_YELLOW_MAX_PCT}% or fewer to reach Good — review pricebook for low-use items."))
     else:
         findings.append(_f(area, "green", line))
     return findings
@@ -470,19 +492,17 @@ def check_transfers(results: dict, lookback_days: int) -> list[Finding]:
     expected_min = max(0, int(truck_total * TRANSFER_EXPECTED_TRUCK_FRACTION * (lookback_days / 7))) if truck_total else 0
 
     if trans_14 > USAGE_TRANSFERS_OLD_14D_MAX:
-        findings.append(_f(area, "red", f"Pending transfers older than 14 days: {trans_14} (max {USAGE_TRANSFERS_OLD_14D_MAX}). Complete or cancel aging transfers."))
+        findings.append(_f(area, "red", f"Pending transfers older than 14 days: {trans_14}. Complete or cancel aging transfers."))
     else:
-        findings.append(_f(area, "green", f"Pending transfers older than 14 days: {trans_14} (max {USAGE_TRANSFERS_OLD_14D_MAX})."))
+        findings.append(_f(area, "green", f"Pending transfers older than 14 days: {trans_14}."))
 
     if truck_total > 0:
         if completed_transfers >= expected_min:
             findings.append(_f(area, "green",
-                f"Completed transfers in last {lookback_days} days: {completed_transfers} "
-                f"(expected ≥{expected_min} for ~{int(TRANSFER_EXPECTED_TRUCK_FRACTION * 100)}% of {truck_total} trucks at least once per week)."))
+                f"Completed transfers in last {lookback_days} days: {completed_transfers} (expected {expected_min}+)."))
         else:
             findings.append(_f(area, "red",
-                f"Completed transfers in last {lookback_days} days: {completed_transfers} "
-                f"(expected ≥{expected_min} for ~{int(TRANSFER_EXPECTED_TRUCK_FRACTION * 100)}% of {truck_total} trucks at least once per week). Increase transfer usage."))
+                f"Completed transfers in last {lookback_days} days: {completed_transfers} (expected {expected_min}+). Increase transfer usage."))
 
     return findings
 
@@ -506,17 +526,17 @@ def check_counts(results: dict, lookback_days: int) -> list[Finding]:
     setup = results.get("setup_data") or {}
 
     if past_due > USAGE_PAST_DUE_COUNTS_MAX:
-        findings.append(_f(area, "red", f"Past due inventory counts: {past_due} (max {USAGE_PAST_DUE_COUNTS_MAX}). Complete or reschedule counts."))
+        findings.append(_f(area, "red", f"Past due inventory counts: {past_due}. Complete or reschedule counts."))
     else:
-        findings.append(_f(area, "green", f"Past due inventory counts: {past_due} (max {USAGE_PAST_DUE_COUNTS_MAX})."))
+        findings.append(_f(area, "green", f"Past due inventory counts: {past_due}."))
 
     if neg_bal > 0:
-        findings.append(_f(area, "red", f"Negative inventory balances: {neg_bal} location/SKU combination(s) with negative quantity. Resolve negative balances."))
+        findings.append(_f(area, "red", f"Negative inventory balances: {neg_bal} location/SKU combination(s). Run a count or adjustment to resolve."))
 
     if direct_adj > USAGE_DIRECT_ADJUSTMENTS_MAX:
-        findings.append(_f(area, "red", f"Direct (quantity) adjustments in last 90 days: {direct_adj} (max {USAGE_DIRECT_ADJUSTMENTS_MAX}). High volume may indicate process or data issues."))
+        findings.append(_f(area, "red", f"Direct (quantity) adjustments in last 90 days: {direct_adj}. High volume may indicate process or data issues."))
     else:
-        findings.append(_f(area, "green", f"Direct (quantity) adjustments in last 90 days: {direct_adj} (max {USAGE_DIRECT_ADJUSTMENTS_MAX})."))
+        findings.append(_f(area, "green", f"Direct (quantity) adjustments in last 90 days: {direct_adj}."))
 
     if wh_no_count > WAREHOUSES_NO_COUNT_90D_MAX:
         findings.append(_f(area, "red", f"Warehouses with no completed count in last 90 days: {wh_no_count}. Schedule and complete cycle counts."))
@@ -539,9 +559,9 @@ def check_other(results: dict, lookback_days: int) -> list[Finding]:
         return findings
     req_90 = uc.get("requisitions_older_than_90_days", 0)
     if req_90 >= USAGE_REQUISITIONS_OLD_90D_MAX:
-        findings.append(_f(area, "red", f"Requisitions older than 90 days: {req_90} (max {USAGE_REQUISITIONS_OLD_90D_MAX}). Resolve or close aging requisitions."))
+        findings.append(_f(area, "red", f"Requisitions older than 90 days: {req_90}. Resolve or close aging requisitions."))
     else:
-        findings.append(_f(area, "green", f"Requisitions older than 90 days: {req_90} (max {USAGE_REQUISITIONS_OLD_90D_MAX})."))
+        findings.append(_f(area, "green", f"Requisitions older than 90 days: {req_90}."))
     return findings
 
 
@@ -564,17 +584,17 @@ def check_pricebook_readiness(results: dict, lookback_days: int) -> list[Finding
 
     zero_pct = zero_cost / mat_count
     if zero_cost > 0 and zero_pct > PRICEBOOK_RED_PCT:
-        findings.append(_f(area, "red", f"{zero_cost} material(s) have $0 cost ({zero_pct:.0%} of {mat_count}). Assign costs before inventory (red when >{PRICEBOOK_RED_PCT:.0%})."))
+        findings.append(_f(area, "red", f"{zero_cost} material(s) ({zero_pct:.0%}) have $0 cost. Assign costs before inventory go-live."))
     elif zero_cost > 0:
-        findings.append(_f(area, "green", f"{zero_cost} material(s) have $0 cost ({zero_pct:.1%} of {mat_count}); under {PRICEBOOK_RED_PCT:.0%} threshold."))
+        findings.append(_f(area, "green", f"{zero_cost} material(s) have $0 cost ({zero_pct:.1%}) — within acceptable range."))
     else:
         findings.append(_f(area, "green", "All materials have a cost assigned."))
 
     def_repl_pct = def_repl / mat_count
     if def_repl > 0 and def_repl_pct > PRICEBOOK_RED_PCT:
-        findings.append(_f(area, "red", f"{def_repl} material(s) have Default or Imported Default Replenishment Vendor as primary ({def_repl_pct:.0%} of {mat_count}). Assign a real primary vendor (red when >{PRICEBOOK_RED_PCT:.0%})."))
+        findings.append(_f(area, "red", f"{def_repl} material(s) ({def_repl_pct:.0%}) use Default or Imported Default Replenishment as primary vendor. Assign a real vendor before go-live."))
     elif def_repl > 0:
-        findings.append(_f(area, "green", f"{def_repl} material(s) use Default/Imported Default Replenishment as primary ({def_repl_pct:.1%}); under threshold."))
+        findings.append(_f(area, "green", f"{def_repl} material(s) use Default/Imported Default Replenishment as primary ({def_repl_pct:.1%}) — within acceptable range."))
     else:
         findings.append(_f(area, "green", "No materials use Default or Imported Default Replenishment Vendor as primary."))
 

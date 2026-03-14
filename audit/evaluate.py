@@ -121,32 +121,33 @@ def get_action_plan(
         all_msgs = (findings.get("red") or []) + (findings.get("review") or []) + (findings.get("yellow") or [])
 
         if area == "Pricebook & setup":
-            add("Review trucks and warehouses; assign inventory templates to trucks and warehouses as needed.")
+            add("Assign inventory templates to trucks and warehouses.")
             if any("20 active" in f or "fewer than" in f for f in all_msgs):
-                add("Review templates with fewer than 20 active items; add items or replace with a complete template.")
+                add("Expand templates with few items or replace with a complete template.")
 
         elif area == "Purchasing":
-            add("Review pending POs; receive or close old POs and keep pending count within half of truck count where possible.")
+            if any("pending" in f.lower() for f in all_msgs):
+                add("Reduce pending POs; receive or close old POs.")
             if any("receive rate" in f.lower() or "none received" in f.lower() or "not be in use" in f.lower() for f in all_msgs):
-                add("Ensure all received orders are processed in ServiceTitan promptly to improve PO receive rate.")
+                add("Create and receive purchase orders.")
             if any("multiple lines" in f.lower() or "placeholder" in f.lower() for f in all_msgs):
-                add("Use multi-line POs for stock orders; avoid single-line or placeholder-heavy POs.")
+                add("Use multi-line POs for stock orders.")
 
         elif area == "Invoicing":
-            add("Ensure invoices with amount > $0 include inventory materials where applicable; train office and field on invoice material usage.")
+            add("Add inventory materials to invoices; train office and field staff on material usage.")
             if any("technician" in f.lower() for f in all_msgs):
-                add("Schedule technician training on adding materials to invoices in the field.")
-            if any("Zero-cost" in f or "zero-cost" in f for f in all_msgs):
-                add("Review cost flow from PO/receiving to invoice; fix zero-cost IsInventory lines where cost should flow.")
+                add("Train technicians to add materials to invoices in the field.")
+            if any("zero-cost" in f.lower() for f in all_msgs):
+                add("Review cost flow from PO receiving to invoice; fix zero-cost material lines.")
 
         elif area == "Replenishment":
-            add("Address open replenishment requests; complete and receive replenishments to improve turnover.")
+            add("Complete open replenishments.")
 
         elif area == "Returns":
-            add("Process pending returns and issue credits so returns don't age.")
+            add("Resolve pending returns and issue credits.")
 
         elif area == "Transfers":
-            add("Complete or cancel aging transfers; encourage transfer-to-job usage where appropriate.")
+            add("Complete or cancel aging transfers.")
 
         elif area == "Counts and adjustments":
             count_added = False
