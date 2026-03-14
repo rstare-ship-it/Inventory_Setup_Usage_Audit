@@ -303,13 +303,13 @@ def check_invoicing_zero_cost(results: dict, lookback_days: int) -> list[Finding
 
 
 # ---------------------------------------------------------------------------
-# Technician usage check (full audit only — separate area)
+# Technician usage check
 # ---------------------------------------------------------------------------
 
 def check_tech_usage(results: dict, lookback_days: int) -> list[Finding]:
-    """% of invoice material lines added by a technician (full audit: own area)."""
+    """% of invoice material lines added by a technician."""
     findings: list[Finding] = []
-    area = "Technician usage"
+    area = "Invoicing"
     inv = results.get("invoice_materials", {})
     mat_lines = inv.get("material_line_count", 0)
     added_by_tech = inv.get("material_lines_added_by_technician", 0)
@@ -608,44 +608,6 @@ def check_pricebook_readiness(results: dict, lookback_days: int) -> list[Finding
 
 
 # ---------------------------------------------------------------------------
-# Invoicing check for purchasing-only audit (no IsInventory-specific sub-checks)
-# ---------------------------------------------------------------------------
-
-def check_invoicing_basic(results: dict, lookback_days: int) -> list[Finding]:
-    """Purchasing-only invoicing: invoice activity count + tech-added % (area='Invoicing')."""
-    findings: list[Finding] = []
-    area = "Invoicing"
-    inv = results.get("invoice_materials", {})
-    total_gt_zero = inv.get("invoices_total_gt_zero", 0)
-    mat_lines = inv.get("material_line_count", 0)
-    added_by_tech = inv.get("material_lines_added_by_technician", 0)
-
-    if total_gt_zero == 0:
-        findings.append(_f(area, "yellow", "No invoices with amount greater than zero in the lookback period."))
-    else:
-        findings.append(_f(area, "green", f"Invoices with amount > $0 in last {lookback_days} days: {total_gt_zero}; material lines: {mat_lines}."))
-
-    if mat_lines > 0:
-        pct = (100 * added_by_tech) // mat_lines
-        line = (
-            f"{added_by_tech} of {mat_lines} invoice material line(s) ({pct}%) were added by a technician "
-            f"(≥60% Good, 50-60% Okay, 30-50% Needs review, <30% Needs attention)."
-        )
-        if pct >= INVOICE_TECH_ADDED_GOOD_MIN_PCT:
-            findings.append(_f(area, "green", line))
-        elif pct >= INVOICE_TECH_ADDED_OKAY_MIN_PCT:
-            findings.append(_f(area, "yellow", line))
-        elif pct >= INVOICE_TECH_ADDED_REVIEW_MIN_PCT:
-            findings.append(_f(area, "review", line))
-        else:
-            findings.append(_f(area, "red", line))
-    elif total_gt_zero > 0:
-        findings.append(_f(area, "red", "0 of 0 invoice material lines were added by a technician (no material line activity; 0%)."))
-
-    return findings
-
-
-# ---------------------------------------------------------------------------
 # Check registries
 # These lists are THE source-of-truth for what runs in each audit mode.
 # Add, remove, or reorder checks here.
@@ -661,7 +623,7 @@ FULL_AUDIT_CHECKS: list[CheckFn] = [
     check_invoicing_coverage,
     check_invoicing_isinventory_lines,
     check_invoicing_zero_cost,
-    # Technician usage (own area)
+    # Technician usage (under Invoicing)
     check_tech_usage,
     # Replenishment
     check_replenishment,
@@ -690,6 +652,6 @@ PURCHASING_ONLY_CHECKS: list[CheckFn] = [
     check_replenishment,
     # Returns
     check_returns,
-    # Invoicing (basic — no IsInventory sub-checks)
-    check_invoicing_basic,
+    # Invoicing
+    check_tech_usage,
 ]

@@ -117,7 +117,6 @@ AUDIT_AREAS = [
     "Pricebook & setup",
     "Purchasing",
     "Invoicing",
-    "Technician usage",
     "Replenishment",
     "Returns",
     "Transfers",

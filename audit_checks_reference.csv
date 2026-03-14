@@ -1,0 +1,17 @@
+Area,Check Function,What It Checks,Full Audit (is_live=true),Purchasing-Only (is_live=false),Green,Yellow / Okay,Review (Needs Review),Red (Needs Attention)
+Purchasing,check_pending_pos,"Pending PO count vs truck count (allowed = 0.5x trucks); secondary check on POs older than 90 days",Yes,Yes,"Pending <=25% of allowed; aging <=5% of allowed","Pending 26-40% of allowed; aging 6-10% of allowed","Pending 41-60% of allowed; aging 11-30% of allowed","Pending >60% of allowed OR >50 absolute (no truck data) OR any POs >90 days"
+Purchasing,check_po_activity,"PO creation and completion activity in lookback period; flags zero activity or many pending with no completions",Yes,Yes,POs created and completions exist,,,No PO activity in period OR many pending with 0 completions
+Purchasing,check_po_receive_rate,% of POs created in period that are received or exported,Yes,Yes,>=80%,65-79%,50-64%,<50%
+Purchasing,check_po_line_quality,"Multi-line PO rate (% of POs with >1 line); placeholder/generic description rate (% of lines)",Yes,Yes,Multi-line >60% and placeholder <50%,Multi-line 50-60%,Multi-line 40-50%,Multi-line <40% OR placeholder >50%
+Invoicing,check_invoicing_coverage,% of invoices >$0 that have >=1 IsInventory material line,Yes,No,>=85%,75-84%,50-74%,<50%
+Invoicing,check_invoicing_isinventory_lines,% of all invoice material lines that are IsInventory,Yes,No,>=85%,75-84%,50-74%,<50%
+Invoicing,check_invoicing_zero_cost,"Zero-cost IsInventory lines as % of all IsInventory lines (lower is better)",Yes,No,<3%,3-4%,5-14%,>=15%
+Invoicing,check_tech_usage,% of invoice material lines added by a technician,Yes,Yes,>=60%,50-59%,30-49%,<30%
+Replenishment,check_replenishment,"Replenishment completion rate (rate = 1 - open/completed); aging requests older than 30 days",Yes,Yes,"Rate >=80%; aging <=20",Rate 70-79%,Rate 50-69%,Rate <50% OR open > 0 with 0 completed OR aging >20
+Returns,check_returns,"Pending returns as % of total returns in period; returns older than 90 days",Yes,Yes,Pending <=5% of period returns,Pending 6-10% OR any >90 days old,Pending 11-20%,Pending >20% OR 0 returns in period
+Pricebook & setup,check_setup,"% of trucks with inventory templates (>=80%); warehouses with templates (>=1); templates with <20 active items",Yes,No,All pass,,,Trucks <80% with template OR warehouses <1 with template OR any template <20 active items
+Pricebook & setup,check_unused_materials,% of IsInventory materials with no invoice usage in lookback period,Yes,No,<=50% unused,51-74% unused,,>=75% unused
+Pricebook,check_pricebook_readiness,"% of materials with $0 cost; % with Default or Imported Default Replenishment as primary vendor (purchasing-only)",No,Yes,Both <25%,,,Either >25%
+Transfers,check_transfers,"Pending transfers older than 14 days (>20 = red); completed transfers vs expected (0.5x trucks x 1/week)",Yes,No,Aging <=20 AND completions >= expected,,,Aging >20 OR completions < expected
+Counts and adjustments,check_counts,"Past due inventory counts (>5 = red); negative balances (any = red); direct adjustments >20 in 90 days; warehouses with no completed count in 90 days",Yes,No,"All pass (<=5 past-due; 0 negative; <=20 direct adj; all warehouses counted)",,,Past-due >5 OR any negative balance OR direct adj >20 OR any warehouse uncounted in 90 days
+Other,check_other,Requisitions older than 90 days,Yes,No,<20 aging requisitions,,,>=20 aging requisitions

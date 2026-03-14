@@ -120,10 +120,7 @@ def get_action_plan(
 
         all_msgs = (findings.get("red") or []) + (findings.get("review") or []) + (findings.get("yellow") or [])
 
-        if area == "Technician usage":
-            add("Schedule technician training on adding materials to invoices in the field.")
-
-        elif area == "Pricebook & setup":
+        if area == "Pricebook & setup":
             add("Review trucks and warehouses; assign inventory templates to trucks and warehouses as needed.")
             if any("20 active" in f or "fewer than" in f for f in all_msgs):
                 add("Review templates with fewer than 20 active items; add items or replace with a complete template.")
@@ -134,6 +131,8 @@ def get_action_plan(
 
         elif area == "Invoicing":
             add("Ensure invoices with amount > $0 include inventory materials where applicable; train office and field on invoice material usage.")
+            if any("technician" in f.lower() for f in all_msgs):
+                add("Schedule technician training on adding materials to invoices in the field.")
             if any("Zero-cost" in f or "zero-cost" in f for f in all_msgs):
                 add("Review cost flow from PO/receiving to invoice; fix zero-cost IsInventory lines where cost should flow.")
 
