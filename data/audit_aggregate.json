@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-03-14T05:28:53Z",
+  "updated_at": "2026-03-14T05:34:04Z",
   "lookback_days": 90,
   "tenants_by_id": {
     "444875142": {
@@ -14859,14 +14859,11 @@
       "lookback_days": 90,
       "is_live": false,
       "area_statuses": {
-        "Pricebook & setup": "N/A",
+        "Pricebook": "Green",
         "Purchasing": "Review",
         "Invoicing": "Green",
         "Replenishment": "Green",
-        "Returns": "Red",
-        "Transfers": "N/A",
-        "Counts and adjustments": "N/A",
-        "Other": "N/A"
+        "Returns": "Red"
       },
       "action_plan": [
         "Review pending POs; receive or close old POs and keep pending count within half of truck count where possible.",
@@ -15073,7 +15070,7 @@
           "red": []
         }
       },
-      "updated_at": "2026-03-14T05:28:53Z"
+      "updated_at": "2026-03-14T05:34:04Z"
     }
   },
   "tenants_by_slug": {
