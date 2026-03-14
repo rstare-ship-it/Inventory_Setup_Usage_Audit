@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-03-14T14:50:22Z",
+  "updated_at": "2026-03-14T15:18:13Z",
   "lookback_days": 90,
   "tenants_by_id": {
     "444875142": {
@@ -14863,7 +14863,8 @@
         "Purchasing": "Review",
         "Invoicing": "Green",
         "Replenishment": "Green",
-        "Returns": "Red"
+        "Returns": "Red",
+        "Readiness": "Red"
       },
       "action_plan": [
         "Reduce pending POs; receive or close old POs.",
@@ -14912,7 +14913,7 @@
           "invoices_with_materials": 73,
           "material_lines_added_by_technician": 2305,
           "material_lines_placeholder_like": 243,
-          "invoices_total_gt_zero": 723,
+          "invoices_total_gt_zero": 724,
           "invoices_gt_zero_with_material": 71,
           "material_lines_IsInventory": 2157,
           "material_lines_zero_cost": 11,
@@ -15066,9 +15067,17 @@
           "yellow": [],
           "review": [],
           "red": []
+        },
+        "Readiness": {
+          "green": [],
+          "yellow": [],
+          "review": [],
+          "red": [
+            "Not yet ready for go-live. Complete the following: 1 template(s) have fewer than 20 active items \u2014 add items or replace; PO receive rate is 14% \u2014 reach 65%+ to qualify."
+          ]
         }
       },
-      "updated_at": "2026-03-14T14:50:22Z"
+      "updated_at": "2026-03-14T15:18:13Z"
     },
     "1524629539": {
       "tenant_id": 1524629539,
