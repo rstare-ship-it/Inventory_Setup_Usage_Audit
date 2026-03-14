@@ -18,9 +18,6 @@ from audit.constants import (
     PENDING_PCT_OF_ALLOWED_GOOD_MAX,
     PENDING_PCT_OF_ALLOWED_OKAY_MAX,
     PENDING_PCT_OF_ALLOWED_REVIEW_MAX,
-    PENDING_OVER_90_PCT_GOOD_MAX,
-    PENDING_OVER_90_PCT_OKAY_MAX,
-    PENDING_OVER_90_PCT_REVIEW_MAX,
     PENDING_POS_ALLOWED_PER_TRUCK,
     TOTAL_PENDING_ABSOLUTE_RED,
     PO_RECEIVE_RATE_GOOD_MIN_PCT,
@@ -122,59 +119,36 @@ def check_pending_pos(results: dict, lookback_days: int) -> list[Finding]:
         else:
             findings.append(_f(area, "green", msg))
 
-    # Aging-pending sub-check (only when we have a truck-based allowed value)
-    if allowed_pending is not None and allowed_pending > 0 and (total_pending > 0 or pending_po_over_90 > 0):
-        over_90_pct = (100 * pending_po_over_90) // allowed_pending
-        msg90 = f"Pending POs over 90 days: {pending_po_over_90} ({over_90_pct}% of allowed pending {allowed_pending})."
-        if over_90_pct <= PENDING_OVER_90_PCT_GOOD_MAX:
-            findings.append(_f(area, "green", msg90))
-        elif over_90_pct <= PENDING_OVER_90_PCT_OKAY_MAX:
-            findings.append(_f(area, "yellow", msg90))
-        elif over_90_pct <= PENDING_OVER_90_PCT_REVIEW_MAX:
-            findings.append(_f(area, "review", msg90))
-        else:
-            findings.append(_f(area, "red", msg90))
-
     return findings
 
 
-def check_po_activity(results: dict, lookback_days: int) -> list[Finding]:
-    """POs created and received in the lookback period; flags no activity."""
+def check_po_usage(results: dict, lookback_days: int) -> list[Finding]:
+    """PO creation and receipt in the lookback period.
+    To count as 'using POs', orders must be both created and received/exported.
+    Rate tiers measure what % of created POs are actually completed."""
     findings: list[Finding] = []
     area = "Purchasing"
     po = results.get("purchase_orders", {})
     by_status = po.get("by_status", {})
-    pending_waiting = by_status.get(PENDING_STATUS_WAITING_TO_SEND, 0)
     completed = po.get("completed_count", 0)
     po_activity = results.get("po_activity", {})
     po_created = po_activity.get("po_created_in_period", 0)
-    plq = results.get("po_line_quality", {})
-    total_in_lookback = sum(by_status.values()) if by_status else 0
-    po_count_in_lookback = plq.get("po_count", 0)
-    denom = po_created if po_created > 0 else (total_in_lookback if total_in_lookback > 0 else po_count_in_lookback)
+    pending_waiting = by_status.get(PENDING_STATUS_WAITING_TO_SEND, 0)
 
-    if denom == 0:
-        findings.append(_f(area, "red", "No purchase order activity in the lookback period. Purchasing module may not be in use."))
-    else:
-        if completed > 0 or po_created > 0:
-            findings.append(_f(area, "green", f"POs created in last {lookback_days} days: {po_created}; completed (received/exported): {completed}."))
-        if pending_waiting > 5 and completed == 0:
-            findings.append(_f(area, "red", f"Many pending POs ({pending_waiting}) but no completed POs. Are receipts being created?"))
-
-    return findings
-
-
-def check_po_receive_rate(results: dict, lookback_days: int) -> list[Finding]:
-    """PO receive rate: % of created POs that are received/exported."""
-    findings: list[Finding] = []
-    area = "Purchasing"
-    po = results.get("purchase_orders", {})
-    completed = po.get("completed_count", 0)
-    po_created = (results.get("po_activity") or {}).get("po_created_in_period", 0)
-    if po_created <= 0:
+    if po_created == 0:
+        findings.append(_f(area, "red", f"No POs created in the last {lookback_days} days. Purchasing module may not be in use."))
         return findings
+
+    if completed == 0:
+        extra = f" {pending_waiting} POs are still waiting to send." if pending_waiting > 5 else ""
+        findings.append(_f(area, "red", f"{po_created} POs created in last {lookback_days} days but none received/exported.{extra} Ensure receipts are being processed in ServiceTitan."))
+        return findings
+
     rate_pct = (100 * completed) // po_created
-    msg = f"PO receive rate: {rate_pct}% of POs created in period are received/exported (target ≥70%)."
+    msg = (
+        f"PO usage: {po_created} created, {completed} received/exported in last {lookback_days} days "
+        f"({rate_pct}% receive rate; ≥80% Good, 65-79% Okay, 50-64% Needs review, <50% Needs attention)."
+    )
     if rate_pct >= PO_RECEIVE_RATE_GOOD_MIN_PCT:
         findings.append(_f(area, "green", msg))
     elif rate_pct >= PO_RECEIVE_RATE_OKAY_MIN_PCT:
@@ -616,8 +590,7 @@ def check_pricebook_readiness(results: dict, lookback_days: int) -> list[Finding
 FULL_AUDIT_CHECKS: list[CheckFn] = [
     # Purchasing
     check_pending_pos,
-    check_po_activity,
-    check_po_receive_rate,
+    check_po_usage,
     check_po_line_quality,
     # Invoicing (IsInventory-aware)
     check_invoicing_coverage,
@@ -645,8 +618,7 @@ PURCHASING_ONLY_CHECKS: list[CheckFn] = [
     check_pricebook_readiness,
     # Purchasing
     check_pending_pos,
-    check_po_activity,
-    check_po_receive_rate,
+    check_po_usage,
     check_po_line_quality,
     # Replenishment
     check_replenishment,

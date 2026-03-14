@@ -1,7 +1,6 @@
 Area,Check Function,What It Checks,Full Audit (is_live=true),Purchasing-Only (is_live=false),Green,Yellow / Okay,Review (Needs Review),Red (Needs Attention)
 Purchasing,check_pending_pos,"Pending PO count vs truck count (allowed = 0.5x trucks); secondary check on POs older than 90 days",Yes,Yes,"Pending <=25% of allowed; aging <=5% of allowed","Pending 26-40% of allowed; aging 6-10% of allowed","Pending 41-60% of allowed; aging 11-30% of allowed","Pending >60% of allowed OR >50 absolute (no truck data) OR any POs >90 days"
-Purchasing,check_po_activity,"PO creation and completion activity in lookback period; flags zero activity or many pending with no completions",Yes,Yes,POs created and completions exist,,,No PO activity in period OR many pending with 0 completions
-Purchasing,check_po_receive_rate,% of POs created in period that are received or exported,Yes,Yes,>=80%,65-79%,50-64%,<50%
+Purchasing,check_po_usage,"PO creation and receipt in lookback period; % of created POs that are received/exported (must create AND receive to be considered using POs)",Yes,Yes,>=80% receive rate,65-79%,50-64%,<50% OR 0 created OR created but none received
 Purchasing,check_po_line_quality,"Multi-line PO rate (% of POs with >1 line); placeholder/generic description rate (% of lines)",Yes,Yes,Multi-line >60% and placeholder <50%,Multi-line 50-60%,Multi-line 40-50%,Multi-line <40% OR placeholder >50%
 Invoicing,check_invoicing_coverage,% of invoices >$0 that have >=1 IsInventory material line,Yes,No,>=85%,75-84%,50-74%,<50%
 Invoicing,check_invoicing_isinventory_lines,% of all invoice material lines that are IsInventory,Yes,No,>=85%,75-84%,50-74%,<50%

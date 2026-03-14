@@ -127,7 +127,10 @@ def get_action_plan(
 
         elif area == "Purchasing":
             add("Review pending POs; receive or close old POs and keep pending count within half of truck count where possible.")
-            add("Use multi-line POs for stock orders; avoid single-line or placeholder-heavy POs.")
+            if any("receive rate" in f.lower() or "none received" in f.lower() or "not be in use" in f.lower() for f in all_msgs):
+                add("Ensure all received orders are processed in ServiceTitan promptly to improve PO receive rate.")
+            if any("multiple lines" in f.lower() or "placeholder" in f.lower() for f in all_msgs):
+                add("Use multi-line POs for stock orders; avoid single-line or placeholder-heavy POs.")
 
         elif area == "Invoicing":
             add("Ensure invoices with amount > $0 include inventory materials where applicable; train office and field on invoice material usage.")
