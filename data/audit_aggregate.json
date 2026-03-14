@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-03-14T05:37:37Z",
+  "updated_at": "2026-03-14T05:44:56Z",
   "lookback_days": 90,
   "tenants_by_id": {
     "444875142": {
@@ -14860,7 +14860,7 @@
       "is_live": false,
       "area_statuses": {
         "Pricebook": "Green",
-        "Purchasing": "Review",
+        "Purchasing": "Yellow",
         "Invoicing": "Green",
         "Replenishment": "Green",
         "Returns": "Red"
@@ -15040,7 +15040,6 @@
           "review": [],
           "red": [
             "Total pending POs: 185. 161 of these are older than 90 days. Allowed (half of 11 trucks): 5; pending is 3700% of allowed.",
-            "Pending POs over 90 days: 161 (3220% of allowed pending 5).",
             "PO receive rate: 14% of POs created in period are received/exported (target \u226570%)."
           ]
         },
@@ -15069,7 +15068,7 @@
           "red": []
         }
       },
-      "updated_at": "2026-03-14T05:37:37Z"
+      "updated_at": "2026-03-14T05:44:56Z"
     }
   },
   "tenants_by_slug": {
