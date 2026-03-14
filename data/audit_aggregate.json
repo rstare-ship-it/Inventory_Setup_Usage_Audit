@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-03-14T05:34:04Z",
+  "updated_at": "2026-03-14T05:37:37Z",
   "lookback_days": 90,
   "tenants_by_id": {
     "444875142": {
@@ -14867,7 +14867,6 @@
       },
       "action_plan": [
         "Review pending POs; receive or close old POs and keep pending count within half of truck count where possible.",
-        "Use multi-line POs for stock orders; avoid single-line or placeholder-heavy POs.",
         "Process pending returns and issue credits so returns don't age."
       ],
       "results": {
@@ -15070,7 +15069,7 @@
           "red": []
         }
       },
-      "updated_at": "2026-03-14T05:34:04Z"
+      "updated_at": "2026-03-14T05:37:37Z"
     }
   },
   "tenants_by_slug": {
