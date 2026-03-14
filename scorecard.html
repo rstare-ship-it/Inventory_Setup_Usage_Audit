@@ -156,6 +156,22 @@
     .setting-val.on  { color: var(--green); }
     .setting-val.off { color: #94a3b8; }
 
+    /* ── READINESS BANNER ── */
+    .readiness-banner {
+      border-radius: 10px; padding: 1rem 1.25rem;
+      display: flex; align-items: flex-start; gap: 0.85rem;
+    }
+    .readiness-banner.green { background: var(--green-bg); border: 1px solid var(--green-border); }
+    .readiness-banner.red   { background: var(--red-bg);   border: 1px solid var(--red-border); }
+    .readiness-icon { font-size: 1.3rem; line-height: 1; flex-shrink: 0; margin-top: 1px; }
+    .readiness-body { flex: 1; }
+    .readiness-title { font-size: 13px; font-weight: 700; margin-bottom: 0.3rem; }
+    .readiness-banner.green .readiness-title { color: var(--green); }
+    .readiness-banner.red   .readiness-title { color: var(--red); }
+    .readiness-msg { font-size: 13px; line-height: 1.55; }
+    .readiness-banner.green .readiness-msg { color: #166534; }
+    .readiness-banner.red   .readiness-msg { color: var(--red); }
+
     /* ── ACTION PLAN ── */
     .action-list { padding-left: 1.3rem; }
     .action-list li {
@@ -211,6 +227,13 @@
       <div class="card">
         <div class="card-title">Pricebook &amp; Setup Counts</div>
         <div class="settings-grid" id="settings-setup"></div>
+      </div>
+
+      <div id="readiness-section" hidden>
+        <div class="section-label">Inventory Readiness</div>
+        <div class="card" style="padding:1rem 1.25rem;">
+          <div id="readiness-content"></div>
+        </div>
       </div>
 
       <div class="section-label">Scorecard Overview</div>
@@ -299,7 +322,7 @@
     function render(t) {
       var name      = t.tenant_name || ('Tenant ' + t.tenant_id);
       var areas     = t.area_statuses    || {};
-      var AREA_ORDER = Object.keys(areas);
+      var AREA_ORDER = Object.keys(areas).filter(function(a) { return a !== 'Readiness'; });
       var findings  = t.findings_by_area || {};
       var results   = t.results          || {};
       var plan      = t.action_plan      || [];
@@ -387,6 +410,26 @@
       var start = results.inventory_tracking_start_date;
       if (start) setupHtml += settingRow('Tracking start date', String(start).substring(0, 10), false);
       html('settings-setup', setupHtml || '<p style="color:#94a3b8;font-size:13px">No setup data.</p>');
+
+      // Readiness banner (purchasing-only tenants)
+      var rf = (findings['Readiness'] || {});
+      var rMsgs = (rf.green || []).concat(rf.red || []);
+      if (!t.is_live && rMsgs.length) {
+        var isGreen = (rf.green || []).length > 0 && !(rf.red || []).length;
+        var cls     = isGreen ? 'green' : 'red';
+        var icon    = isGreen ? '✓' : '✗';
+        var title   = isGreen ? 'Ready to advance' : 'Action required';
+        var bannerHtml = '<div class="readiness-banner ' + cls + '">'
+          + '<div class="readiness-icon">' + icon + '</div>'
+          + '<div class="readiness-body">'
+          + '<div class="readiness-title">' + title + '</div>'
+          + '<div class="readiness-msg">' + esc(rMsgs[0]) + '</div>'
+          + '</div></div>';
+        html('readiness-content', bannerHtml);
+        show('readiness-section');
+      } else {
+        hide('readiness-section');
+      }
 
       // Action plan
       var actionHtml = '';
