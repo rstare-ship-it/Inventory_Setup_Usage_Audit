@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-03-14T15:38:10Z",
+  "updated_at": "2026-03-14T22:58:05Z",
   "lookback_days": 90,
   "tenants_by_id": {
     "444875142": {
@@ -898,7 +898,7 @@
           "invoices_with_materials": 677,
           "material_lines_added_by_technician": 692,
           "material_lines_placeholder_like": 68,
-          "invoices_total_gt_zero": 3627,
+          "invoices_total_gt_zero": 3628,
           "invoices_gt_zero_with_material": 10,
           "material_lines_IsInventory": 15,
           "material_lines_zero_cost": 1,
@@ -1064,7 +1064,7 @@
           ]
         }
       },
-      "updated_at": "2026-03-14T15:34:54Z"
+      "updated_at": "2026-03-14T22:58:05Z"
     },
     "4099649302": {
       "tenant_id": 4099649302,
