@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-03-14T05:53:29Z",
+  "updated_at": "2026-03-14T14:10:35Z",
   "lookback_days": 90,
   "tenants_by_id": {
     "444875142": {
@@ -14860,13 +14860,14 @@
       "is_live": false,
       "area_statuses": {
         "Pricebook": "Green",
-        "Purchasing": "Yellow",
+        "Purchasing": "Review",
         "Invoicing": "Green",
         "Replenishment": "Green",
         "Returns": "Red"
       },
       "action_plan": [
         "Review pending POs; receive or close old POs and keep pending count within half of truck count where possible.",
+        "Ensure all received orders are processed in ServiceTitan promptly to improve PO receive rate.",
         "Process pending returns and issue credits so returns don't age."
       ],
       "results": {
@@ -14907,14 +14908,14 @@
         },
         "pending_pos_over_90_days": 161,
         "invoice_materials": {
-          "material_line_count": 2383,
-          "invoices_with_materials": 75,
-          "material_lines_added_by_technician": 2373,
+          "material_line_count": 2315,
+          "invoices_with_materials": 73,
+          "material_lines_added_by_technician": 2305,
           "material_lines_placeholder_like": 243,
-          "invoices_total_gt_zero": 728,
-          "invoices_gt_zero_with_material": 73,
-          "material_lines_IsInventory": 2221,
-          "material_lines_zero_cost": 16,
+          "invoices_total_gt_zero": 723,
+          "invoices_gt_zero_with_material": 71,
+          "material_lines_IsInventory": 2157,
+          "material_lines_zero_cost": 11,
           "material_lines_from_transfer": 0,
           "distinct_IsInventory_materials_used_90d": 137
         },
@@ -15032,7 +15033,6 @@
         },
         "Purchasing": {
           "green": [
-            "POs created in last 90 days: 95; completed (received/exported): 14.",
             "PO line items: 1348 lines across 95 POs; 59 of 95 (62%) have multiple lines (<40% Needs attention, 40-50% Needs review, 50-60% Okay, >60% Good).",
             "PO line descriptions: 264 of 1348 lines with placeholder-like text (under 50%)."
           ],
@@ -15040,7 +15040,7 @@
           "review": [],
           "red": [
             "Total pending POs: 185. 161 of these are older than 90 days. Allowed (half of 11 trucks): 5; pending is 3700% of allowed.",
-            "PO receive rate: 14% of POs created in period are received/exported (target \u226570%)."
+            "PO usage: 95 created, 14 received/exported in last 90 days (14% receive rate; \u226580% Good, 65-79% Okay, 50-64% Needs review, <50% Needs attention)."
           ]
         },
         "Replenishment": {
@@ -15061,14 +15061,14 @@
         },
         "Invoicing": {
           "green": [
-            "2373 of 2383 invoice material line(s) (99%) were added by a technician (\u226560% Good, 50-60% Okay, 30-50% Needs review, <30% Needs attention)."
+            "2305 of 2315 invoice material line(s) (99%) were added by a technician (\u226560% Good, 50-60% Okay, 30-50% Needs review, <30% Needs attention)."
           ],
           "yellow": [],
           "review": [],
           "red": []
         }
       },
-      "updated_at": "2026-03-14T05:44:56Z"
+      "updated_at": "2026-03-14T14:10:35Z"
     },
     "1524629539": {
       "tenant_id": 1524629539,
