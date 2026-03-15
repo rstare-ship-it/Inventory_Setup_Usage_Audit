@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-03-15T03:10:45Z",
+  "updated_at": "2026-03-15T13:17:42Z",
   "lookback_days": 90,
   "tenants_by_id": {
     "498902358": {
@@ -227,7 +227,7 @@
           ]
         }
       },
-      "updated_at": "2026-03-15T01:47:19Z"
+      "updated_at": "2026-03-15T13:17:42Z"
     },
     "1056144950": {
       "tenant_id": 1056144950,
@@ -496,7 +496,7 @@
           "red": []
         }
       },
-      "updated_at": "2026-03-15T01:47:19Z"
+      "updated_at": "2026-03-15T13:17:42Z"
     },
     "2058000021": {
       "tenant_id": 2058000021,
@@ -728,7 +728,7 @@
           ]
         }
       },
-      "updated_at": "2026-03-15T01:47:19Z"
+      "updated_at": "2026-03-15T13:17:42Z"
     },
     "139300233": {
       "tenant_id": 139300233,
@@ -998,7 +998,7 @@
         "Returns": {
           "green": [],
           "yellow": [
-            "Returns: 42 credit received of 55 in last 90 days. 12 pending. (21% of period returns still pending); 7 older than 90 days. Resolve aged returns to reach Good."
+            "Returns: 0 credit received of 55 in last 90 days. 12 pending. (21% of period returns still pending); 7 older than 90 days. Resolve aged returns to reach Good."
           ],
           "review": [],
           "red": []
@@ -1047,7 +1047,7 @@
           "red": []
         }
       },
-      "updated_at": "2026-03-15T01:54:15Z"
+      "updated_at": "2026-03-15T13:17:42Z"
     },
     "1524629539": {
       "tenant_id": 1524629539,
@@ -1263,7 +1263,7 @@
         "Returns": {
           "green": [],
           "yellow": [
-            "Returns: 28 credit received of 34 in last 90 days. 4 pending. (11% of period returns still pending); 1 older than 90 days. Resolve aged returns to reach Good."
+            "Returns: 0 credit received of 34 in last 90 days. 4 pending. (11% of period returns still pending); 1 older than 90 days. Resolve aged returns to reach Good."
           ],
           "review": [],
           "red": []
@@ -1314,7 +1314,7 @@
           "red": []
         }
       },
-      "updated_at": "2026-03-15T03:10:45Z"
+      "updated_at": "2026-03-15T13:17:42Z"
     },
     "457667515": {
       "tenant_id": 457667515,
@@ -1530,7 +1530,7 @@
         "Returns": {
           "green": [],
           "yellow": [
-            "Returns: 43 credit received of 50 in last 90 days. 8 pending. (16% of period returns still pending); 4 older than 90 days. Resolve aged returns to reach Good."
+            "Returns: 0 credit received of 50 in last 90 days. 8 pending. (16% of period returns still pending); 4 older than 90 days. Resolve aged returns to reach Good."
           ],
           "review": [],
           "red": []
@@ -1580,7 +1580,7 @@
           "red": []
         }
       },
-      "updated_at": "2026-03-15T03:10:45Z"
+      "updated_at": "2026-03-15T13:17:42Z"
     },
     "1078284838": {
       "tenant_id": 1078284838,
@@ -1797,7 +1797,7 @@
         "Returns": {
           "green": [],
           "yellow": [
-            "Returns: 144 credit received of 158 in last 90 days. 10 pending. (6% of period returns still pending) Resolve 3 return(s) to reach Good (5% or fewer pending)."
+            "Returns: 0 credit received of 158 in last 90 days. 10 pending. (6% of period returns still pending) Resolve 3 return(s) to reach Good (5% or fewer pending)."
           ],
           "review": [],
           "red": []
@@ -1848,7 +1848,7 @@
           "red": []
         }
       },
-      "updated_at": "2026-03-15T03:10:45Z"
+      "updated_at": "2026-03-15T13:17:42Z"
     },
     "112125060": {
       "tenant_id": 112125060,
@@ -2063,7 +2063,7 @@
         },
         "Returns": {
           "green": [
-            "Returns: 211 credit received of 211 in last 90 days. 0 pending."
+            "Returns: 0 credit received of 211 in last 90 days. 0 pending."
           ],
           "yellow": [],
           "review": [],
@@ -2115,7 +2115,7 @@
           "red": []
         }
       },
-      "updated_at": "2026-03-15T03:10:45Z"
+      "updated_at": "2026-03-15T13:17:42Z"
     },
     "14419777": {
       "tenant_id": 14419777,
@@ -2333,7 +2333,7 @@
         "Returns": {
           "green": [],
           "yellow": [
-            "Returns: 513 credit received of 591 in last 90 days. 54 pending. (9% of period returns still pending); 5 older than 90 days. Resolve aged returns to reach Good."
+            "Returns: 0 credit received of 591 in last 90 days. 54 pending. (9% of period returns still pending); 5 older than 90 days. Resolve aged returns to reach Good."
           ],
           "review": [],
           "red": []
@@ -2384,7 +2384,7 @@
           "red": []
         }
       },
-      "updated_at": "2026-03-15T03:10:45Z"
+      "updated_at": "2026-03-15T13:17:42Z"
     },
     "1792689863": {
       "tenant_id": 1792689863,
@@ -2598,7 +2598,7 @@
         "Returns": {
           "green": [],
           "yellow": [
-            "Returns: 62 credit received of 66 in last 90 days. 2 pending. (3% of period returns still pending); 1 older than 90 days. Resolve aged returns to reach Good."
+            "Returns: 0 credit received of 66 in last 90 days. 2 pending. (3% of period returns still pending); 1 older than 90 days. Resolve aged returns to reach Good."
           ],
           "review": [],
           "red": []
@@ -2648,7 +2648,7 @@
           "red": []
         }
       },
-      "updated_at": "2026-03-15T03:10:45Z"
+      "updated_at": "2026-03-15T13:17:42Z"
     }
   },
   "tenants_by_slug": {
