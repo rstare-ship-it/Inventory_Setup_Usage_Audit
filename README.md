@@ -12,131 +12,232 @@ aliases:
 
 # Inventory Setup / Usage Audit
 
-Audit app for **tenants who are already using the inventory module**. Checks that they are set up well and using the module appropriately (configuration, data quality, and usage patterns).
+Audit tool for tenants using purchasing, thinking about activating inventory, getting ready to go live with inventory, or are live on inventory. Checks setup quality, configuration, and usage patterns — flags issues and recommends improvements. Results are published as a live website on GitHub Pages.
+
+---
 
 ## Purpose
 
-- **Audience**: Tenants with the inventory module **on** (unlike the [Inventory Readiness Check](../Inventory_Prepardness_Check), which targets tenants not yet on inventory).
-- **Goal**: Verify setup quality and appropriate usage—e.g. pricebook completeness, replenishment and receiving behavior, invoice material usage, returns handling, and feature configuration—so we can flag issues and recommend improvements.
-- **Group runs**: When run against a **tenant group**, the script automatically branches per tenant: tenants **live on inventory** (tracking start date in the past) get the full **inventory setup & usage** audit; tenants **not yet live** get a **purchasing-only** audit (Purchasing, Invoicing, Replenishment, Returns). Inventory-only areas (Technician usage, Pricebook & setup, Usage & operations) show as **N/A** for non-inventory tenants in the group summary.
+- **Audience**: Tenants using purchasing or inventory, or getting ready for either.
+- **Goal**: Verify setup quality and appropriate usage — pricebook completeness, PO discipline, invoice material usage, replenishment behavior, returns handling, transfers, cycle counts, and feature configuration — so we can flag issues and recommend improvements.
 
-## Scope
+---
 
-- **Checks (from readiness, tweakable)**: Purchase orders (pending count, pending over 90 days, activity, line quality, placeholder descriptions), invoice materials (line count, % added by technician, placeholder-like descriptions), replenishment requests (open vs completed, used materials). Assessment data (inventory/purchasing on, IsInventory counts, tracking start) is included for context.
-- **Future**: Pricebook, returns, or other setup/usage checks can be added.
+## How it works
 
-## Setup (Python connector / .env)
+### The website (three pages)
 
-To run the audit **directly from Snowflake** (single tenant or full tenant group) without manual export:
+All audit data lives in `data/audit_aggregate.json` and `data/groups.json`. The website reads these files at runtime — no server required.
 
-1. **Install dependencies** (includes Snowflake connector and python-dotenv):
+| Page | URL | Purpose |
+|------|-----|---------|
+| `index.html` | `/` | Search entry point — accepts tenant ID, tenant name, or group name |
+| `group.html` | `/group.html?group=SILA` | Group summary — health stats, common struggles, recommended actions, and a per-tenant status table for all tenants in the group |
+| `scorecard.html` | `/scorecard.html?tenant_id=444875142` | Individual tenant scorecard — area status tiles, findings detail, inventory settings, action plan |
+
+Searching by tenant name or group name on `index.html` redirects to the right page automatically. New groups are supported without code changes — just run the audit for a new group name and it registers itself in `groups.json`.
+
+### The audit pipeline
+
+```
+run_audit.sh  →  audit_report.py  →  Snowflake  →  data/raw/{id}.json  →  checks.py  →  audit_aggregate.json  →  website
+```
+
+1. `run_audit.sh "SILA"` (or `all`) triggers group runs.
+2. `audit_report.py` pulls data from Snowflake for each tenant, saves raw results to `data/raw/{tenant_id}.json`, runs checks, and calls `merge_into_aggregate()`.
+3. `audit/aggregate.py` merges results into `data/audit_aggregate.json` and updates `data/groups.json` with current group membership.
+4. `run_audit.sh` commits and pushes both JSON files. GitHub Pages rebuilds in ~1 minute.
+
+### Reprocessing without Snowflake
+
+When check logic or thresholds change, re-running Snowflake is not required. Use `--reprocess` to re-run all checks against the cached raw data:
+
+```bash
+./run_audit.sh --reprocess
+```
+
+This reads `data/raw/*.json`, re-runs all Python checks, updates `data/audit_aggregate.json`, and pushes. Runs in seconds with no Okta prompt.
+
+---
+
+## Audit paths
+
+The audit branches based on whether a tenant is **live with inventory** (`beginningDate` has passed):
+
+### Full inventory audit
+
+Runs when `is_live = true`. Evaluates 8 areas:
+
+| Area | What's checked |
+|------|----------------|
+| **Pricebook & setup** | % materials with $0 cost or Default Replenishment as primary vendor; % of trucks with inventory templates; warehouses with templates; template item count (≥20 active items) |
+| **Purchasing** | Pending PO count vs truck count, pending POs over 90 days, PO create + receive rate, multi-line PO rate, placeholder-heavy PO lines |
+| **Invoicing** | % of $>0 invoices with ≥1 inventory material line; technician-added material %; IsInventory material %; zero-cost material line % |
+| **Replenishment** | Replenishment completion rate (open vs completed); aging replenishment requests over 30 days |
+| **Returns** | Pending return % of total returns in period; flags unprocessed credits |
+| **Transfers** | Open transfers over 14 days; aging requisitions over 90 days; transfer-to-job usage |
+| **Counts and adjustments** | Past due inventory counts; direct adjustments in the lookback period; warehouses with no completed count in 90 days |
+| **Other** | Feature flags and configuration — negative quantity allowed, bin tracking, serialized tracking, TTJ, mobile app, etc. |
+
+### Purchasing-only audit
+
+Runs when `is_live = false` (tracking start date not yet reached). Evaluates 6 areas — the rest show as **N/A**:
+
+| Area | What's checked |
+|------|----------------|
+| **Pricebook & setup** | % of materials with $0 cost; % with Default Replenishment as primary vendor |
+| **Purchasing** | Same as full audit |
+| **Invoicing** | Technician-added material % |
+| **Replenishment** | Same as full audit |
+| **Returns** | Same as full audit |
+| **Readiness** | Implementation readiness (no IsInventory items yet) or go-live readiness (has IsInventory + templates) — only one fires per tenant; displayed as a banner, not a tile |
+
+Areas not evaluated (Transfers, Counts and adjustments, Other) show as **N/A** in the group summary table.
+
+### Readiness stages
+
+Purchasing-only tenants fall into one of three stages:
+
+| Stage | Condition | Check |
+|-------|-----------|-------|
+| **Early journey** | No IsInventory items OR no templates assigned | `check_implementation_readiness` — shows what to complete before setting up inventory |
+| **Go-live setup** | Has IsInventory items AND at least one template | `check_golive_readiness` — verifies template coverage, IsInventory %, and pre-work quality |
+| **Live** | `is_live = true` | Full audit — no readiness banner |
+
+---
+
+## Scoring
+
+Each area rolls up to one of four statuses:
+
+| Status | Meaning |
+|--------|---------|
+| 🔴 **Critical** | One or more red findings — immediate action needed |
+| 🟠 **Review** | Borderline findings — worth investigating |
+| 🟡 **On track** | Minor or yellow findings — monitor |
+| 🟢 **Good** | No significant issues |
+
+Group health % = green area-cells ÷ total non-N/A area-cells across all tenants in the group.
+
+All thresholds live in `audit/constants.py` — edit there, no changes needed elsewhere. Threshold rationale is documented in [`THRESHOLD_VALIDATION.md`](THRESHOLD_VALIDATION.md).
+
+---
+
+## Running the audit
+
+### Prerequisites
+
+```bash
+pip install -r requirements.txt
+cp .env.example .env
+# Edit .env: set SNOWFLAKE_ACCOUNT, SNOWFLAKE_USER
+```
+
+### Run a group (standard workflow)
+
+```bash
+./run_audit.sh "SILA"
+./run_audit.sh "T3 Services Group"
+./run_audit.sh all              # runs all groups defined in AUDIT_GROUPS
+./run_audit.sh --no-push "SILA" # dry run, no git push
+```
+
+Each run: pulls Snowflake data for all tenants → saves raw cache → merges into `data/audit_aggregate.json` → updates `data/groups.json` → commits and pushes.
+
+### Run a single tenant
+
+```bash
+./run_audit.sh --tenant-id 444875142
+```
+
+Updates the aggregate for that tenant only; does not update group membership.
+
+### Reprocess (no Snowflake — check logic or threshold changes only)
+
+```bash
+./run_audit.sh --reprocess                    # all cached tenants
+./run_audit.sh --reprocess --tenant-id 12345  # single tenant
+```
+
+Re-runs all checks against `data/raw/*.json` without querying Snowflake. Use whenever you change `checks.py`, `constants.py`, or `evaluate.py`.
+
+### Manual export workflow (no Snowflake connector)
+
+1. Set tenant ID in `sql/00_combined_audit.sql` and run it in Snowflake (returns 10 rows).
+2. Export to Excel or CSV.
+3. Merge into the aggregate:
    ```bash
-   pip install -r requirements.txt
+   python3 audit_report.py --from-excel /path/to/results.xlsx --output-aggregate data/audit_aggregate.json
    ```
-2. **Copy `.env.example` to `.env`** and set your Snowflake credentials:
-   ```bash
-   cp .env.example .env
-   # Edit .env: set SNOWFLAKE_ACCOUNT, SNOWFLAKE_USER, and SNOWFLAKE_REGION if needed
-   ```
-   The script loads `.env` automatically from this directory, so you don’t need to `export` vars. **Do not commit `.env`** (it’s in `.gitignore`).
 
-3. **Single tenant:**  
-   `python3 audit_report.py --from-snowflake --tenant-id <ID> --html scorecard.html`
+---
 
-4. **Full tenant group (e.g. T3 Services Group):**  
-   `python3 audit_report.py --from-snowflake --tenant-group "T3 Services Group" --html summary.html`  
-   This pulls data for every tenant in one run and writes everything into a folder named from the group (e.g. `T3_Services_Group/`): `index.html` (summary), `scorecard_<tenant_id>.html` for each tenant, and `scorecard.css`.
-
-The first run may open the browser for Okta/SSO login.
-
-## How to use
-
-1. **Set tenant ID in SQL**  
-   Open `sql/00_combined_audit.sql` and replace `0` in `tenant_param` with your tenant ID. The query uses the **last 90 days**.
-
-2. **Run the query in Snowflake**  
-   Run the entire statement. It returns 9 rows: `tenant_info`, `purchase_orders_summary`, `invoice_materials`, `replenishment_summary`, `returns_summary`, `assessment_data`, `inventory_settings`, `setup_data`, `usage_checks` (columns `source`, `v1`..`v16`). Tenant ID and name are in the first row for the report header; `inventory_settings` contains the Inventory.Configuration JSON for readable settings.
-
-3. **Export** to Excel (.xlsx) or CSV (one sheet/file, header + 9 data rows).
-
-4. **Generate the report**:
-   ```bash
-   python3 audit_report.py --from-excel /path/to/results.xlsx
-   ```
-   Tenant ID and name are read from the query results; you can override with `--tenant-id` and `--tenant-name` if needed. For CSV use `--from-excel /path/to/results.csv`. For Excel you need: `pip install openpyxl`.
-
-5. **Optional: generate a customer-friendly HTML scorecard** (easy to read, printable, shareable):
-   ```bash
-   python3 audit_report.py --from-excel /path/to/results.xlsx --html scorecard.html
-   ```
-   Output is written into a folder (e.g. `scorecard_<id>_<tenantname>/scorecard.html` and `scorecard.css`). Opens in any browser; safe to email or attach.
-
-6. **Optional: run directly from Snowflake** (no manual export). Ensure [Setup](#setup-python-connector--env) is done (`.env` with `SNOWFLAKE_ACCOUNT`, `SNOWFLAKE_USER`, etc.). Then:
-   ```bash
-   python3 audit_report.py --from-snowflake --tenant-id 257 --html scorecard.html
-   ```
-   For a **full tenant group** in one go:  
-   `python3 audit_report.py --from-snowflake --tenant-group "T3 Services Group" --html T3_Services_Group_summary.html`
-
-## Options
+## CLI options
 
 | Option | Description |
 |--------|-------------|
-| `--from-excel FILE` | Read from Excel (.xlsx) or CSV (combined 4-row export). |
-| `--from-csv-folder FOLDER` | Read from CSVs: purchase_orders_summary.csv, invoice_materials.csv, replenishment_summary.csv, assessment_data.csv. |
-| `--from-results JSON_FILE` | Read from a JSON file. |
-| `--tenant-id` | Override tenant ID in header (default: from query `tenant_info` row). |
-| `--tenant-name` | Override tenant name in header (default: from query `tenant_info` row). |
-| `--lookback-days` | Lookback days in report text (default 90). |
-| `--html FILE` | Write HTML scorecard(s). Single: creates folder `scorecard_<id>_<name>/` with `scorecard.html` and CSS. Group: creates folder from group name with `index.html`, `scorecard_<id>.html`, and CSS. |
-| `--from-snowflake` | Run the audit query in Snowflake; requires `--tenant-id` or `--tenant-group`. Uses `SNOWFLAKE_ACCOUNT`, `SNOWFLAKE_USER`, and optional `SNOWFLAKE_WAREHOUSE` etc. Authenticates via Okta (external browser) by default. |
-| `--tenant-group` | Run audit for all tenants in a tenant group (e.g. `"T3 Services Group"`). Requires `--from-snowflake` and `--html`. Writes everything into a folder (e.g. `T3_Services_Group/`): `index.html`, `scorecard_<id>.html`, and CSS. |
-| `--from-group-json` | Read pre-fetched group audit results from a JSON file (e.g. from Snowflake MCP or manual export). Requires `--html`. See [TENANT_GROUP_DISPLAY.md](TENANT_GROUP_DISPLAY.md). |
+| `--from-snowflake` | Pull live data from Snowflake; requires `--tenant-id` or `--tenant-group` |
+| `--reprocess` | Re-run checks against cached raw data (no Snowflake); requires `--output-aggregate` |
+| `--tenant-id ID` | Single tenant ID |
+| `--tenant-group NAME` | Run all tenants in a named group (e.g. `"T3 Services Group"`) |
+| `--from-excel FILE` | Read from `.xlsx` or combined CSV |
+| `--from-csv-folder FOLDER` | Read from a folder of per-query CSV files |
+| `--from-results JSON` | Read from a saved results JSON |
+| `--output-aggregate FILE` | Merge this run into the aggregate JSON |
+| `--lookback-days N` | Lookback window (default: 90) |
+| `--html FILE` | Write a static HTML scorecard (legacy — not used by standard workflow) |
+| `--tenant-name NAME` | Override tenant name in output |
 
-## Tweakable thresholds
+---
 
-In `audit_report.py` you can adjust:
+## Website (GitHub Pages)
 
-- `TOTAL_PENDING_ABSOLUTE_RED` — red if total pending POs exceeds this (default 50).
-- `PO_SINGLE_LINE_MAJORITY` / `PO_PLACEHOLDER_MAJORITY` — red if > this share of POs have one line or placeholder-like lines (default 0.5).
-- `INVOICE_PLACEHOLDER_GREEN_MAX_PCT` / `INVOICE_PLACEHOLDER_RED_MIN_PCT` — green &lt; 10%, red &gt; 70%.
-- `REPLENISHMENT_OPEN_YELLOW` — yellow when open replenishment requests exceed this (default 300).
+The site is hosted at:
+```
+https://rstare-ship-it.github.io/Inventory_Setup_Usage_Audit/
+```
 
-## Sharing with customers (GitHub Pages)
+Key links:
+- Home / search: `/`
+- SILA group: `/group.html?group=SILA`
+- T3 Services Group: `/group.html?group=T3_Services_Group`
+- Individual tenant: `/scorecard.html?tenant_id=444875142`
 
-To share the T3 Services Group scorecard as a live webpage:
+To enable (first time): **Settings → Pages → Source: Deploy from branch → main / root → Save**.
 
-1. **Enable GitHub Pages** for this repo:  
-   **Settings → Pages → Build and deployment → Source:** “Deploy from a branch”.  
-   **Branch:** `main`, **Folder:** `/ (root)` → Save.
+---
 
-2. After the site deploys (1–2 minutes), share one of these URLs:
-   - **Main entry (redirects to T3):**  
-     `https://rstare-ship-it.github.io/Inventory_Setup_Usage_Audit/`
-   - **Direct link to T3 group summary:**  
-     `https://rstare-ship-it.github.io/Inventory_Setup_Usage_Audit/T3_Services_Group/`
-
-Individual tenant scorecards are linked from the group summary (e.g. `T3_Services_Group/scorecard_1524629539.html`). No login required; the page is public.
-
-## Structure
+## Project structure
 
 ```
 Inventory_Setup_Usage_Audit/
-├── README.md           # This file
-├── index.html          # Redirect to T3_Services_Group/ for GitHub Pages
-├── T3_Services_Group/  # Group summary + per-tenant scorecards (shareable)
+├── index.html                  # Search entry point
+├── group.html                  # Dynamic group summary page (?group=SILA)
+├── scorecard.html              # Dynamic per-tenant scorecard (?tenant_id=444875142)
+├── data/
+│   ├── audit_aggregate.json    # All tenant audit results (keyed by tenant_id)
+│   ├── groups.json             # Group membership (tenant ID lists per group)
+│   └── raw/                    # Cached raw Snowflake results per tenant ({tenant_id}.json)
+├── audit/
+│   ├── aggregate.py            # Merge tenant runs into aggregate; update groups.json
+│   ├── checks.py               # Individual check functions
+│   ├── constants.py            # All thresholds and area lists — edit here
+│   ├── data.py                 # Data loading (Snowflake, Excel, CSV)
+│   ├── evaluate.py             # Area evaluation logic
+│   ├── parse.py                # Parse raw query results into structured data
+│   └── render.py               # HTML rendering (legacy static scorecard)
+├── audit_report.py             # CLI entrypoint
+├── run_audit.sh                # Orchestrate group/tenant runs + git commit/push
 ├── sql/
-│   └── 00_combined_audit.sql   # One query, 9 rows (tenant_info, POs, invoice, replenishment, returns, assessment, inventory_settings, setup_data, usage_checks)
-├── audit_report.py     # Parse results and print audit report
-├── requirements.txt   # openpyxl for Excel
-└── .env.example        # Optional config template
+│   └── 00_combined_audit.sql   # Combined audit query (10 rows)
+├── requirements.txt            # Python deps: snowflake-connector, openpyxl, python-dotenv
+├── .env.example                # Snowflake credentials template
+├── THRESHOLD_VALIDATION.md     # Threshold rationale and validation
+└── README.md                   # This file
 ```
 
-## Data sources
-
-Same as the readiness check: `tenant_data.DBO`, `tenant_data.FEATURE_GATE.FEATURE_GATE_FLAT`, scoped by `tenant_param` and `_TENANT_ID`. This app is for tenants already on the inventory module.
+---
 
 ## Related
 
-- [Inventory Readiness Check](../Inventory_Prepardness_Check) — for tenants *not* yet on inventory; this audit reuses its PO, invoice, and replenishment checks.
-- [Inventory Readiness REUSE](../Inventory_Prepardness_Check/REUSE.md) and the `inventory-readiness` Cursor skill.
+- [Inventory Readiness Check](../Inventory_Prepardness_Check) — for tenants *not yet on* inventory; this audit reuses its PO, invoice, and replenishment checks.
