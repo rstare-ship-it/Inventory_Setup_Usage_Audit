@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-03-15T02:09:26Z",
+  "updated_at": "2026-03-15T03:10:45Z",
   "lookback_days": 90,
   "tenants_by_id": {
     "498902358": {
@@ -1314,7 +1314,7 @@
           "red": []
         }
       },
-      "updated_at": "2026-03-15T02:09:26Z"
+      "updated_at": "2026-03-15T03:10:45Z"
     },
     "457667515": {
       "tenant_id": 457667515,
@@ -1580,7 +1580,7 @@
           "red": []
         }
       },
-      "updated_at": "2026-03-15T02:09:26Z"
+      "updated_at": "2026-03-15T03:10:45Z"
     },
     "1078284838": {
       "tenant_id": 1078284838,
@@ -1647,19 +1647,19 @@
         },
         "pending_pos_over_90_days": 0,
         "invoice_materials": {
-          "material_line_count": 10387,
-          "invoices_with_materials": 1938,
-          "material_lines_added_by_technician": 9048,
+          "material_line_count": 10406,
+          "invoices_with_materials": 1939,
+          "material_lines_added_by_technician": 9067,
           "material_lines_placeholder_like": 1088,
-          "invoices_total_gt_zero": 3289,
-          "invoices_gt_zero_with_material": 779,
-          "material_lines_IsInventory": 8962,
+          "invoices_total_gt_zero": 3290,
+          "invoices_gt_zero_with_material": 780,
+          "material_lines_IsInventory": 8980,
           "material_lines_zero_cost": 4,
           "material_lines_from_transfer": 0,
           "distinct_IsInventory_materials_used_90d": 746
         },
         "replenishment_summary": {
-          "open_count": 48,
+          "open_count": 63,
           "completed_in_lookback": 0,
           "used_materials_can_be_replenished": 0
         },
@@ -1776,14 +1776,14 @@
         },
         "Invoicing": {
           "green": [
-            "Invoice IsInventory lines: 8962 of 10387 material lines (86%) are IsInventory.",
-            "Zero-cost IsInventory lines: 4 of 8962 (0%).",
-            "Technician-added materials: 9048 of 10387 invoice material line(s) (87%) added by a technician."
+            "Invoice IsInventory lines: 8980 of 10406 material lines (86%) are IsInventory.",
+            "Zero-cost IsInventory lines: 4 of 8980 (0%).",
+            "Technician-added materials: 9067 of 10406 invoice material line(s) (87%) added by a technician."
           ],
           "yellow": [],
           "review": [],
           "red": [
-            "Invoice material coverage: 779 of 3289 invoices (23%) include at least one IsInventory material line. Add materials to 866 more invoice(s) to reach Needs Review (50%+)."
+            "Invoice material coverage: 780 of 3290 invoices (23%) include at least one IsInventory material line. Add materials to 865 more invoice(s) to reach Needs Review (50%+)."
           ]
         },
         "Replenishment": {
@@ -1791,7 +1791,7 @@
           "yellow": [],
           "review": [],
           "red": [
-            "Replenishment: 48 open, 0 completed in last 90 days. Complete open replenishments before a rate can be measured."
+            "Replenishment: 63 open, 0 completed in last 90 days. Complete open replenishments before a rate can be measured."
           ]
         },
         "Returns": {
@@ -1848,7 +1848,7 @@
           "red": []
         }
       },
-      "updated_at": "2026-03-15T02:09:26Z"
+      "updated_at": "2026-03-15T03:10:45Z"
     },
     "112125060": {
       "tenant_id": 112125060,
@@ -1914,19 +1914,19 @@
         },
         "pending_pos_over_90_days": 12,
         "invoice_materials": {
-          "material_line_count": 5717,
-          "invoices_with_materials": 1276,
-          "material_lines_added_by_technician": 4831,
+          "material_line_count": 5728,
+          "invoices_with_materials": 1277,
+          "material_lines_added_by_technician": 4842,
           "material_lines_placeholder_like": 368,
-          "invoices_total_gt_zero": 3288,
-          "invoices_gt_zero_with_material": 819,
-          "material_lines_IsInventory": 4942,
+          "invoices_total_gt_zero": 3289,
+          "invoices_gt_zero_with_material": 820,
+          "material_lines_IsInventory": 4953,
           "material_lines_zero_cost": 13,
           "material_lines_from_transfer": 0,
           "distinct_IsInventory_materials_used_90d": 453
         },
         "replenishment_summary": {
-          "open_count": 85,
+          "open_count": 95,
           "completed_in_lookback": 0,
           "used_materials_can_be_replenished": 1440
         },
@@ -2021,7 +2021,7 @@
           "pending_transfers_older_than_14_days": 0,
           "requisitions_older_than_90_days": 0,
           "past_due_inventory_counts": 0,
-          "negative_balance_count": 142,
+          "negative_balance_count": 141,
           "direct_adjustments_in_90_days": 181,
           "warehouses_no_completed_count_90d": 1,
           "completed_transfers_in_90_days": 0
@@ -2043,14 +2043,14 @@
         },
         "Invoicing": {
           "green": [
-            "Invoice IsInventory lines: 4942 of 5717 material lines (86%) are IsInventory.",
-            "Zero-cost IsInventory lines: 13 of 4942 (0%).",
-            "Technician-added materials: 4831 of 5717 invoice material line(s) (84%) added by a technician."
+            "Invoice IsInventory lines: 4953 of 5728 material lines (86%) are IsInventory.",
+            "Zero-cost IsInventory lines: 13 of 4953 (0%).",
+            "Technician-added materials: 4842 of 5728 invoice material line(s) (84%) added by a technician."
           ],
           "yellow": [],
           "review": [],
           "red": [
-            "Invoice material coverage: 819 of 3288 invoices (24%) include at least one IsInventory material line. Add materials to 825 more invoice(s) to reach Needs Review (50%+)."
+            "Invoice material coverage: 820 of 3289 invoices (24%) include at least one IsInventory material line. Add materials to 825 more invoice(s) to reach Needs Review (50%+)."
           ]
         },
         "Replenishment": {
@@ -2058,7 +2058,7 @@
           "yellow": [],
           "review": [],
           "red": [
-            "Replenishment: 85 open, 0 completed in last 90 days. Complete open replenishments before a rate can be measured."
+            "Replenishment: 95 open, 0 completed in last 90 days. Complete open replenishments before a rate can be measured."
           ]
         },
         "Returns": {
@@ -2101,7 +2101,7 @@
           "yellow": [],
           "review": [],
           "red": [
-            "Negative inventory balances: 142 location/SKU combination(s). Run a count or adjustment to resolve.",
+            "Negative inventory balances: 141 location/SKU combination(s). Run a count or adjustment to resolve.",
             "Direct (quantity) adjustments in last 90 days: 181. High volume may indicate process or data issues.",
             "Warehouses with no completed count in last 90 days: 1. Schedule and complete cycle counts."
           ]
@@ -2115,7 +2115,7 @@
           "red": []
         }
       },
-      "updated_at": "2026-03-15T02:09:26Z"
+      "updated_at": "2026-03-15T03:10:45Z"
     },
     "14419777": {
       "tenant_id": 14419777,
@@ -2187,7 +2187,7 @@
           "invoices_with_materials": 2927,
           "material_lines_added_by_technician": 13231,
           "material_lines_placeholder_like": 665,
-          "invoices_total_gt_zero": 18515,
+          "invoices_total_gt_zero": 18517,
           "invoices_gt_zero_with_material": 1799,
           "material_lines_IsInventory": 12984,
           "material_lines_zero_cost": 1,
@@ -2319,7 +2319,7 @@
           ],
           "review": [],
           "red": [
-            "Invoice material coverage: 1799 of 18515 invoices (9%) include at least one IsInventory material line. Add materials to 7459 more invoice(s) to reach Needs Review (50%+)."
+            "Invoice material coverage: 1799 of 18517 invoices (9%) include at least one IsInventory material line. Add materials to 7460 more invoice(s) to reach Needs Review (50%+)."
           ]
         },
         "Replenishment": {
@@ -2384,7 +2384,7 @@
           "red": []
         }
       },
-      "updated_at": "2026-03-15T02:09:26Z"
+      "updated_at": "2026-03-15T03:10:45Z"
     },
     "1792689863": {
       "tenant_id": 1792689863,
@@ -2648,7 +2648,7 @@
           "red": []
         }
       },
-      "updated_at": "2026-03-15T02:09:26Z"
+      "updated_at": "2026-03-15T03:10:45Z"
     }
   },
   "tenants_by_slug": {
