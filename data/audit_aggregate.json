@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-03-14T23:57:53Z",
+  "updated_at": "2026-03-15T01:21:48Z",
   "lookback_days": 90,
   "tenants_by_id": {
     "498902358": {
@@ -227,7 +227,7 @@
           ]
         }
       },
-      "updated_at": "2026-03-14T23:54:23Z"
+      "updated_at": "2026-03-15T01:21:48Z"
     },
     "1056144950": {
       "tenant_id": 1056144950,
@@ -445,10 +445,20 @@
         "Returns": {
           "green": [],
           "yellow": [
-            "Returns: 259 credit received of 371 in last 90 days. 66 pending. (17% of period returns still pending); 25 older than 90 days. Resolve aged returns to reach Good."
+            "Returns: 0 credit received of 371 in last 90 days. 66 pending. (17% of period returns still pending); 25 older than 90 days. Resolve aged returns to reach Good."
           ],
           "review": [],
           "red": []
+        },
+        "Pricebook": {
+          "green": [
+            "42 material(s) have $0 cost (0.6%) \u2014 within acceptable range."
+          ],
+          "yellow": [],
+          "review": [],
+          "red": [
+            "2875 material(s) (44%) use Default or Imported Default Replenishment as primary vendor. Assign a real vendor before go-live."
+          ]
         },
         "Pricebook & setup": {
           "green": [
@@ -494,7 +504,7 @@
           "red": []
         }
       },
-      "updated_at": "2026-03-14T23:55:15Z"
+      "updated_at": "2026-03-15T01:21:48Z"
     },
     "2058000021": {
       "tenant_id": 2058000021,
@@ -703,7 +713,7 @@
         "Returns": {
           "green": [],
           "yellow": [
-            "Returns: 95 credit received of 108 in last 90 days. 48 pending. (44% of period returns still pending); 35 older than 90 days. Resolve aged returns to reach Good."
+            "Returns: 0 credit received of 108 in last 90 days. 48 pending. (44% of period returns still pending); 35 older than 90 days. Resolve aged returns to reach Good."
           ],
           "review": [],
           "red": []
@@ -725,7 +735,7 @@
           ]
         }
       },
-      "updated_at": "2026-03-14T23:57:53Z"
+      "updated_at": "2026-03-15T01:21:48Z"
     }
   },
   "tenants_by_slug": {
