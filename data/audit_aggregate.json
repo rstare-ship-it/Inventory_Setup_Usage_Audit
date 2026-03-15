@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-03-15T01:47:19Z",
+  "updated_at": "2026-03-15T01:54:15Z",
   "lookback_days": 90,
   "tenants_by_id": {
     "498902358": {
@@ -729,11 +729,331 @@
         }
       },
       "updated_at": "2026-03-15T01:47:19Z"
+    },
+    "139300233": {
+      "tenant_id": 139300233,
+      "tenant_name": "generation3",
+      "lookback_days": 90,
+      "is_live": true,
+      "area_statuses": {
+        "Pricebook & setup": "Green",
+        "Purchasing": "Review",
+        "Invoicing": "Review",
+        "Replenishment": "Red",
+        "Returns": "Red",
+        "Transfers": "Review",
+        "Counts and adjustments": "Red",
+        "Other": "Green"
+      },
+      "action_plan": [
+        "Reduce pending POs; receive or close old POs.",
+        "Use multi-line POs for stock orders.",
+        "Add inventory materials to invoices; train office and field staff on material usage.",
+        "Train technicians to add materials to invoices in the field.",
+        "Complete open replenishments.",
+        "Resolve pending returns and issue credits.",
+        "Complete or cancel aging transfers.",
+        "Complete or reschedule past due inventory counts.",
+        "Run an inventory count and adjustments to resolve negative quantities.",
+        "Review direct adjustment practices; reduce manual adjustments where possible.",
+        "Schedule and complete cycle counts for all warehouses."
+      ],
+      "results": {
+        "tenant_id": 139300233,
+        "tenant_name": "generation3",
+        "pricebook": {
+          "material_count": 2227,
+          "materials_with_cost": 2170,
+          "materials_zero_cost": 57,
+          "materials_with_vendor_link": 2227,
+          "materials_with_primary_vendor": 2227,
+          "primary_vendor_default_replenishment": 298
+        },
+        "total_pending_pos": 2082,
+        "po_activity": {
+          "po_created_in_period": 1302,
+          "earliest_po": "2025-07-28 18:06:17.431",
+          "latest_po": "2026-03-14 13:02:01.691"
+        },
+        "purchase_orders": {
+          "by_status": {
+            "0": 183,
+            "1": 399,
+            "2": 13,
+            "3": 2,
+            "4": 705,
+            "5": 0,
+            "6": 0
+          },
+          "pending_count": 198,
+          "completed_count": 1104
+        },
+        "po_line_quality": {
+          "po_count": 1302,
+          "pos_with_one_line_only": 1081,
+          "total_line_items": 2692,
+          "line_items_placeholder_like": 3
+        },
+        "pending_pos_over_90_days": 1900,
+        "invoice_materials": {
+          "material_line_count": 11917,
+          "invoices_with_materials": 1449,
+          "material_lines_added_by_technician": 2162,
+          "material_lines_placeholder_like": 72,
+          "invoices_total_gt_zero": 6426,
+          "invoices_gt_zero_with_material": 993,
+          "material_lines_IsInventory": 11385,
+          "material_lines_zero_cost": 31,
+          "material_lines_from_transfer": 0,
+          "distinct_IsInventory_materials_used_90d": 817
+        },
+        "replenishment_summary": {
+          "open_count": 109,
+          "completed_in_lookback": 0,
+          "used_materials_can_be_replenished": 1907
+        },
+        "total_pending_returns": 12,
+        "returns_activity": {
+          "returns_in_period": 55,
+          "earliest_return": "2025-11-05 15:34:52.767",
+          "latest_return": "2026-03-12 13:05:27.725"
+        },
+        "returns_by_status": {
+          "0": 5,
+          "1": 8,
+          "2": 42,
+          "3": 0
+        },
+        "pending_returns_over_90_days": 7,
+        "readiness_config": {
+          "purchasing_module_on": true,
+          "inventory_module_on": true
+        },
+        "isinventory_counts": {
+          "active_materials_count": 2227,
+          "active_equipment_count": 1466,
+          "materials_isinventory_count": 1337,
+          "equipment_isinventory_count": 127
+        },
+        "inventory_tracking_start_date": "2019-10-31T04:00:00Z",
+        "feature_gates": {
+          "item_requisitions": true,
+          "requisition_closeout": true,
+          "install_requisitions": true,
+          "transfers_to_jobs": true,
+          "consignment": false,
+          "purchase_approval_workflow": false,
+          "granular_wac": false
+        },
+        "materials_with_unit_of_measure": 0,
+        "equipment_serialized_count": 0,
+        "inventory_settings": {
+          "BusinessUnitRequisitionMapping": {
+            "RequisitionBusinessUnitEditModels": [
+              {
+                "BusinessUnitId": 12000001,
+                "RequisitionType": 0
+              },
+              {
+                "BusinessUnitId": 12000131,
+                "RequisitionType": 0
+              },
+              {
+                "BusinessUnitId": 12436584,
+                "RequisitionType": 0
+              },
+              {
+                "BusinessUnitId": 13183407,
+                "RequisitionType": 0
+              },
+              {
+                "BusinessUnitId": 13184658,
+                "RequisitionType": 0
+              },
+              {
+                "BusinessUnitId": 13186385,
+                "RequisitionType": 0
+              },
+              {
+                "BusinessUnitId": 14609746,
+                "RequisitionType": 0
+              },
+              {
+                "BusinessUnitId": 14610210,
+                "RequisitionType": 0
+              },
+              {
+                "BusinessUnitId": 14610354,
+                "RequisitionType": 0
+              },
+              {
+                "BusinessUnitId": 14610473,
+                "RequisitionType": 0
+              },
+              {
+                "BusinessUnitId": 17538145,
+                "RequisitionType": 0
+              },
+              {
+                "BusinessUnitId": 72051048,
+                "RequisitionType": 0
+              }
+            ]
+          },
+          "BeginningDate": "2019-10-31T04:00:00Z",
+          "IsBeginningDateStarted": true,
+          "AllowNegativeQuantityOnHand": true,
+          "OnlyReplenishMax": false,
+          "QbdInventoryAdjustmentAccountId": null,
+          "IsSerializedTrackingEnabled": false,
+          "IsSerialNumbersBulkUploadEnabled": false,
+          "IsBinTrackingEnabled": true,
+          "IsSubAccountEnabled": false,
+          "TrackingDisposition": null,
+          "InventoryValuationMethod": 0,
+          "AllowNegativeQuantityOnInvoice": false,
+          "DontAutomaticallyCreateBills": true,
+          "HideCostOnMobilePurchaseOrders": false,
+          "AllowCopyingPoItemsToInvoice": true,
+          "PoItemCostCopyOption": 1,
+          "PrintPoInLandscape": false,
+          "PrintPoMinWidthLandscape": 1920,
+          "PrintPoMinWidthPortrait": 1280,
+          "ShowItemDescriptionWhenExportingPo": true,
+          "AutoApplyTagsToJobsBasedOnPoStatus": true,
+          "IsInventoryMobileAppEnabled": true,
+          "DisplayServicesOnInvoiceCloseout": false,
+          "IsConsignmentInventoryTrackingEnabled": false,
+          "DefaultConsignmentBusinessUnitId": null,
+          "IsMobileStorageEnabled": true,
+          "AutoAssignTruckToJobTransfers": false,
+          "SendUserNotificationsForPurchaseOrderReview": false,
+          "SendApproverNotificationsForPurchaseOrderRequest": false,
+          "PurchaseOrderApprovalField": 0,
+          "RequisitionDateNeededByType": 0,
+          "PurchaseOrderApprovalEditModel": null,
+          "SenderContacts": [],
+          "DisplayTaxesAndShippingOnPurchaseOrdersOnPdf": false,
+          "AutoApplyTagsToJobsBasedOnTransferStatus": false,
+          "WeightedAverageTrackByWarehouse": false,
+          "IsWarehouseSitesEnabled": false,
+          "MaintainEstimateCostThroughRequisition": false,
+          "EnableUnitOfMeasure": false,
+          "WosTrailingWeeks": 8,
+          "WosOverageWeeks": 12,
+          "StockHealthCategoryEditModel": null
+        },
+        "setup_data": {
+          "truck_total": 80,
+          "truck_with_template": 27,
+          "warehouse_total": 5,
+          "warehouse_with_template": 1,
+          "templates_under_20_active_items": 0
+        },
+        "usage_checks": {
+          "replenishment_older_than_30_days": 86,
+          "pending_transfers_older_than_14_days": 0,
+          "requisitions_older_than_90_days": 0,
+          "past_due_inventory_counts": 6,
+          "negative_balance_count": 400,
+          "direct_adjustments_in_90_days": 166,
+          "warehouses_no_completed_count_90d": 4,
+          "completed_transfers_in_90_days": 7
+        }
+      },
+      "findings_by_area": {
+        "Purchasing": {
+          "green": [
+            "PO usage: 1302 created, 1104 received/exported in last 90 days (84% receive rate).",
+            "PO line descriptions: 3 of 2692 lines with placeholder-like text."
+          ],
+          "yellow": [],
+          "review": [],
+          "red": [
+            "Pending POs: 2082 of 40 allowed. 1900 are older than 90 days. Reduce to 24 or fewer to reach Needs Review.",
+            "PO line items: 2692 lines across 1302 POs; 221 of 1302 (16%) have multiple lines. Use multi-line POs \u2014 reach 50% (651+ POs) to move to Needs Review."
+          ]
+        },
+        "Invoicing": {
+          "green": [
+            "Invoice IsInventory lines: 11385 of 11917 material lines (95%) are IsInventory.",
+            "Zero-cost IsInventory lines: 31 of 11385 (0%)."
+          ],
+          "yellow": [],
+          "review": [],
+          "red": [
+            "Invoice material coverage: 993 of 6426 invoices (15%) include at least one IsInventory material line. Add materials to 2220 more invoice(s) to reach Needs Review (50%+).",
+            "Technician-added materials: 2162 of 11917 invoice material line(s) (18%) added by a technician. Reach 3576+ tech-added lines (30%) to reach Needs Review."
+          ]
+        },
+        "Replenishment": {
+          "green": [],
+          "yellow": [],
+          "review": [],
+          "red": [
+            "Replenishment: 109 open, 0 completed in last 90 days. Complete open replenishments before a rate can be measured.",
+            "Replenishment requests older than 30 days: 86. Address aging requests."
+          ]
+        },
+        "Returns": {
+          "green": [],
+          "yellow": [
+            "Returns: 42 credit received of 55 in last 90 days. 12 pending. (21% of period returns still pending); 7 older than 90 days. Resolve aged returns to reach Good."
+          ],
+          "review": [],
+          "red": []
+        },
+        "Pricebook & setup": {
+          "green": [
+            "57 material(s) have $0 cost (2.6%) \u2014 within acceptable range.",
+            "298 material(s) use Default/Imported Default Replenishment as primary (13.4%) \u2014 within acceptable range.",
+            "Warehouses: 1 of 5 have an inventory template.",
+            "All templates have at least 20 active items.",
+            "IsInventory materials unused in last 90 days: 520 of 1337 (38%)."
+          ],
+          "yellow": [],
+          "review": [],
+          "red": [
+            "Trucks: 27 of 80 have an inventory template. Assign templates to 37 more truck(s) to reach Good."
+          ]
+        },
+        "Transfers": {
+          "green": [
+            "Pending transfers older than 14 days: 0."
+          ],
+          "yellow": [],
+          "review": [],
+          "red": [
+            "Completed transfers in last 90 days: 7 (expected 514+). Increase transfer usage."
+          ]
+        },
+        "Counts and adjustments": {
+          "green": [],
+          "yellow": [],
+          "review": [],
+          "red": [
+            "Past due inventory counts: 6. Complete or reschedule counts.",
+            "Negative inventory balances: 400 location/SKU combination(s). Run a count or adjustment to resolve.",
+            "Direct (quantity) adjustments in last 90 days: 166. High volume may indicate process or data issues.",
+            "Warehouses with no completed count in last 90 days: 4. Schedule and complete cycle counts."
+          ]
+        },
+        "Other": {
+          "green": [
+            "Requisitions older than 90 days: 0."
+          ],
+          "yellow": [],
+          "review": [],
+          "red": []
+        }
+      },
+      "updated_at": "2026-03-15T01:54:15Z"
     }
   },
   "tenants_by_slug": {
     "kernheating": "498902358",
     "aaservicecoheatingcooling": "1056144950",
-    "absoluteairservices": "2058000021"
+    "absoluteairservices": "2058000021",
+    "generation3": "139300233"
   }
 }
