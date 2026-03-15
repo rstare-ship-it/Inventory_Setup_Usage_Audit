@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-03-15T01:45:42Z",
+  "updated_at": "2026-03-15T01:47:19Z",
   "lookback_days": 90,
   "tenants_by_id": {
     "498902358": {
@@ -227,7 +227,7 @@
           ]
         }
       },
-      "updated_at": "2026-03-15T01:45:42Z"
+      "updated_at": "2026-03-15T01:47:19Z"
     },
     "1056144950": {
       "tenant_id": 1056144950,
@@ -461,7 +461,7 @@
           ],
           "review": [],
           "red": [
-            "2875 material(s) (44%) use Default or Imported Default Replenishment as primary vendor. Assign a real vendor before go-live.",
+            "2875 material(s) (44%) use Default or Imported Default Replenishment as primary vendor. Assign a real vendor.",
             "Trucks: 80 of 114 have an inventory template. Assign templates to 12 more truck(s) to reach Good."
           ]
         },
@@ -496,7 +496,7 @@
           "red": []
         }
       },
-      "updated_at": "2026-03-15T01:45:42Z"
+      "updated_at": "2026-03-15T01:47:19Z"
     },
     "2058000021": {
       "tenant_id": 2058000021,
@@ -680,7 +680,7 @@
           "yellow": [],
           "review": [],
           "red": [
-            "3122 material(s) (45%) use Default or Imported Default Replenishment as primary vendor. Assign a real vendor before go-live."
+            "3122 material(s) (45%) use Default or Imported Default Replenishment as primary vendor. Assign a real vendor."
           ]
         },
         "Purchasing": {
@@ -728,7 +728,7 @@
           ]
         }
       },
-      "updated_at": "2026-03-15T01:45:42Z"
+      "updated_at": "2026-03-15T01:47:19Z"
     }
   },
   "tenants_by_slug": {
