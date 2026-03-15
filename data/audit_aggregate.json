@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-03-15T01:35:30Z",
+  "updated_at": "2026-03-15T01:45:42Z",
   "lookback_days": 90,
   "tenants_by_id": {
     "498902358": {
@@ -8,7 +8,7 @@
       "lookback_days": 90,
       "is_live": false,
       "area_statuses": {
-        "Pricebook": "Green",
+        "Pricebook & setup": "Green",
         "Purchasing": "Review",
         "Invoicing": "Green",
         "Replenishment": "Red",
@@ -173,7 +173,7 @@
         }
       },
       "findings_by_area": {
-        "Pricebook": {
+        "Pricebook & setup": {
           "green": [
             "7 material(s) have $0 cost (1.3%) \u2014 within acceptable range.",
             "7 material(s) use Default/Imported Default Replenishment as primary (1.3%) \u2014 within acceptable range."
@@ -227,7 +227,7 @@
           ]
         }
       },
-      "updated_at": "2026-03-15T01:35:30Z"
+      "updated_at": "2026-03-15T01:45:42Z"
     },
     "1056144950": {
       "tenant_id": 1056144950,
@@ -450,18 +450,9 @@
           "review": [],
           "red": []
         },
-        "Pricebook": {
-          "green": [
-            "42 material(s) have $0 cost (0.6%) \u2014 within acceptable range."
-          ],
-          "yellow": [],
-          "review": [],
-          "red": [
-            "2875 material(s) (44%) use Default or Imported Default Replenishment as primary vendor. Assign a real vendor before go-live."
-          ]
-        },
         "Pricebook & setup": {
           "green": [
+            "42 material(s) have $0 cost (0.6%) \u2014 within acceptable range.",
             "Warehouses: 1 of 3 have an inventory template.",
             "All templates have at least 20 active items."
           ],
@@ -470,6 +461,7 @@
           ],
           "review": [],
           "red": [
+            "2875 material(s) (44%) use Default or Imported Default Replenishment as primary vendor. Assign a real vendor before go-live.",
             "Trucks: 80 of 114 have an inventory template. Assign templates to 12 more truck(s) to reach Good."
           ]
         },
@@ -504,7 +496,7 @@
           "red": []
         }
       },
-      "updated_at": "2026-03-15T01:35:30Z"
+      "updated_at": "2026-03-15T01:45:42Z"
     },
     "2058000021": {
       "tenant_id": 2058000021,
@@ -512,7 +504,7 @@
       "lookback_days": 90,
       "is_live": false,
       "area_statuses": {
-        "Pricebook": "Review",
+        "Pricebook & setup": "Review",
         "Purchasing": "Review",
         "Invoicing": "Red",
         "Replenishment": "Red",
@@ -520,6 +512,7 @@
         "Readiness": "Red"
       },
       "action_plan": [
+        "Assign inventory templates to trucks and warehouses.",
         "Reduce pending POs; receive or close old POs.",
         "Use multi-line POs for stock orders.",
         "Add inventory materials to invoices; train office and field staff on material usage.",
@@ -680,7 +673,7 @@
         }
       },
       "findings_by_area": {
-        "Pricebook": {
+        "Pricebook & setup": {
           "green": [
             "341 material(s) have $0 cost (4.9%) \u2014 within acceptable range."
           ],
@@ -735,7 +728,7 @@
           ]
         }
       },
-      "updated_at": "2026-03-15T01:35:30Z"
+      "updated_at": "2026-03-15T01:45:42Z"
     }
   },
   "tenants_by_slug": {
