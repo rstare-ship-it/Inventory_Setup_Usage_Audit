@@ -31,6 +31,7 @@ from audit.data import (
     load_results_from_csv_folder,
     load_results_from_excel,
     load_results_from_snowflake,
+    load_results_batch_from_snowflake,
 )
 from audit.evaluate import (
     _area_status,
@@ -244,9 +245,13 @@ def main() -> int:
             if not members:
                 print(f"No tenants found for group: {args.tenant_group}", file=sys.stderr)
                 return 1
+            name_by_id = {tid: tname for tid, tname in members}
+            tenant_ids = [tid for tid, _ in members]
+            print(f"  Fetching {len(tenant_ids)} tenants (shared connection)...", file=sys.stderr)
+            batch_data = load_results_batch_from_snowflake(tenant_ids, args.lookback_days, conn=conn)
             for i, (tenant_id, tenant_name) in enumerate(members):
-                print(f"  [{i+1}/{len(members)}] {tenant_name} ({tenant_id}) ...", file=sys.stderr)
-                data = load_results_from_snowflake(tenant_id, args.lookback_days, conn=conn)
+                print(f"  [{i+1}/{len(members)}] {tenant_name} ({tenant_id})", file=sys.stderr)
+                data = batch_data.get(tenant_id, {"lookback_days": args.lookback_days})
                 lookback = _int(data.get("lookback_days")) or args.lookback_days
                 results = parse_results(data)
                 is_live = is_live_with_inventory(results)

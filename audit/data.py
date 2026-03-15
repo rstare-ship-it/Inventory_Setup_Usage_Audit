@@ -204,14 +204,8 @@ def get_tenant_group_members(conn, group_name: str) -> list[tuple[int, str]]:
     ]
 
 
-def load_results_from_snowflake(
-    tenant_id: int,
-    lookback_days: int = 90,
-    sql_path: Path | None = None,
-    conn=None,
-) -> dict:
-    """Run the combined audit query in Snowflake and return a data dict for parse_results.
-    Pass `conn` to reuse an existing connection (it will not be closed)."""
+def _read_sql_file(sql_path: Path | None = None) -> str:
+    """Read and validate the combined audit SQL template."""
     sql_file = sql_path or (Path(__file__).resolve().parent.parent / "sql" / "00_combined_audit.sql")
     if not sql_file.is_file():
         print(f"SQL file not found: {sql_file}", file=sys.stderr)
@@ -223,7 +217,24 @@ def load_results_from_snowflake(
             file=sys.stderr,
         )
         sys.exit(1)
-    sql = raw_sql.replace("SELECT 0 AS tenant_id", f"SELECT {int(tenant_id)} AS tenant_id")
+    return raw_sql
+
+
+def _build_tenant_sql(raw_sql: str, tenant_id: int) -> str:
+    """Inject a specific tenant_id into the SQL template."""
+    return raw_sql.replace("SELECT 0 AS tenant_id", f"SELECT {int(tenant_id)} AS tenant_id")
+
+
+def load_results_from_snowflake(
+    tenant_id: int,
+    lookback_days: int = 90,
+    sql_path: Path | None = None,
+    conn=None,
+) -> dict:
+    """Run the combined audit query in Snowflake and return a data dict for parse_results.
+    Pass `conn` to reuse an existing connection (it will not be closed)."""
+    raw_sql = _read_sql_file(sql_path)
+    sql = _build_tenant_sql(raw_sql, tenant_id)
 
     own_conn = conn is None
     if own_conn:
@@ -247,3 +258,49 @@ def load_results_from_snowflake(
         if own_conn:
             conn.close()
     return data
+
+
+def load_results_batch_from_snowflake(
+    tenant_ids: list[int],
+    lookback_days: int = 90,
+    sql_path: Path | None = None,
+    conn=None,
+) -> dict[int, dict]:
+    """Run the combined audit query for multiple tenants, reusing one connection.
+    Returns {tenant_id: data_dict}. Pass `conn` to reuse an existing connection.
+
+    Runs one query per tenant sequentially on the shared connection so only one
+    Okta authentication is needed for the whole group.
+    """
+    if not tenant_ids:
+        return {}
+
+    raw_sql = _read_sql_file(sql_path)
+
+    own_conn = conn is None
+    if own_conn:
+        conn = _snowflake_conn()
+
+    results: dict[int, dict] = {}
+    try:
+        for tid in tenant_ids:
+            sql = _build_tenant_sql(raw_sql, tid)
+            data: dict = {"lookback_days": lookback_days}
+            with conn.cursor() as cur:
+                cur.execute(sql)
+                rows = cur.fetchall()
+            for row in rows:
+                if not row or len(row) < 1:
+                    continue
+                source = (row[0] or "").strip().lower()
+                key = next((k for k in RESULT_KEYS if k.lower() == source), None)
+                if key:
+                    values = list(row[1:17])
+                    if len(values) < 16:
+                        values.extend([None] * (16 - len(values)))
+                    data[key] = [values[:16]]
+            results[tid] = data
+    finally:
+        if own_conn:
+            conn.close()
+    return results
