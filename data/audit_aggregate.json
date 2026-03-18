@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-03-18T16:11:27Z",
+  "updated_at": "2026-03-18T21:50:04Z",
   "lookback_days": 90,
   "tenants_by_id": {
     "498902358": {
@@ -2916,6 +2916,229 @@
         }
       },
       "updated_at": "2026-03-18T16:11:27Z"
+    },
+    "1798923800": {
+      "tenant_id": 1798923800,
+      "tenant_name": "crosslakesheetmetalheatingandairconditioningllc",
+      "lookback_days": 90,
+      "is_live": false,
+      "area_statuses": {
+        "Pricebook & setup": "Green",
+        "Purchasing": "Review",
+        "Invoicing": "Green",
+        "Replenishment": "Red",
+        "Returns": "Red",
+        "Readiness": "Red"
+      },
+      "action_plan": [
+        "Complete open replenishments.",
+        "Resolve pending returns and issue credits."
+      ],
+      "results": {
+        "tenant_id": 1798923800,
+        "tenant_name": "crosslakesheetmetalheatingandairconditioningllc",
+        "pricebook": {
+          "material_count": 2510,
+          "materials_with_cost": 2472,
+          "materials_zero_cost": 38,
+          "materials_with_vendor_link": 2510,
+          "materials_with_primary_vendor": 2510,
+          "primary_vendor_default_replenishment": 404
+        },
+        "total_pending_pos": 0,
+        "po_activity": {
+          "po_created_in_period": 0,
+          "earliest_po": null,
+          "latest_po": null
+        },
+        "purchase_orders": {
+          "by_status": {
+            "0": 0,
+            "1": 0,
+            "2": 0,
+            "3": 0,
+            "4": 0,
+            "5": 0,
+            "6": 0
+          },
+          "pending_count": 0,
+          "completed_count": 0
+        },
+        "po_line_quality": {
+          "po_count": 0,
+          "pos_with_one_line_only": 0,
+          "total_line_items": 0,
+          "line_items_placeholder_like": 0
+        },
+        "pending_pos_over_90_days": 0,
+        "invoice_materials": {
+          "material_line_count": 6081,
+          "invoices_with_materials": 513,
+          "material_lines_added_by_technician": 5701,
+          "material_lines_placeholder_like": 38,
+          "invoices_total_gt_zero": 1712,
+          "invoices_gt_zero_with_material": 0,
+          "material_lines_IsInventory": 0,
+          "material_lines_zero_cost": 0,
+          "material_lines_from_transfer": 0,
+          "distinct_IsInventory_materials_used_90d": 0
+        },
+        "replenishment_summary": {
+          "open_count": 0,
+          "completed_in_lookback": 0,
+          "used_materials_can_be_replenished": 26022
+        },
+        "total_pending_returns": 4,
+        "returns_activity": {
+          "returns_in_period": 0,
+          "earliest_return": null,
+          "latest_return": null
+        },
+        "returns_by_status": {
+          "0": 0,
+          "1": 0,
+          "2": 0,
+          "3": 0
+        },
+        "pending_returns_over_90_days": 4,
+        "readiness_config": {
+          "purchasing_module_on": true,
+          "inventory_module_on": true
+        },
+        "isinventory_counts": {
+          "active_materials_count": 2510,
+          "active_equipment_count": 0,
+          "materials_isinventory_count": 0,
+          "equipment_isinventory_count": 0
+        },
+        "inventory_tracking_start_date": null,
+        "feature_gates": {
+          "item_requisitions": false,
+          "requisition_closeout": true,
+          "install_requisitions": false,
+          "transfers_to_jobs": false,
+          "consignment": false,
+          "purchase_approval_workflow": false,
+          "granular_wac": false
+        },
+        "materials_with_unit_of_measure": 0,
+        "equipment_serialized_count": 0,
+        "inventory_settings": {
+          "BeginningDate": null,
+          "IsBeginningDateStarted": false,
+          "AllowNegativeQuantityOnHand": false,
+          "OnlyReplenishMax": false,
+          "QbdInventoryAdjustmentAccountId": null,
+          "IsSerializedTrackingEnabled": false,
+          "IsSerialNumbersBulkUploadEnabled": false,
+          "IsBinTrackingEnabled": false,
+          "IsSubAccountEnabled": false,
+          "TrackingDisposition": null,
+          "InventoryValuationMethod": 0,
+          "AllowNegativeQuantityOnInvoice": false,
+          "DontAutomaticallyCreateBills": false,
+          "HideCostOnMobilePurchaseOrders": false,
+          "AllowCopyingPoItemsToInvoice": false,
+          "PoItemCostCopyOption": 0,
+          "PrintPoInLandscape": false,
+          "PrintPoMinWidthLandscape": 1920,
+          "PrintPoMinWidthPortrait": 1280,
+          "ShowItemDescriptionWhenExportingPo": false,
+          "AutoApplyTagsToJobsBasedOnPoStatus": false,
+          "IsInventoryMobileAppEnabled": false,
+          "DisplayServicesOnInvoiceCloseout": false,
+          "IsConsignmentInventoryTrackingEnabled": false,
+          "DefaultConsignmentBusinessUnitId": null,
+          "IsMobileStorageEnabled": false,
+          "AutoAssignTruckToJobTransfers": false,
+          "SendUserNotificationsForPurchaseOrderReview": false,
+          "SendApproverNotificationsForPurchaseOrderRequest": false,
+          "PurchaseOrderApprovalField": 0,
+          "RequisitionDateNeededByType": 0,
+          "PurchaseOrderApprovalEditModel": null,
+          "SenderContacts": null,
+          "DisplayTaxesAndShippingOnPurchaseOrdersOnPdf": false,
+          "AutoApplyTagsToJobsBasedOnTransferStatus": false,
+          "WeightedAverageTrackByWarehouse": false,
+          "IsWarehouseSitesEnabled": false,
+          "MaintainEstimateCostThroughRequisition": false,
+          "EnableUnitOfMeasure": false,
+          "WosTrailingWeeks": 8,
+          "WosOverageWeeks": 12,
+          "StockHealthCategoryEditModel": null
+        },
+        "setup_data": {
+          "truck_total": 41,
+          "truck_with_template": 0,
+          "warehouse_total": 1,
+          "warehouse_with_template": 0,
+          "templates_under_20_active_items": 0
+        },
+        "usage_checks": {
+          "replenishment_older_than_30_days": 0,
+          "pending_transfers_older_than_14_days": 0,
+          "requisitions_older_than_90_days": 0,
+          "past_due_inventory_counts": 0,
+          "negative_balance_count": 0,
+          "direct_adjustments_in_90_days": 0,
+          "warehouses_no_completed_count_90d": 1,
+          "completed_transfers_in_90_days": 0
+        }
+      },
+      "findings_by_area": {
+        "Pricebook & setup": {
+          "green": [
+            "38 material(s) have $0 cost (1.5%) \u2014 within acceptable range.",
+            "404 material(s) use Default/Imported Default Replenishment as primary (16.1%) \u2014 within acceptable range."
+          ],
+          "yellow": [],
+          "review": [],
+          "red": []
+        },
+        "Purchasing": {
+          "green": [
+            "Pending POs: 0 of 20 allowed."
+          ],
+          "yellow": [],
+          "review": [],
+          "red": [
+            "No POs created in the last 90 days. Start creating and receiving purchase orders."
+          ]
+        },
+        "Replenishment": {
+          "green": [],
+          "yellow": [],
+          "review": [],
+          "red": [
+            "Replenishment: 0 open, 0 completed in last 90 days. No replenishment activity in lookback period."
+          ]
+        },
+        "Returns": {
+          "green": [],
+          "yellow": [
+            "Returns: 0 credit received of 0 in last 90 days. 4 pending.; 4 older than 90 days. Resolve aged returns to reach Good."
+          ],
+          "review": [],
+          "red": []
+        },
+        "Invoicing": {
+          "green": [
+            "Technician-added materials: 5701 of 6081 invoice material line(s) (93%) added by a technician."
+          ],
+          "yellow": [],
+          "review": [],
+          "red": []
+        },
+        "Readiness": {
+          "green": [],
+          "yellow": [],
+          "review": [],
+          "red": [
+            "Not yet ready for inventory implementation. Complete the following: Start creating and receiving purchase orders."
+          ]
+        }
+      },
+      "updated_at": "2026-03-18T21:50:04Z"
     }
   },
   "tenants_by_slug": {
@@ -2929,6 +3152,7 @@
     "mainstreamelectric": "112125060",
     "radiantplumbing": "14419777",
     "schneider72degrees": "1792689863",
-    "bonfeplumbingheatingcoolingelectric": "787425337"
+    "bonfeplumbingheatingcoolingelectric": "787425337",
+    "crosslakesheetmetalheatingandairconditioningllc": "1798923800"
   }
 }
